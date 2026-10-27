@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+/* Único sitio donde viven los colores. Cambiar el acento es editar una línea. */
+@theme {
+  --color-void: #000000;
+  --color-bone-white: #ffffff;
+  --color-ash-gray: #9a9a9a;
+  --color-silver-mist: #bdbdbd;
+  --color-electric-iris: #8052ff;
+  --color-saffron-spark: #ffb829;
+  --color-deep-verdant: #15846e;
+  --color-orbit-teal: #2bbf9f;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-bone-white);
+  }
+}
