@@ -1,0 +1,626 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Observatorio de órbitas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: observatorio nocturno. Escena 3D a sangre en la cabecera, el resto se apoya en ella. */
+:root{color-scheme:dark;--bg:#060a11;--panel:#0b121c;--fg:#e8eef7;--muted:#93a2b8;--line:#17212f;--line-strong:#2c3c52;--accent:#6ff2d4;--on-accent:#04110d;--b0:#6ff2d4;--b1:#ff7e6b;--b2:#8db5ff;--r:999px;--font-display:'Familjen Grotesk',system-ui,sans-serif;--font-body:'Familjen Grotesk',system-ui,sans-serif;--font-mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.55 var(--font-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+.wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.05}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+canvas:focus-visible{outline-offset:-3px}
+.mono{font-family:var(--font-mono)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.btn{font:500 13px/1 var(--font-mono);padding:11px 15px;min-height:42px;border:1px solid var(--line-strong);background:transparent;color:var(--fg);border-radius:var(--r);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn-main{background:var(--accent);color:var(--on-accent);border-color:var(--accent);min-width:104px}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden}
+.seg button{font:500 13px/1 var(--font-mono);min-height:40px;min-width:46px;padding:0 10px;background:transparent;color:var(--muted);border:0;border-right:1px solid var(--line-strong);cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+.ctl{display:grid;gap:14px}
+.ctl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.rng{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font:400 12px/1.4 var(--font-mono);color:var(--muted)}
+.rng output{color:var(--fg)}
+.rng input{grid-column:1/-1;width:100%;accent-color:var(--accent);height:30px;margin:0}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:7px 20px;margin:0;font:400 13px/1.4 var(--font-mono)}
+.meta dt{color:var(--muted)}
+.meta dd{margin:0;min-width:0;overflow-wrap:anywhere}
+
+.thumb{display:block;width:100%;height:auto}
+.thumb path{fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.thumb .p0{stroke:var(--b0)}.thumb .p1{stroke:var(--b1)}.thumb .p2{stroke:var(--b2)}
+.card{text-decoration:none;color:inherit;display:block}
+.card-body{display:grid;gap:2px}
+.card-idx{font:500 11px/1 var(--font-mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.card-name{font:600 20px/1.15 var(--font-display)}
+.card-meta{font:400 12px/1.4 var(--font-mono);color:var(--muted)}
+
+.ley{display:grid;gap:18px;min-width:0}
+.ley svg{display:block;width:100%;height:auto;max-height:260px}
+.ley-axis,.ley-ticks line{stroke:var(--line-strong);stroke-width:1}
+.ley-body{stroke:var(--bg);stroke-width:2}
+.ley-body.b0{fill:var(--b0)}.ley-body.b1{fill:var(--b1);cursor:ew-resize;touch-action:none}
+.ley-arrow{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ley-arrow.a0{stroke:var(--b0)}.ley-arrow.a1{stroke:var(--b1)}
+.ley-lbl,.ley-r{font:500 13px var(--font-mono);fill:var(--muted)}
+.ley-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 32px;align-items:start}
+.ley-in{display:grid;gap:6px;min-width:0}
+.ley-out{display:grid;gap:8px;min-width:0}
+.ley-f{font:600 clamp(28px,4vw,40px)/1 var(--font-display)}
+.ley-f span{font:400 13px var(--font-mono);color:var(--muted)}
+.ley-t{font-size:14px;color:var(--muted);max-width:44ch}
+@media (max-width:720px){.ley-grid{grid-template-columns:minmax(0,1fr)}}
+.foot{font:400 12px/1.6 var(--font-mono);color:var(--muted)}
+
+.top{position:absolute;inset:0 0 auto 0;z-index:3;pointer-events:none}
+.top .wrap{display:flex;justify-content:space-between;align-items:center;padding-block:max(18px,env(safe-area-inset-top,0px)) 0;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font:700 18px var(--font-display);letter-spacing:-.01em;pointer-events:auto;text-decoration:none}
+.brand i{display:flex;gap:3px}.brand i b{width:9px;height:9px;border-radius:50%}
+.brand i b:nth-child(1){background:var(--b0)}.brand i b:nth-child(2){background:var(--b1)}.brand i b:nth-child(3){background:var(--b2)}
+.nav{display:flex;gap:6px;pointer-events:auto}
+.nav a{font:500 13px var(--font-mono);color:var(--muted);text-decoration:none;padding:10px 12px;border-radius:var(--r)}
+.nav a:hover{color:var(--fg)}
+.hero{position:relative;height:clamp(560px,86vh,780px);border-bottom:1px solid var(--line);background:radial-gradient(60% 70% at 72% 42%,#0e2230 0%,transparent 70%),var(--bg);overflow:hidden}
+.hero .stage{position:absolute;inset:0}
+.hero-text{position:absolute;inset:auto 0 0 0;z-index:2;pointer-events:none}
+.hero-text .wrap{padding-bottom:clamp(28px,6vh,56px);display:grid;gap:18px}
+.kicker{font:500 12px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(44px,8vw,104px);font-weight:700;letter-spacing:-.035em;max-width:11ch;line-height:.95}
+.hero p{max-width:44ch;color:var(--muted);font-size:clamp(16px,1.6vw,19px)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:400 12px var(--font-mono);border:1px solid var(--line-strong);border-radius:var(--r);padding:7px 12px;color:var(--fg);background:rgba(6,10,17,.6)}
+section{padding-block:clamp(48px,9vw,96px)}
+.sec-head{display:grid;gap:10px;margin-bottom:28px}
+.sec-head h2{font-size:clamp(30px,4.4vw,52px);letter-spacing:-.025em}
+.sec-head p{color:var(--muted);max-width:56ch}
+.formula{font:500 clamp(22px,3vw,32px) var(--font-display);letter-spacing:.01em}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:clamp(16px,3vw,28px)}
+.ley-wrap{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr);gap:clamp(24px,5vw,64px);align-items:center}
+.ley-wrap .sec-head{margin:0}
+@media (max-width:900px){.ley-wrap{grid-template-columns:minmax(0,1fr)}}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+.card[aria-current=true]{border-color:var(--accent)}
+.card-art{display:block;padding:16px;background:radial-gradient(circle at 50% 50%,#0f1c2b,#080d15)}
+.card-body{padding:14px 18px 18px}
+.detalle{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:start}
+.det-stage{aspect-ratio:4/3;min-height:320px;width:100%;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:radial-gradient(70% 70% at 50% 45%,#0c1b2a,#060a11)}
+.det-info{display:grid;gap:22px;min-width:0}
+.det-info h2{font-size:clamp(32px,4.6vw,56px);letter-spacing:-.03em}
+.det-info p{color:var(--muted)}
+@media (max-width:900px){.detalle{grid-template-columns:minmax(0,1fr)}}
+footer{border-top:1px solid var(--line);padding-block:28px max(28px,env(safe-area-inset-bottom,0px))}
+</style>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#"><i aria-hidden="true"><b></b><b></b><b></b></i>órbitas</a>
+  <nav class="nav" aria-label="Principal"><a href="#ley">La ley</a><a href="#galeria">Galería</a><a href="#detalle">Detalle</a></nav>
+</div></header>
+
+<main>
+<div class="hero">
+  <div class="stage" id="hero-scene"></div>
+  <div class="hero-text"><div class="wrap">
+    <span class="kicker">Gravitación universal</span>
+    <h1>Tres cuerpos, una sola curva.</h1>
+    <p>Esta es la figura de ocho: tres masas iguales persiguiéndose por el mismo camino, para siempre.</p>
+    <div class="chips"><span class="chip">Arrastra para girar</span><span class="chip" id="hero-chip">T 6,326 · E −1,287</span></div>
+  </div></div>
+</div>
+
+<section id="ley"><div class="wrap ley-wrap">
+  <div class="sec-head">
+    <span class="kicker">Parte A</span>
+    <h2>La ley, con las manos</h2>
+    <p>Dos masas se atraen con una fuerza que crece con cada masa y cae con el cuadrado de la distancia.</p>
+    <div class="formula" aria-label="F igual a G por m uno por m dos entre r al cuadrado">F = G · m₁ · m₂ / r²</div>
+  </div>
+  <div class="panel" id="ley-root"></div>
+</div></section>
+
+<section id="galeria" style="padding-top:0"><div class="wrap">
+  <div class="sec-head">
+    <span class="kicker">Parte B</span>
+    <h2>Seis órbitas que no se acaban</h2>
+    <p>Condiciones iniciales concretas para las que los tres cuerpos repiten su recorrido sin fin.</p>
+  </div>
+  <div class="cards" id="cards"></div>
+</div></section>
+
+<section id="detalle" style="padding-top:0"><div class="wrap detalle">
+  <div class="det-stage" id="det-scene"></div>
+  <div class="det-info">
+    <div><span class="kicker" id="det-cred"></span><h2 id="det-name" style="margin-top:10px"></h2></div>
+    <p id="det-desc"></p>
+    <div id="det-meta"></div>
+    <div id="det-ctl"></div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap foot" id="foot"></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>/* ===== Núcleo compartido: física + escena three.js + controles ===== */
+(function () {
+'use strict';
+var TAU = Math.PI * 2;
+var W3 = Math.pow(3, -0.25); // velocidad angular de Lagrange con r=1, G=1, m=1
+
+function base(vx, vy) { return { p: [-1, 0, 1, 0, 0, 0], v: [vx, vy, vx, vy, -2 * vx, -2 * vy] }; }
+var lagP = [], lagV = [];
+[0, 1, 2].forEach(function (k) {
+  var a = Math.PI / 2 + k * TAU / 3;
+  lagP.push(Math.cos(a), Math.sin(a));
+  lagV.push(-W3 * Math.sin(a), W3 * Math.cos(a));
+});
+
+var ORBITAS = [
+  { slug: 'lagrange', nombre: 'Lagrange', T: TAU / W3, p: lagP, v: lagV,
+    desc: 'Los tres cuerpos forman un triángulo equilátero que gira como un sólido rígido. Es una de las pocas soluciones con fórmula exacta.',
+    cred: 'Lagrange, 1772' },
+  { slug: 'figura-de-ocho', nombre: 'Figura de ocho', T: 6.32591398, p: base(0.347111, 0.532728).p, v: base(0.347111, 0.532728).v,
+    desc: 'Los tres cuerpos recorren la misma curva en forma de ocho, uno detrás de otro. La halló Moore por ordenador en 1993 y la demostraron Chenciner y Montgomery en 2000.',
+    cred: 'Moore 1993 · Chenciner y Montgomery 2000' },
+  { slug: 'butterfly-i', nombre: 'Butterfly I', T: 6.2356, p: base(0.30689, 0.12551).p, v: base(0.30689, 0.12551).v,
+    desc: 'Lazos que recuerdan a las alas de una mariposa. Pertenece a la familia de órbitas halladas numéricamente en 2013.',
+    cred: 'Šuvakov y Dmitrašinović, 2013' },
+  { slug: 'goggles', nombre: 'Goggles', T: 10.4668, p: base(0.08330, 0.12789).p, v: base(0.08330, 0.12789).v,
+    desc: 'Dos lóbulos que recuerdan a unas gafas de buceo. Hallada en 2013 con el mismo método de búsqueda numérica.',
+    cred: 'Šuvakov y Dmitrašinović, 2013' },
+  { slug: 'moth-i', nombre: 'Moth I', T: 14.8939, p: base(0.46444, 0.39606).p, v: base(0.46444, 0.39606).v,
+    desc: 'Un recorrido largo y entrelazado que recuerda a una polilla. Es de las de periodo más largo de la galería.',
+    cred: 'Šuvakov y Dmitrašinović, 2013' },
+  { slug: 'yin-yang-i', nombre: 'Yin-Yang I', T: 17.3284, p: base(0.51394, 0.30474).p, v: base(0.51394, 0.30474).v,
+    desc: 'Trayectorias que se cruzan como el símbolo del yin y el yang. Variante Ia de la familia hallada en 2013.',
+    cred: 'Šuvakov y Dmitrašinović, 2013' }
+];
+
+/* ---------- Física (RK4, masas 1, G = 1) ---------- */
+function deriv(y, o) {
+  o[0] = y[6]; o[1] = y[7]; o[2] = y[8]; o[3] = y[9]; o[4] = y[10]; o[5] = y[11];
+  for (var i = 0; i < 6; i++) o[6 + i] = 0;
+  for (var a = 0; a < 3; a++) for (var b = a + 1; b < 3; b++) {
+    var dx = y[b * 2] - y[a * 2], dy = y[b * 2 + 1] - y[a * 2 + 1];
+    var r2 = dx * dx + dy * dy, k = 1 / (r2 * Math.sqrt(r2));
+    o[6 + a * 2] += dx * k; o[7 + a * 2] += dy * k;
+    o[6 + b * 2] -= dx * k; o[7 + b * 2] -= dy * k;
+  }
+}
+function rk4(y, h, t) {
+  var k1 = t.k1, k2 = t.k2, k3 = t.k3, k4 = t.k4, s = t.s, i;
+  deriv(y, k1);
+  for (i = 0; i < 12; i++) s[i] = y[i] + 0.5 * h * k1[i];
+  deriv(s, k2);
+  for (i = 0; i < 12; i++) s[i] = y[i] + 0.5 * h * k2[i];
+  deriv(s, k3);
+  for (i = 0; i < 12; i++) s[i] = y[i] + h * k3[i];
+  deriv(s, k4);
+  for (i = 0; i < 12; i++) y[i] += h / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+}
+/* RK4 con duplicación de paso: acepta el paso si la diferencia entre un paso h y dos de h/2 queda bajo la tolerancia */
+function calcular(o) {
+  var N = 720, dt = o.T / N, TOL = 1e-10;
+  var y = new Float64Array(o.p.concat(o.v));
+  var t = { k1: new Float64Array(12), k2: new Float64Array(12), k3: new Float64Array(12), k4: new Float64Array(12), s: new Float64Array(12) };
+  var yA = new Float64Array(12), yB = new Float64Array(12);
+  var S = new Float64Array((N + 1) * 12), R = 0, n, i, tt, h = dt / 8, err, pasos = 0;
+  S.set(y, 0);
+  for (n = 1; n <= N; n++) {
+    tt = 0;
+    while (tt < dt - 1e-14) {
+      if (tt + h > dt) h = dt - tt;
+      yA.set(y); rk4(yA, h, t);
+      yB.set(y); rk4(yB, h / 2, t); rk4(yB, h / 2, t);
+      err = 0;
+      for (i = 0; i < 12; i++) err = Math.max(err, Math.abs(yA[i] - yB[i]));
+      if (err <= TOL) { y.set(yB); tt += h; pasos++; }
+      h *= clamp(0.9 * Math.pow(TOL / Math.max(err, 1e-300), 0.2), 0.3, 2);
+    }
+    S.set(y, n * 12);
+    for (i = 0; i < 6; i += 2) R = Math.max(R, Math.hypot(y[i], y[i + 1]));
+  }
+  o.S = S; o.N = N; o.R = Math.max(R, 1); o.pasos = pasos;
+  o.E = energia(S.subarray(0, 12));
+}
+function energia(y) {
+  var ke = 0, pe = 0, i;
+  for (i = 6; i < 12; i++) ke += 0.5 * y[i] * y[i];
+  pe = -(1 / Math.hypot(y[0] - y[2], y[1] - y[3]) + 1 / Math.hypot(y[0] - y[4], y[1] - y[5]) + 1 / Math.hypot(y[2] - y[4], y[3] - y[5]));
+  return ke + pe;
+}
+function metricas(y) {
+  return {
+    E: energia(y),
+    P: Math.hypot(y[6] + y[8] + y[10], y[7] + y[9] + y[11]),
+    dmin: Math.min(Math.hypot(y[0] - y[2], y[1] - y[3]), Math.hypot(y[0] - y[4], y[1] - y[5]), Math.hypot(y[2] - y[4], y[3] - y[5])),
+    vmax: Math.max(Math.hypot(y[6], y[7]), Math.hypot(y[8], y[9]), Math.hypot(y[10], y[11]))
+  };
+}
+function estado(o, u, out) {
+  var x = clamp(u, 0, 0.999999) * o.N, i = Math.floor(x), f, a, b, k, S = o.S;
+  if (i >= o.N) i = o.N - 1;
+  f = x - i; a = i * 12; b = a + 12;
+  for (k = 0; k < 12; k++) out[k] = S[a + k] + (S[b + k] - S[a + k]) * f;
+  return out;
+}
+var t0 = performance.now();
+ORBITAS.forEach(calcular);
+var MS_CALCULO = Math.round(performance.now() - t0);
+
+/* ---------- Utilidades ---------- */
+function fmt(x, d) {
+  return x.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }).replace('-', '−');
+}
+function clamp(x, a, b) { return Math.min(b, Math.max(a, x)); }
+function porSlug(s) { for (var i = 0; i < ORBITAS.length; i++) if (ORBITAS[i].slug === s) return ORBITAS[i]; return null; }
+
+function miniatura(o) {
+  var s = o.R * 1.12, paths = '', b, n, d;
+  for (b = 0; b < 3; b++) {
+    d = '';
+    for (n = 0; n <= o.N; n += 4) {
+      d += (n ? 'L' : 'M') + o.S[n * 12 + b * 2].toFixed(3) + ' ' + (-o.S[n * 12 + b * 2 + 1]).toFixed(3);
+    }
+    paths += '<path class="p' + b + '" d="' + d + '"/>';
+  }
+  return '<svg class="thumb" viewBox="' + (-s) + ' ' + (-s) + ' ' + (2 * s) + ' ' + (2 * s) + '" aria-hidden="true" focusable="false">' + paths + '</svg>';
+}
+
+/* ---------- Escena three.js ---------- */
+function glowTex() {
+  var c = document.createElement('canvas'); c.width = c.height = 64;
+  var g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+}
+
+function Escena(host, op) {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setClearColor(0x000000, 0);
+  var cv = renderer.domElement;
+  cv.tabIndex = 0;
+  cv.setAttribute('role', 'img');
+  cv.setAttribute('aria-label', op.label || 'Simulación de tres cuerpos. Arrastra para girar, usa las flechas del teclado para girar y + o - para acercar.');
+  cv.style.cssText = 'display:block;width:100%;height:100%;touch-action:' + (op.touch || 'none') + ';cursor:grab';
+  host.appendChild(cv);
+
+  var scene = new THREE.Scene();
+  var cam = new THREE.PerspectiveCamera(40, 1, 0.1, 400);
+  cam.up.set(0, 0, 1);
+  var view = { th: 0.6, ph: 1.0, rad: 6, target: 6 };
+  var colors = op.colors.map(function (c) { return new THREE.Color(c); });
+  var fade = new THREE.Color(op.fade || '#000000');
+  var blending = op.additive ? THREE.AdditiveBlending : THREE.NormalBlending;
+  var tex = glowTex();
+
+  var sphereGeo = new THREE.SphereGeometry(1, 20, 14);
+  var bodies = [], trails = [], i;
+  for (i = 0; i < 3; i++) {
+    var m = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: colors[i] }));
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color: colors[i], blending: blending, transparent: true, depthWrite: false, opacity: op.additive ? 0.9 : 0.35 }));
+    m.add(sp); scene.add(m); bodies.push({ mesh: m, glow: sp });
+  }
+  var MAXP = 721;
+  var VS = 'attribute vec3 aColor;attribute float alpha;attribute float idx;uniform float size;uniform float step;varying vec3 vC;varying float vA;void main(){vC=aColor;vA=(step>1.5&&mod(idx,step)>0.5)?0.0:alpha;gl_PointSize=size;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}';
+  var FSP = 'varying vec3 vC;varying float vA;void main(){float d=length(gl_PointCoord-0.5);if(d>0.5)discard;gl_FragColor=vec4(vC,vA*smoothstep(0.5,0.15,d));}';
+  var useTri = !!op.tri;
+  var FSL = 'varying vec3 vC;varying float vA;void main(){gl_FragColor=vec4(vC,vA*' + (useTri ? '0.2' : '0.9') + ');}';
+  var FST = 'varying vec3 vC;varying float vA;void main(){vec2 p=gl_PointCoord*2.0-1.0;p.y=-p.y;vec2 q=vec2(p.x*1.25,p.y*1.25+0.29);float k=1.7320508;q.x=abs(q.x)-1.0;q.y=q.y+1.0/k;if(q.x+k*q.y>0.0)q=vec2(q.x-k*q.y,-k*q.x-q.y)/2.0;q.x-=clamp(q.x,-2.0,0.0);float d=-length(q)*sign(q.y);float a=1.0-smoothstep(0.04,0.15,abs(d));if(a<0.01)discard;gl_FragColor=vec4(vC,vA*a);}';
+  var dpr = renderer.getPixelRatio();
+  var ptSize = useTri ? (op.triSize || 8) : (op.pointSize || 2.2), ptStep = useTri ? (op.triStep || 6) : 1;
+  function mat(fs, size, step) { return new THREE.ShaderMaterial({ vertexShader: VS, fragmentShader: fs, uniforms: { size: { value: size * dpr }, step: { value: step } }, transparent: true, depthWrite: false, blending: blending }); }
+  for (i = 0; i < 3; i++) {
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(MAXP * 3), 3));
+    geo.setAttribute('aColor', new THREE.BufferAttribute(new Float32Array(MAXP * 3), 3));
+    geo.setAttribute('alpha', new THREE.BufferAttribute(new Float32Array(MAXP), 1));
+    var ia = new Float32Array(MAXP); for (var qi = 0; qi < MAXP; qi++) ia[qi] = qi;
+    geo.setAttribute('idx', new THREE.BufferAttribute(ia, 1));
+    var line = new THREE.Line(geo, mat(FSL, 1, 1));
+    var pts = new THREE.Points(geo, mat(useTri ? FST : FSP, ptSize, ptStep));
+    line.frustumCulled = pts.frustumCulled = false;
+    scene.add(line); scene.add(pts); trails.push({ geo: geo, line: line, pts: pts });
+  }
+  var grid = null;
+  if (op.grid) {
+    grid = new THREE.GridHelper(4, 16, new THREE.Color(op.grid), new THREE.Color(op.grid));
+    grid.rotation.x = Math.PI / 2; grid.material.transparent = true; grid.material.opacity = op.gridOpacity || 0.5;
+    scene.add(grid);
+  }
+  if (op.stars) {
+    var sg = new THREE.BufferGeometry(), sv = new Float32Array(420 * 3), k, a, b, r;
+    for (k = 0; k < 420; k++) {
+      a = Math.random() * TAU; b = Math.acos(2 * Math.random() - 1); r = 80 + Math.random() * 60;
+      sv[k * 3] = r * Math.sin(b) * Math.cos(a); sv[k * 3 + 1] = r * Math.sin(b) * Math.sin(a); sv[k * 3 + 2] = r * Math.cos(b);
+    }
+    sg.setAttribute('position', new THREE.BufferAttribute(sv, 3));
+    scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: op.stars, size: 1.2, sizeAttenuation: false, transparent: true, opacity: 0.7, depthWrite: false })));
+  }
+
+  if (op.ambient) {
+    var an = op.ambient, ag = new THREE.BufferGeometry(), ap = new Float32Array(an * 3), ac = new Float32Array(an * 3), aa = new Float32Array(an), ai = new Float32Array(an), ak, rr, t2, p2, cc;
+    var pal = (op.ambientColors || op.colors).map(function (c) { return new THREE.Color(c); });
+    for (ak = 0; ak < an; ak++) {
+      rr = 4.5 + Math.random() * 11; t2 = Math.random() * TAU; p2 = Math.acos(2 * Math.random() - 1);
+      ap[ak * 3] = rr * Math.sin(p2) * Math.cos(t2); ap[ak * 3 + 1] = rr * Math.sin(p2) * Math.sin(t2); ap[ak * 3 + 2] = rr * Math.cos(p2);
+      cc = pal[ak % pal.length]; ac[ak * 3] = cc.r; ac[ak * 3 + 1] = cc.g; ac[ak * 3 + 2] = cc.b;
+      aa[ak] = 0.18 + Math.random() * 0.4; ai[ak] = ak;
+    }
+    ag.setAttribute('position', new THREE.BufferAttribute(ap, 3)); ag.setAttribute('aColor', new THREE.BufferAttribute(ac, 3));
+    ag.setAttribute('alpha', new THREE.BufferAttribute(aa, 1)); ag.setAttribute('idx', new THREE.BufferAttribute(ai, 1));
+    var amb = new THREE.Points(ag, mat(FST, op.ambientSize || 7, 1)); amb.frustumCulled = false; scene.add(amb);
+  }
+  var orb = null, u = 0, playing = !reduce, speed = 1, trailFrac = op.trail || 0.45, cacheL = -1;
+  var tmp = new Float64Array(12), cbs = [], aspect = 1;
+
+  function fit() { return aspect < 1 ? 1 / Math.max(aspect, 0.55) : 1; }
+  function setOrbita(o) {
+    orb = o; u = 0; cacheL = -1;
+    var R = o.R;
+    bodies.forEach(function (bd) { bd.mesh.scale.setScalar(R * 0.055); bd.glow.scale.setScalar(5.5); });
+    if (grid) grid.scale.setScalar(Math.max(0.9, R / 1.4));
+    view.target = R * 3.3 * fit();
+  }
+  function paintColors(L) {
+    var col, al, j, b;
+    for (b = 0; b < 3; b++) {
+      col = trails[b].geo.attributes.aColor.array; al = trails[b].geo.attributes.alpha.array;
+      for (j = 0; j < L; j++) {
+        col[j * 3] = colors[b].r; col[j * 3 + 1] = colors[b].g; col[j * 3 + 2] = colors[b].b;
+        al[j] = Math.pow(j / (L - 1), 1.6);
+      }
+      trails[b].geo.attributes.aColor.needsUpdate = true; trails[b].geo.attributes.alpha.needsUpdate = true;
+    }
+  }
+  function update() {
+    var S = orb.S, N = orb.N, L = Math.max(3, Math.round(trailFrac * N)), b, j, idx, pos, age, i0;
+    estado(orb, u, tmp);
+    i0 = Math.floor(u * N);
+    if (L !== cacheL) { paintColors(L); cacheL = L; }
+    for (b = 0; b < 3; b++) {
+      pos = trails[b].geo.attributes.position.array;
+      for (j = 0; j < L; j++) {
+        age = L - 1 - j;
+        if (age === 0) { pos[j * 3] = tmp[b * 2]; pos[j * 3 + 1] = tmp[b * 2 + 1]; }
+        else { idx = ((i0 - (age - 1)) % N + N) % N; pos[j * 3] = S[idx * 12 + b * 2]; pos[j * 3 + 1] = S[idx * 12 + b * 2 + 1]; }
+        pos[j * 3 + 2] = 0;
+      }
+      trails[b].geo.attributes.position.needsUpdate = true;
+      trails[b].geo.setDrawRange(0, L);
+      bodies[b].mesh.position.set(tmp[b * 2], tmp[b * 2 + 1], 0);
+    }
+  }
+  function place() {
+    cam.position.set(view.rad * Math.sin(view.ph) * Math.cos(view.th), view.rad * Math.sin(view.ph) * Math.sin(view.th), view.rad * Math.cos(view.ph));
+    cam.lookAt(0, 0, 0);
+  }
+
+  var raf = 0, last = 0, vis = true, lastInt = -1e9;
+  function frame(t) {
+    if (!vis || document.hidden) { raf = 0; return; }
+    raf = requestAnimationFrame(frame);
+    var dt = Math.max(0, Math.min(0.05, (t - last) / 1000)); last = t;
+    if (playing) u = ((u + dt * speed / orb.T) % 1 + 1) % 1;
+    if (op.auto && !reduce && t - lastInt > 2500) view.th += dt * 0.1;
+    view.rad += (view.target - view.rad) * Math.min(1, dt * 6);
+    update(); place(); renderer.render(scene, cam);
+    for (var c = 0; c < cbs.length; c++) cbs[c](u, tmp);
+  }
+  function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+
+  new IntersectionObserver(function (e) { vis = e[0].isIntersecting; if (vis) start(); }, { threshold: 0.01 }).observe(host);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) start(); });
+  new ResizeObserver(function () {
+    var w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+    renderer.setSize(w, h, false); aspect = w / h; cam.aspect = aspect; cam.updateProjectionMatrix();
+    if (orb) view.target = orb.R * 3.3 * fit();
+  }).observe(host);
+
+  /* interacción: arrastrar, pellizcar, rueda, teclado */
+  var ptrs = new Map(), pinch = 0;
+  function d2() { var a = Array.from(ptrs.values()); return Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); }
+  function limitRad() { view.target = clamp(view.target, orb.R * 1.6, orb.R * 10); }
+  cv.addEventListener('pointerdown', function (e) {
+    cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size === 2) pinch = d2(); lastInt = performance.now(); cv.style.cursor = 'grabbing';
+  });
+  cv.addEventListener('pointermove', function (e) {
+    var p = ptrs.get(e.pointerId); if (!p) return;
+    var dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if (ptrs.size === 1) {
+      view.th -= dx * 0.008;
+      if (op.touch !== 'pan-y' || e.pointerType === 'mouse') view.ph = clamp(view.ph - dy * 0.008, 0.12, Math.PI - 0.12);
+    } else if (ptrs.size === 2) {
+      var d = d2(); if (pinch) { view.target *= pinch / d; limitRad(); } pinch = d;
+    }
+    lastInt = performance.now();
+  });
+  function endp(e) { ptrs.delete(e.pointerId); pinch = 0; cv.style.cursor = 'grab'; }
+  cv.addEventListener('pointerup', endp); cv.addEventListener('pointercancel', endp);
+  if (op.wheel) cv.addEventListener('wheel', function (e) { e.preventDefault(); view.target *= Math.exp(e.deltaY * 0.0012); limitRad(); lastInt = performance.now(); }, { passive: false });
+  cv.addEventListener('keydown', function (e) {
+    var h = true;
+    if (e.key === 'ArrowLeft') view.th -= 0.14; else if (e.key === 'ArrowRight') view.th += 0.14;
+    else if (e.key === 'ArrowUp') view.ph = clamp(view.ph - 0.1, 0.12, Math.PI - 0.12);
+    else if (e.key === 'ArrowDown') view.ph = clamp(view.ph + 0.1, 0.12, Math.PI - 0.12);
+    else if (e.key === '+' || e.key === '=') { view.target *= 0.88; limitRad(); }
+    else if (e.key === '-') { view.target *= 1.14; limitRad(); }
+    else if (e.key === 'Home') { view.th = 0.6; view.ph = 1.0; }
+    else if (e.key === ' ') playing = !playing;
+    else h = false;
+    if (h) { e.preventDefault(); lastInt = performance.now(); }
+  });
+
+  var api = {
+    el: cv,
+    setOrbita: setOrbita,
+    get orbita() { return orb; },
+    get u() { return u; }, set u(v) { u = clamp(v, 0, 0.99999); },
+    get playing() { return playing; }, set playing(v) { playing = !!v; },
+    setSpeed: function (v) { speed = v; },
+    setTrail: function (f) { trailFrac = f; },
+    resetView: function () { view.th = 0.6; view.ph = 1.0; if (orb) view.target = orb.R * 3.3 * fit(); lastInt = performance.now(); },
+    onFrame: function (fn) { cbs.push(fn); }
+  };
+  if (reduce) playing = false;
+  place(); start();
+  return api;
+}
+
+/* ---------- Controles de reproducción ---------- */
+function montarControles(host, esc, p) {
+  host.innerHTML =
+    '<div class="ctl">' +
+    '<div class="ctl-row">' +
+    '<button type="button" class="btn btn-main" id="' + p + '-play">' + (esc.playing ? 'Pausar' : 'Reproducir') + '</button>' +
+    '<div class="seg" role="group" aria-label="Velocidad de reproducción">' +
+    [0.5, 1, 2, 4].map(function (v) { return '<button type="button" id="' + p + '-v' + v + '" data-v="' + v + '" aria-pressed="' + (v === 1) + '">' + String(v).replace('.', ',') + '×</button>'; }).join('') +
+    '</div>' +
+    '<button type="button" class="btn" id="' + p + '-reset">Restablecer vista</button>' +
+    '</div>' +
+    '<label class="rng" for="' + p + '-scrub"><span>Posición en el periodo</span><output id="' + p + '-scrub-o">0 %</output><input type="range" id="' + p + '-scrub" min="0" max="1000" value="0"></label>' +
+    '<label class="rng" for="' + p + '-trail"><span>Longitud de la estela</span><output id="' + p + '-trail-o">45 %</output><input type="range" id="' + p + '-trail" min="5" max="100" value="45"></label>' +
+    '</div>';
+  var play = host.querySelector('#' + p + '-play'), scrub = host.querySelector('#' + p + '-scrub'), so = host.querySelector('#' + p + '-scrub-o');
+  var tr = host.querySelector('#' + p + '-trail'), to = host.querySelector('#' + p + '-trail-o'), dragging = false;
+  play.addEventListener('click', function () { esc.playing = !esc.playing; play.textContent = esc.playing ? 'Pausar' : 'Reproducir'; });
+  host.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      esc.setSpeed(parseFloat(b.dataset.v));
+      host.querySelectorAll('.seg button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  });
+  host.querySelector('#' + p + '-reset').addEventListener('click', esc.resetView);
+  scrub.addEventListener('input', function () { dragging = true; esc.u = scrub.value / 1000; so.textContent = Math.round(scrub.value / 10) + ' %'; });
+  scrub.addEventListener('change', function () { dragging = false; });
+  tr.addEventListener('input', function () { esc.setTrail(tr.value / 100); to.textContent = tr.value + ' %'; });
+  esc.onFrame(function (u) { if (!dragging) { scrub.value = Math.round(u * 1000); so.textContent = Math.round(u * 100) + ' %'; } });
+  esc.el.addEventListener('keydown', function (e) { if (e.key === ' ') setTimeout(function () { play.textContent = esc.playing ? 'Pausar' : 'Reproducir'; }, 0); });
+}
+
+function montarMeta(host, o) {
+  host.innerHTML =
+    '<dl class="meta">' +
+    '<dt>Periodo T</dt><dd>' + fmt(o.T, 4) + '</dd>' +
+    '<dt>Energía E</dt><dd>' + fmt(o.E, 4) + '</dd>' +
+    '<dt>Masas · G</dt><dd>1 · 1</dd>' +
+    '<dt>Origen</dt><dd>' + o.cred + '</dd>' +
+    '<dt>Ruta</dt><dd>/orbitas/' + o.slug + '</dd>' +
+    '</dl>';
+}
+
+function montarGaleria(host, onSel) {
+  host.innerHTML = ORBITAS.map(function (o, i) {
+    return '<a class="card" href="#' + o.slug + '" data-slug="' + o.slug + '">' +
+      '<span class="card-art">' + miniatura(o) + '</span>' +
+      '<span class="card-body"><span class="card-idx">' + ['I', 'II', 'III', 'IV', 'V', 'VI'][i] + '</span>' +
+      '<span class="card-name">' + o.nombre + '</span>' +
+      '<span class="card-meta">T ' + fmt(o.T, 2) + ' · E ' + fmt(o.E, 3) + '</span></span></a>';
+  }).join('');
+  host.querySelectorAll('.card').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); onSel(a.dataset.slug, true); });
+  });
+}
+
+/* ---------- Ley de gravitación en vivo ---------- */
+function leyEnVivo(root) {
+  var W = 680, X1 = 70, PX = 66, CY = 128;
+  root.innerHTML =
+    '<div class="ley">' +
+    '<svg viewBox="0 0 ' + W + ' 230" role="img" aria-label="Dos masas sobre una recta con flechas que indican la fuerza de atracción entre ellas. Arrastra la masa derecha para cambiar la distancia.">' +
+    '<line class="ley-axis" x1="30" y1="' + (CY + 62) + '" x2="650" y2="' + (CY + 62) + '"/>' +
+    '<g class="ley-ticks"></g>' +
+    '<path class="ley-arrow a0" d=""/><path class="ley-arrow a1" d=""/>' +
+    '<circle class="ley-body b0" cx="' + X1 + '" cy="' + CY + '" r="20"/>' +
+    '<circle class="ley-body b1 drag" cx="200" cy="' + CY + '" r="20"/>' +
+    '<text class="ley-lbl" x="' + X1 + '" y="' + (CY - 52) + '" text-anchor="middle">m₁</text>' +
+    '<text class="ley-lbl l2" x="200" y="' + (CY - 52) + '" text-anchor="middle">m₂</text>' +
+    '<text class="ley-r" x="0" y="' + (CY + 84) + '" text-anchor="middle"></text>' +
+    '</svg>' +
+    '<div class="ley-grid">' +
+    '<div class="ley-in">' +
+    '<label class="rng" for="ley-m1"><span>Masa 1</span><output id="ley-m1-o"></output><input type="range" id="ley-m1" min="1" max="10" step="0.5" value="4"></label>' +
+    '<label class="rng" for="ley-m2"><span>Masa 2</span><output id="ley-m2-o"></output><input type="range" id="ley-m2" min="1" max="10" step="0.5" value="2"></label>' +
+    '<label class="rng" for="ley-r"><span>Distancia</span><output id="ley-r-o"></output><input type="range" id="ley-r" min="1.2" max="8" step="0.1" value="3"></label>' +
+    '</div>' +
+    '<div class="ley-out" aria-live="polite"><p class="ley-f"></p><p class="ley-t"></p></div>' +
+    '</div></div>';
+  var $ = function (s) { return root.querySelector(s); };
+  var m1 = $('#ley-m1'), m2 = $('#ley-m2'), rr = $('#ley-r'), svg = $('svg');
+  var c1 = $('.b0'), c2 = $('.b1'), a0 = $('.a0'), a1 = $('.a1'), l2 = $('.l2'), lr = $('.ley-r'), ticks = $('.ley-ticks');
+  var tk = ''; for (var k = 1; k <= 8; k++) tk += '<line x1="' + (X1 + k * PX) + '" x2="' + (X1 + k * PX) + '" y1="' + (CY + 56) + '" y2="' + (CY + 68) + '"/>';
+  ticks.innerHTML = tk;
+  function arrow(x, dir, len) {
+    var e = x + dir * len, h = 8;
+    return 'M' + x + ' ' + CY + 'L' + e + ' ' + CY + 'M' + e + ' ' + CY + 'l' + (-dir * h) + ' ' + (-h * 0.7) + 'M' + e + ' ' + CY + 'l' + (-dir * h) + ' ' + (h * 0.7);
+  }
+  function rad(m) { return 9 + 7 * Math.sqrt(m); }
+  function upd() {
+    var M1 = +m1.value, M2 = +m2.value, r = +rr.value, F = M1 * M2 / (r * r);
+    var x2 = X1 + r * PX, r1 = rad(M1), r2 = rad(M2), len = clamp(F * 26, 5, 150);
+    c1.setAttribute('r', r1); c2.setAttribute('r', r2); c2.setAttribute('cx', x2);
+    l2.setAttribute('x', x2);
+    a0.setAttribute('d', arrow(X1 + r1 + 3, 1, Math.min(len, x2 - X1 - r1 - r2 - 12)));
+    a1.setAttribute('d', arrow(x2 - r2 - 3, -1, Math.min(len, x2 - X1 - r1 - r2 - 12)));
+    lr.setAttribute('x', (X1 + x2) / 2); lr.textContent = 'r = ' + fmt(r, 1);
+    $('#ley-m1-o').textContent = fmt(M1, 1) + ' u'; $('#ley-m2-o').textContent = fmt(M2, 1) + ' u'; $('#ley-r-o').textContent = fmt(r, 1) + ' u';
+    $('.ley-f').innerHTML = 'F = ' + fmt(F, 2) + ' <span>unidades</span>';
+    $('.ley-t').textContent = 'A doble distancia (' + fmt(2 * r, 1) + ') la fuerza sería ' + fmt(F / 4, 2) + ', la cuarta parte. Con el doble de masa en un cuerpo sería ' + fmt(2 * F, 2) + ', el doble.';
+  }
+  [m1, m2, rr].forEach(function (i) { i.addEventListener('input', upd); });
+  var drag = false;
+  function moveTo(e) {
+    var b = svg.getBoundingClientRect(), vx = (e.clientX - b.left) / b.width * W;
+    rr.value = clamp(Math.round((vx - X1) / PX * 10) / 10, 1.2, 8); upd();
+  }
+  c2.addEventListener('pointerdown', function (e) { drag = true; c2.setPointerCapture(e.pointerId); });
+  c2.addEventListener('pointermove', function (e) { if (drag) moveTo(e); });
+  c2.addEventListener('pointerup', function () { drag = false; });
+  c2.addEventListener('pointercancel', function () { drag = false; });
+  upd();
+}
+
+window.G3C = { ORBITAS: ORBITAS, Escena: Escena, montarControles: montarControles, montarMeta: montarMeta, montarGaleria: montarGaleria, leyEnVivo: leyEnVivo, metricas: metricas, fmt: fmt, porSlug: porSlug, MS: MS_CALCULO };
+})();
+</script>
+<script>
+(function(){
+var G=G3C, reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var COL=['#6ff2d4','#ff7e6b','#8db5ff'];
+var hero=G.Escena(document.getElementById('hero-scene'),{colors:COL,additive:true,fade:'#000000',stars:'#a9bbd3',auto:true,touch:'pan-y',wheel:false,trail:.55,pointSize:2.6,label:'Figura de ocho: tres cuerpos recorren la misma curva. Arrastra para girar la escena.'});
+hero.setOrbita(G.porSlug('figura-de-ocho'));
+var det=G.Escena(document.getElementById('det-scene'),{colors:COL,additive:true,fade:'#000000',grid:'#1c2f44',gridOpacity:.8,wheel:true,touch:'none',trail:.45});
+G.montarControles(document.getElementById('det-ctl'),det,'det');
+G.leyEnVivo(document.getElementById('ley-root'));
+function sel(slug,scroll){
+  var o=G.porSlug(slug)||G.porSlug('butterfly-i'); det.setOrbita(o);
+  document.getElementById('det-name').textContent=o.nombre;
+  document.getElementById('det-desc').textContent=o.desc;
+  document.getElementById('det-cred').textContent=o.cred;
+  G.montarMeta(document.getElementById('det-meta'),o);
+  document.querySelectorAll('.card').forEach(function(c){c.setAttribute('aria-current',String(c.dataset.slug===o.slug));});
+  if(scroll)document.getElementById('detalle').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+}
+G.montarGaleria(document.getElementById('cards'),function(slug,sc){try{history.replaceState(null,'','#'+slug);}catch(e){} sel(slug,sc);});
+var h=(location.hash||'').slice(1); sel(G.porSlug(h)?h:'butterfly-i',false);
+window.addEventListener('hashchange',function(){var s=location.hash.slice(1); if(G.porSlug(s))sel(s,false);});
+var f=G.porSlug('figura-de-ocho'); document.getElementById('hero-chip').textContent='T '+G.fmt(f.T,3)+' · E '+G.fmt(f.E,3);
+document.getElementById('foot').textContent='Las 6 órbitas se integran en el navegador en '+G.MS+' ms (RK4 adaptativo) · three.js r128 · prototipo de diseño';
+})();
+</script>
+
+</body></html>
