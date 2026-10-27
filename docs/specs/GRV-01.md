@@ -1,6 +1,6 @@
 # GRV-01 · Base del repositorio
 
-**Estado:** borrador, pendiente de aprobación · **Tamaño:** M · **Rama:** `feature/base-del-repositorio` → `develop`
+**Estado:** aprobada el 27 de octubre de 2026 · **Tamaño:** M · **Rama:** `feature/base-del-repositorio` → `develop`
 
 ## Contexto
 
