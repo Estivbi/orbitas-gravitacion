@@ -18,7 +18,7 @@ El proyecto tiene que arrancar con un esqueleto que compile, se pruebe solo y de
 | Gestor | npm con `package-lock.json` | pnpm | Instalaciones algo más lentas |
 | Node | 22 (LTS), fijado en `.nvmrc` y en `engines` | Node 20 | Local, CI y Docker usan la misma versión |
 | Estructura | Todo el código bajo `src/` (`app/`, `components/`, `lib/`, `workers/`, `store/`) | Código en la raíz | Una carpeta más |
-| CI | Un workflow con un job por comprobación | Un único job | Más minutos de CI, aceptables en un repositorio público |
+| CI | Un workflow con jobs por tipo de comprobación: calidad (lint, tipos, formato y tests), compilación, E2E y formato de commits | Un único job; un job por comando | Más minutos de CI, aceptables en un repositorio público |
 
 ## Consecuencias
 

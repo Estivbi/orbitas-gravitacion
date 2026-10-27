@@ -43,7 +43,7 @@ tests/repo/         invariantes del repositorio
 tests/unit/         pruebas unitarias
 tests/e2e/          pruebas de extremo a extremo
 scripts/            utilidades de Node
-docs/               specs/, adr/, estado.md, diseno/referencia/
+docs/               specs/, tickets/, adr/, estado.md, diseno/referencia/
 .github/workflows/  integración continua
 ```
 

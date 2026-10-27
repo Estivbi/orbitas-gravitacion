@@ -18,8 +18,9 @@ Actualizado el 27 de octubre de 2026.
 
 - Proyecto Next.js 16 (App Router) con React 19, TypeScript 6.0 estricto y Tailwind CSS v4.
 - Portada mínima con los tokens de color de `DESIGN.md`.
-- Vitest (unitarias y de invariantes del repositorio) y Playwright (prueba de humo).
+- Vitest (79 pruebas: invariantes del repositorio, humo unitario y script de commits) y Playwright (humo E2E, incluida la comprobación de Tailwind).
 - CI en GitHub Actions: lint, tipos, formato, tests, compilación, E2E y formato de commits.
+- Documentación del ticket en `docs/tickets/GRV-01-base-del-repositorio.md`.
 
 ## Qué falta
 

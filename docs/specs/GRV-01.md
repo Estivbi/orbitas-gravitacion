@@ -31,7 +31,7 @@ Motor de física, escena 3D, escala tipográfica, fuentes y estilos de component
 | Estructura | Carpeta `src/`: `app/`, `components/`, `lib/` (con `lib/fisica` en GRV-02), `store/` | Una sola raíz de código y separación clara entre dominio e interfaz |
 | Node | 22 (LTS), fijado en `.nvmrc` y en `engines` | CI, Docker y local usan la misma versión |
 | Rigor de tipos | `strict: true` y `noUncheckedIndexedAccess: true` | Los arrays de estado de la física (`Float64Array`) se benefician de índices comprobados. Algo más de código defensivo |
-| CI | Un único workflow `ci.yml` con un job por comprobación. Playwright en un job aparte desde GRV-03 | Los fallos se leen rápido. Más minutos de CI, aceptable en un repositorio público |
+| CI | Un único workflow `ci.yml` con jobs por tipo de comprobación: calidad, compilación, E2E y formato de commits. El E2E entra ya en este ticket | Los fallos se leen rápido y el E2E confirma Tailwind. Más minutos de CI, aceptable en un repositorio público |
 
 ## Contratos
 
@@ -71,11 +71,11 @@ Cada uno tiene su prueba. Las de repositorio viven en `tests/repo/` y se escribe
 3. **Solo npm.** Dado el repositorio, cuando se listan los archivos versionados, entonces existe `package-lock.json` y no existen `yarn.lock` ni `pnpm-lock.yaml`. *(Vitest)*
 4. **Calidad automatizada.** Dado el código base, cuando se ejecutan `npm run lint`, `npm run typecheck` y `npm run format:check`, entonces los tres pasan. *(CI)*
 5. **Prueba de humo unitaria.** Dado el proyecto, cuando se ejecuta `npm test`, entonces Vitest ejecuta al menos una prueba de la aplicación y todas pasan. *(Vitest)*
-6. **Prueba de humo E2E.** Dada la aplicación en marcha, cuando Playwright abre `/`, entonces la página responde 200, `<html lang="es">`, hay un `h1` visible y el fondo calculado del `body` es `rgb(0, 0, 0)`, lo que comprueba que Tailwind y el token `--color-void` están conectados. *(Playwright)*
+6. **Prueba de humo E2E.** Dada la aplicación en marcha, cuando Playwright abre `/`, entonces la página responde 200, `<html lang="es">`, hay un `h1` visible y el fondo calculado del `body` es `rgb(0, 0, 0)`, y una clase utilitaria con token resuelve a su color (la etiqueta, a `rgb(255, 184, 41)`), lo que comprueba que Tailwind y los tokens están conectados. *(Playwright)*
 7. **CI en cada PR.** Dado un PR hacia `develop` o `main`, cuando se abre o se actualiza, entonces se ejecutan lint, tipos, tests, build y `comprobar:commits`, y la PR muestra su resultado. *(se comprueba en el propio PR de GRV-01)*
-8. **Formato de commits.** Dado el rango de commits de un PR, cuando se ejecuta `npm run comprobar:commits`, entonces todos siguen Conventional Commits en español con ticket `GRV-xx`. *(script, con su prueba unitaria en `tests/repo/`)*
+8. **Formato de commits.** Dado el rango de commits de un PR, cuando se ejecuta `npm run comprobar:commits`, entonces todos siguen Conventional Commits en español con ticket `GRV-xx`; un rango vacío se informa como «0 commits» y un rango inexistente da un error legible. *(script, con su prueba unitaria en `tests/repo/`)*
 9. **Privado fuera del repo.** Dado el repositorio, cuando se listan los archivos versionados, entonces ninguno está bajo `docs/privado/` y `.gitignore` contiene esa ruta. *(Vitest)*
-10. **Sin placeholders.** Dados `AGENTS.md` y `DESIGN.md`, cuando se leen, entonces no contienen `{{`. *(Vitest)*
+10. **Sin placeholders.** Dados `AGENTS.md` y `DESIGN.md`, cuando se leen, entonces no contienen `{{`, y los colores de `DESIGN.md` coinciden con los de `@theme`. *(Vitest)*
 11. **Entorno documentado.** Dado `.env.example`, cuando se lee, entonces contiene los tres nombres de variable, ningún valor parece una clave real y `.env` está ignorado. *(Vitest)*
 12. **Documentación mínima.** Dado el repositorio, cuando se listan sus archivos, entonces existen `README.md` (qué es y cómo ejecutarlo en local), `docs/estado.md` y `docs/adr/0001-herramientas-y-estructura.md`. *(Vitest)*
 13. **Neutralidad.** Dados los archivos versionados fuera de `docs/diseno/referencia/`, cuando se buscan los términos de la lista de privacidad del proyecto, entonces no aparece ninguno. *(revisión del `pr-reviewer` con `git grep`; la lista vive en `docs/privado/`, no en el repositorio)*
