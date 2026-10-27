@@ -44,7 +44,15 @@ describe('GRV-01 · criterio 8: formato de commits (rango de un PR)', () => {
   const git = (...args: string[]) =>
     spawnSync(
       'git',
-      ['-c', 'user.name=Prueba', '-c', 'user.email=prueba@example.com', '-c', 'commit.gpgsign=false', ...args],
+      [
+        '-c',
+        'user.name=Prueba',
+        '-c',
+        'user.email=prueba@example.com',
+        '-c',
+        'commit.gpgsign=false',
+        ...args,
+      ],
       { cwd: repo, encoding: 'utf8' },
     );
 

@@ -46,10 +46,7 @@ describe('GRV-01 · criterio 12: documentación mínima', () => {
     expect(readme).toContain('npm run dev');
   });
 
-  it.each(['docs/estado.md', 'docs/adr/0001-herramientas-y-estructura.md'])(
-    'existe %s',
-    (ruta) => {
-      expect(existe(ruta)).toBe(true);
-    },
-  );
+  it.each(['docs/estado.md', 'docs/adr/0001-herramientas-y-estructura.md'])('existe %s', (ruta) => {
+    expect(existe(ruta)).toBe(true);
+  });
 });
