@@ -42,14 +42,21 @@ interface EntradaDelManifiesto {
   htmlSize?: number;
 }
 
-function leerManifiesto(): Record<string, EntradaDelManifiesto> {
+interface Manifiesto {
+  routes: Record<string, EntradaDelManifiesto>;
+  dynamicRoutes: Record<string, { fallback: unknown }>;
+}
+
+function leerManifiestoCompleto(): Manifiesto {
   const ruta = '.next/prerender-manifest.json';
   if (!existsSync(ruta)) {
     throw new Error(`No existe ${ruta}: el servidor de pruebas hace build antes de arrancar`);
   }
-  return (
-    JSON.parse(readFileSync(ruta, 'utf8')) as { routes: Record<string, EntradaDelManifiesto> }
-  ).routes;
+  return JSON.parse(readFileSync(ruta, 'utf8')) as Manifiesto;
+}
+
+function leerManifiesto(): Record<string, EntradaDelManifiesto> {
+  return leerManifiestoCompleto().routes;
 }
 
 /** Lo que el catálogo y la física dicen que debe verse en cada detalle, calculado en Node. */
@@ -65,7 +72,13 @@ const esperadoDe = (slug: (typeof SLUGS)[number]) => {
 
 test.describe('rutas estáticas', () => {
   test('GRV-04 · criterio 11: el build prerenderiza las seis rutas de detalle, sin otras, y el HTML está acotado', () => {
-    const rutas = leerManifiesto();
+    const manifiesto = leerManifiestoCompleto();
+    const rutas = manifiesto.routes;
+
+    // `dynamicParams = false`: un slug que no está en generateStaticParams es 404, no se genera
+    // bajo demanda. Next 16 lo deja escrito como `fallback: false` en la ruta dinámica del manifiesto
+    // (comprobado con un build real); es más robusto que buscar el literal en el código fuente.
+    expect(manifiesto.dynamicRoutes['/orbitas/[slug]']?.fallback).toBe(false);
 
     const detalles = Object.keys(rutas)
       .filter((clave) => clave.startsWith('/orbitas/'))
@@ -110,7 +123,8 @@ test.describe('detalle sin JavaScript', () => {
       await expect(titulares).toHaveText(orbita.nombre);
       await expect(page).toHaveTitle(`${orbita.nombre} · Órbitas`);
       await expect(page.getByText(orbita.descripcion, { exact: true })).toBeVisible();
-      await expect(page.getByText(orbita.credito, { exact: true })).toBeVisible();
+      // El crédito va en un elemento propio; se tolera un prefijo como «Crédito: ».
+      await expect(page.locator('main')).toContainText(orbita.credito);
 
       // La miniatura del servidor: tres trazos con los datos de trazarMiniatura.
       const contenedor = page.locator('[data-estado-escena="cargando"]');
@@ -394,7 +408,9 @@ test.describe('presupuesto de JavaScript', () => {
       `JS inicial de / (gzip -9): ${total} B; línea base ${BASE_JS_PORTADA_GZIP_BYTES} B`,
     ).toBeLessThanOrEqual(BASE_JS_PORTADA_GZIP_BYTES + MARGEN_JS_BYTES);
 
-    const detalle = await (await request.get('/orbitas/butterfly-i')).text();
+    const respuestaDelDetalle = await request.get('/orbitas/butterfly-i');
+    expect(respuestaDelDetalle.status(), 'el detalle existe').toBe(200);
+    const detalle = await respuestaDelDetalle.text();
     for (const url of new Set([...scripts, ...scriptsIniciales(detalle)])) {
       const cuerpo = await (await request.get(url)).text();
       expect(cuerpo, `${url} no debería incluir three`).not.toContain('WebGLRenderer');

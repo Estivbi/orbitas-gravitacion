@@ -45,6 +45,10 @@ import {
 // Sin esto, un elemento que no existe haría esperar a las acciones hasta el límite de la prueba.
 test.use({ actionTimeout: 20_000 });
 
+// Los criterios de fotogramas por segundo (23 a 32) miden con WebGL por software: en local hay que
+// ejecutarlos con `--workers=1`, porque varios navegadores compitiendo por la CPU bajan los fps y
+// dan falsos rojos. La configuración de CI ya lo hace así.
+
 const AMBAR = 'rgb(255, 184, 41)';
 const VIOLETA = 'rgb(128, 82, 255)';
 const FOCO = { ancho: '2px', color: 'rgb(255, 255, 255)', estilo: 'solid' };
@@ -166,6 +170,7 @@ test.describe.serial('detalle de la figura de ocho (una sola carga)', () => {
   test.beforeAll(async ({ browser, baseURL }) => {
     test.setTimeout(120_000);
     contexto = await browser.newContext({ baseURL, viewport: { width: 1440, height: 900 } });
+    contexto.setDefaultTimeout(20_000);
     page = await contexto.newPage();
     await page.goto('/orbitas/figura-de-ocho');
     await esperarLista(page);
@@ -356,10 +361,17 @@ test.describe.serial('detalle de la figura de ocho (una sola carga)', () => {
     const inicio = await ahoraEnSegundos(page);
     await botonAnimacion(page).click();
     await esperarReproduciendo(page, true);
-    await page.waitForTimeout(700);
-    const tras = await leerPosicionConHora(page);
+    let tras = await leerPosicionConHora(page);
+    await expect
+      .poll(
+        async () => {
+          tras = await leerPosicionConHora(page);
+          return distanciaCircular(valorFijado, tras.posicion);
+        },
+        { timeout: 5_000 },
+      )
+      .toBeGreaterThan(0.02);
     const salto = distanciaCircular(valorFijado, tras.posicion);
-    expect(salto).toBeGreaterThan(0);
     expect(salto).toBeLessThan((tras.segundos - inicio + 0.4) / PERIODO_FIGURA_DE_OCHO);
     expect(distanciaCircular(0, tras.posicion)).toBeGreaterThan(0.1);
 
@@ -497,11 +509,25 @@ test.describe.serial('detalle de la figura de ocho (una sola carga)', () => {
       .toBeGreaterThan(antes);
 
     // Dos posiciones fijadas casi a la vez: la última manda (en pausa no se limita el ritmo).
-    await posicion(page).fill('0.3');
-    await posicion(page).fill('0.7');
-    await page.waitForTimeout(500);
+    // Los dos eventos `input` salen dentro de un mismo evaluate, sin ningún margen entre ellos: un
+    // límite de ritmo que también actuara en pausa descartaría el segundo y dejaría la lectura de 0,3.
+    await posicion(page).evaluate((el) => {
+      const control = el as HTMLInputElement;
+      const fijar = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      for (const valor of ['0.3', '0.7']) {
+        fijar.call(control, valor);
+        control.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    await expect
+      .poll(() => leerCifras(page), { timeout: 1500 })
+      .toEqual(cifrasEsperadas('figura-de-ocho', 0.7));
+    await expect
+      .poll(() => textoDeColumna(page, 'tiempo'), { timeout: 1500 })
+      .toContain(textoDeFase('figura-de-ocho', 0.7));
+    // La lectura no vuelve a la del primer valor ni se queda a medias.
+    await esperarAsentado(page);
     expect(await leerCifras(page)).toEqual(cifrasEsperadas('figura-de-ocho', 0.7));
-    expect(await textoDeColumna(page, 'tiempo')).toContain(textoDeFase('figura-de-ocho', 0.7));
 
     // La barra de fase sigue a la posición.
     const fase = Number(await page.locator('[data-cifra="fase"]').getAttribute('data-valor'));
@@ -601,9 +627,8 @@ test.describe.serial('detalle de la figura de ocho (una sola carga)', () => {
     const quieto = await lectura();
     const visibleAntes = await textoVisible();
     expect(visibleAntes).not.toBeNull();
-    await page.waitForTimeout(1000);
+    await expect.poll(textoVisible, { timeout: 5_000 }).not.toBe(visibleAntes);
     expect(await lectura()).toEqual(quieto);
-    expect(await textoVisible()).not.toBe(visibleAntes);
     expect(await reproduciendo(page)).toBe('true');
 
     // Objetivos táctiles de al menos 44 px a 375 y a 1440 px.
@@ -712,7 +737,8 @@ async function comprobarResumenes(page: Page, slug: Parameters<typeof textosInic
     const dato = page.locator(`[data-resumen="${clave}"]`);
     await expect(dato, clave).toHaveCount(1);
     await expect(dato, clave).toHaveText(resumenes[clave as keyof typeof resumenes]);
-    expect(normalizar(await dato.locator('..').textContent()), clave).toContain(frase);
+    const columna = await dato.evaluate((el) => el.closest('[data-columna]')?.textContent ?? null);
+    expect(normalizar(columna), `${clave}: frase dentro de su columna`).toContain(frase);
   }
 }
 
@@ -871,6 +897,7 @@ test.describe('detalle responsive', () => {
         baseURL,
         viewport: { width: ancho, height: alto },
       });
+      contexto.setDefaultTimeout(20_000);
       try {
         // Estado `cargando` estable: un Worker que nunca responde deja la escena sin lista.
         const muda = await contexto.newPage();
@@ -1000,6 +1027,7 @@ test.describe('detalle responsive', () => {
   }) => {
     test.setTimeout(120_000);
     const contexto = await browser.newContext({ baseURL, viewport: { width: 375, height: 600 } });
+    contexto.setDefaultTimeout(20_000);
     try {
       const page = await contexto.newPage();
       await page.goto('/orbitas/figura-de-ocho');

@@ -502,6 +502,7 @@ export interface ParadaDeTabulacion {
   nombre: string;
   grupo: string | null;
   enControles: boolean;
+  enGaleria: boolean;
   href: string | null;
 }
 
@@ -547,6 +548,7 @@ export async function paradasDeTabulacion(page: Page, maximo = 60): Promise<Para
           ? (document.getElementById(rotulo)?.textContent ?? null)
           : (grupo?.getAttribute('aria-label') ?? null),
         enControles: el.closest('[data-region="controles"]') !== null,
+        enGaleria: el.closest('#galeria') !== null,
         href: el.getAttribute('href'),
       };
     });
@@ -557,13 +559,24 @@ export async function paradasDeTabulacion(page: Page, maximo = 60): Promise<Para
   return paradas;
 }
 
-/** Contorno del elemento enfocado; en un radio, el de su etiqueta visible (o el de un descendiente). */
+/**
+ * Contorno del elemento enfocado. En un radio, el de su etiqueta visible o el de un descendiente
+ * con caja visible (>= 8 px): nunca el del propio input, aunque sea `sr-only`, porque el contorno
+ * global de `:focus-visible` que recibe un input de 1 px no se ve.
+ */
 export function contornoDeFoco(page: Page) {
   return page.evaluate(() => {
     const activo = document.activeElement as HTMLElement;
-    const base =
-      activo instanceof HTMLInputElement && activo.type === 'radio' ? activo.labels?.[0] : activo;
-    const candidatos = base ? [base, ...Array.from(base.querySelectorAll<HTMLElement>('*'))] : [];
+    const esRadio = activo instanceof HTMLInputElement && activo.type === 'radio';
+    const base = esRadio ? (activo as HTMLInputElement).labels?.[0] : activo;
+    if (esRadio && !base) return { ancho: '0px', color: '', estilo: 'none' };
+    const candidatos = base
+      ? [base, ...Array.from(base.querySelectorAll<HTMLElement>('*'))].filter((el) => {
+          if (!esRadio) return true;
+          const caja = el.getBoundingClientRect();
+          return el !== activo && caja.width >= 8 && caja.height >= 8;
+        })
+      : [];
     const objetivo =
       candidatos.find((el) => {
         const estilo = getComputedStyle(el);
@@ -603,7 +616,10 @@ export async function subrayadoDe(
       ...Array.from(etiqueta.querySelectorAll<HTMLElement>('*')),
     ]) {
       const estilo = getComputedStyle(candidato);
-      if (estilo.textDecorationLine.includes('underline')) {
+      const transparente =
+        estilo.textDecorationColor === 'transparent' ||
+        /^rgba\(\s*0,\s*0,\s*0,\s*0\s*\)$/.test(estilo.textDecorationColor);
+      if (estilo.textDecorationLine.includes('underline') && !transparente) {
         return { linea: estilo.textDecorationLine, color: estilo.textDecorationColor };
       }
     }

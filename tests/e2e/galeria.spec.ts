@@ -78,6 +78,7 @@ test.describe.serial('portada: galería con JavaScript (una sola carga)', () => 
   test.beforeAll(async ({ browser, baseURL }) => {
     test.setTimeout(120_000);
     contexto = await browser.newContext({ baseURL });
+    contexto.setDefaultTimeout(20_000);
     page = await contexto.newPage();
     vigilancia = vigilar(page);
     await page.goto('/');
@@ -90,6 +91,7 @@ test.describe.serial('portada: galería con JavaScript (una sola carga)', () => 
 
   test('GRV-04 · criterio 18: hidratación, una sola parada de tabulación y la altura que ya traía el servidor', async ({
     request,
+    baseURL,
   }) => {
     // El orden del cliente es el del HTML del servidor, y es el del catálogo.
     const html = await (await request.get('/')).text();
@@ -117,17 +119,19 @@ test.describe.serial('portada: galería con JavaScript (una sola carga)', () => 
     const delGrupo = paradas.filter((p) => p.grupo?.trim().toLowerCase() === 'ordenar por');
     expect(delGrupo).toHaveLength(1);
     expect(delGrupo[0]!.nombre).toBe('Catálogo');
-    expect(paradas.filter((p) => p.href?.startsWith('/orbitas/')).map((p) => p.href)).toEqual(
-      SLUGS.map(rutaDeOrbita),
-    );
+    expect(
+      paradas.filter((p) => p.enGaleria && p.href?.startsWith('/orbitas/')).map((p) => p.href),
+    ).toEqual(SLUGS.map(rutaDeOrbita));
 
     // La altura de la galería con JavaScript es la que tiene sin él.
     await page.evaluate(() => window.scrollTo(0, 0));
     const conJs = await alturaEstable(page, GALERIA);
     const contextoSinJs = await contexto.browser()!.newContext({
+      baseURL,
       javaScriptEnabled: false,
       viewport: page.viewportSize() ?? { width: 1280, height: 720 },
     });
+    contextoSinJs.setDefaultTimeout(20_000);
     try {
       const sinJs = await contextoSinJs.newPage();
       await sinJs.goto('/');
@@ -282,6 +286,7 @@ test.describe('volver con el enlace y sin persistencia', () => {
     page,
   }) => {
     await page.goto('/orbitas/goggles');
+    await esperarLista(page);
     await volver(page).click();
     await expect(page).toHaveURL(/\/#galeria$/);
     await expect(page.locator(ENLACES_GALERIA)).toHaveCount(6);
