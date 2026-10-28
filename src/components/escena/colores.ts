@@ -15,20 +15,25 @@ export interface PaletaEscena {
   ambiente: Color[];
 }
 
-function leerColor(estilo: CSSStyleDeclaration, nombre: string): Color {
-  const valor = estilo.getPropertyValue(`--color-${nombre}`).trim();
+function colorDeToken(leerToken: (propiedad: string) => string, nombre: string): Color {
+  const valor = leerToken(`--color-${nombre}`).trim();
   if (valor === '') {
     throw new Error(`Falta el token --color-${nombre} en el documento`);
   }
   return new Color(valor);
 }
 
+/** Construye la paleta a partir de una función que devuelve el valor de un token CSS (parte pura, sin DOM). */
+export function construirPaleta(leerToken: (propiedad: string) => string): PaletaEscena {
+  return {
+    fondo: colorDeToken(leerToken, 'void'),
+    cuerpos: CUERPOS.map((nombre) => colorDeToken(leerToken, nombre)),
+    ambiente: AMBIENTE.map((nombre) => colorDeToken(leerToken, nombre)),
+  };
+}
+
 /** Lee los `--color-*` de `globals.css`, la única fuente de los colores. */
 export function leerPaleta(): PaletaEscena {
   const estilo = getComputedStyle(document.documentElement);
-  return {
-    fondo: leerColor(estilo, 'void'),
-    cuerpos: CUERPOS.map((nombre) => leerColor(estilo, nombre)),
-    ambiente: AMBIENTE.map((nombre) => leerColor(estilo, nombre)),
-  };
+  return construirPaleta((propiedad) => estilo.getPropertyValue(propiedad));
 }

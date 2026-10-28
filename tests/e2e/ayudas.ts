@@ -169,9 +169,9 @@ export function pixelesDistintos(a: PNG, b: PNG): number {
   return cuenta;
 }
 
-/** Píxeles cerca de cada color de los cuerpos (tolerancia de 60 por canal), en el orden de COLORES_CUERPOS. */
-export function contarColoresDeLosCuerpos(captura: PNG): number[] {
-  return COLORES_CUERPOS.map((nombre) => contarCercanos(captura, colorDelTema(nombre), 60));
+/** Píxeles cerca de cada color de los cuerpos (por defecto, 60 por canal), en el orden de COLORES_CUERPOS. */
+export function contarColoresDeLosCuerpos(captura: PNG, tolerancia = 60): number[] {
+  return COLORES_CUERPOS.map((nombre) => contarCercanos(captura, colorDelTema(nombre), tolerancia));
 }
 
 /**

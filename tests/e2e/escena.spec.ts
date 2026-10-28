@@ -8,6 +8,7 @@ import {
   botonAnimacion,
   capturarLienzo,
   centroDelLienzo,
+  contarColoresDeLosCuerpos,
   diferenciaAngular,
   distanciaCircular,
   esperarAsentado,
@@ -121,6 +122,16 @@ test.describe.serial('GRV-03 · escena con WebGL (una sola carga)', () => {
     // No se comprueba qué color lleva cada cuerpo: dónde cae cada uno en pantalla depende de la
     // cámara y de la proyección. Basta con que aparezcan los tres (el orden lo fija DESIGN.md).
     await esperarColoresDibujados(page);
+
+    // Los píxeles son exactamente los hexadecimales de los tokens (ADR 0005): con tolerancia 8 y
+    // sin conversión de espacio de color, el núcleo de cada cuerpo aún tiene decenas de píxeles. Con
+    // `ColorManagement` activo el violeta, el azafrán y el verde azulado se desvían más de 8.
+    await expect
+      .poll(async () => Math.min(...contarColoresDeLosCuerpos(await capturarLienzo(page), 8)), {
+        timeout: 15_000,
+        message: 'píxeles casi exactos (tolerancia 8) por color de cuerpo, mínimo 5',
+      })
+      .toBeGreaterThanOrEqual(5);
   });
 
   test('criterio 12: en marcha, dos capturas separadas difieren', async () => {
@@ -549,6 +560,30 @@ test.describe('GRV-03 · movimiento reducido', () => {
     await page.locator(LIENZO).focus();
     await page.keyboard.press('ArrowRight');
     await esperarCambio(page, vista, 'acimut', 0.14);
+  });
+
+  test('criterio 20: con movimiento reducido, Reproducir animación mueve la órbita pero no gira la cámara', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await esperarLista(page);
+    await esperarAsentado(page);
+    const antes = await leerVista(page);
+    const posicion = await leerPosicion(page);
+
+    await botonAnimacion(page).click();
+    await esperarReproduciendo(page, true);
+    await expect
+      .poll(async () => distanciaCircular(posicion, await leerPosicion(page)), { timeout: 10_000 })
+      .toBeGreaterThan(0);
+
+    // Con la órbita avanzando, el acimut se mantiene durante 2 s (a 0,06 rad/s el giro sería de 0,12 rad).
+    for (let i = 0; i < 4; i++) {
+      await page.waitForTimeout(500);
+      expect((await leerVista(page)).acimut).toBe(antes.acimut);
+    }
+    expect(await leerVista(page)).toEqual(antes);
+    expect(distanciaCircular(posicion, await leerPosicion(page))).toBeGreaterThan(0);
   });
 
   test('criterio 12: con movimiento reducido el lienzo se dibuja, queda quieto y una flecha lo cambia', async ({

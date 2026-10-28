@@ -84,11 +84,12 @@ function escribirVertice(
   desde: number,
   alfa: number,
 ): void {
-  destino.forEach((cuerpo, b) => {
+  for (let b = 0; b < 3; b++) {
+    const cuerpo = destino[b]!;
     cuerpo.linea[3 * indice] = posiciones[desde + 2 * b]!;
     cuerpo.linea[3 * indice + 1] = posiciones[desde + 2 * b + 1]!;
     cuerpo.lineaAlfa[indice] = alfa;
-  });
+  }
 }
 
 const estadoTemporal = new Float64Array(VALORES_POR_ESTADO);
@@ -139,11 +140,12 @@ function construirMarcas(
     const indice = k - primera;
     const celda = ((k % MARCAS_POR_PERIODO) + MARCAS_POR_PERIODO) % MARCAS_POR_PERIODO;
     const alfa = alfaDeEdad((u - k / MARCAS_POR_PERIODO) / longitud);
-    destino.forEach((cuerpo, b) => {
+    for (let b = 0; b < 3; b++) {
+      const cuerpo = destino[b]!;
       cuerpo.marcas[3 * indice] = rejilla[celda * VALORES_POR_ESTADO + 2 * b]!;
       cuerpo.marcas[3 * indice + 1] = rejilla[celda * VALORES_POR_ESTADO + 2 * b + 1]!;
       cuerpo.marcasAlfa[indice] = alfa;
-    });
+    }
   }
   return ultima - primera + 1;
 }

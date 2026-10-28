@@ -117,6 +117,9 @@ export function crearComposicion(
   }
   escena.add(sinRecorte(new Points(geometriasCuerpos, materiales.cuerpo)));
 
+  let ultimaU = NaN;
+  let ultimaLongitud = NaN;
+
   function actualizar(u: number, longitudEstela: number): Estado {
     estadoEn(trayectoria, u, estado);
     for (let b = 0; b < 3; b++) {
@@ -125,15 +128,21 @@ export function crearComposicion(
     }
     geometriasCuerpos.getAttribute('position').needsUpdate = true;
 
-    const usados = construirEstelas(trayectoria, u, longitudEstela, datos);
-    estelas.forEach(({ linea, marcas }) => {
-      linea.setDrawRange(0, usados.vertices);
-      linea.getAttribute('position').needsUpdate = true;
-      linea.getAttribute('aAlfa').needsUpdate = true;
-      marcas.setDrawRange(0, usados.marcas);
-      marcas.getAttribute('position').needsUpdate = true;
-      marcas.getAttribute('aAlfa').needsUpdate = true;
-    });
+    // Las estelas solo dependen de `u` y de la longitud: con la animación pausada y solo la cámara
+    // en movimiento no se reconstruyen ni se vuelven a subir a la GPU.
+    if (u !== ultimaU || longitudEstela !== ultimaLongitud) {
+      ultimaU = u;
+      ultimaLongitud = longitudEstela;
+      const usados = construirEstelas(trayectoria, u, longitudEstela, datos);
+      for (const { linea, marcas } of estelas) {
+        linea.setDrawRange(0, usados.vertices);
+        linea.getAttribute('position').needsUpdate = true;
+        linea.getAttribute('aAlfa').needsUpdate = true;
+        marcas.setDrawRange(0, usados.marcas);
+        marcas.getAttribute('position').needsUpdate = true;
+        marcas.getAttribute('aAlfa').needsUpdate = true;
+      }
+    }
     return estado;
   }
 
