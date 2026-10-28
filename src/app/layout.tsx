@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Link from 'next/link';
+import { resolverUrlSitio } from '@/lib/galeria/sitio';
 import { ProveedorAlmacen } from '@/store/ProveedorAlmacen';
 import './globals.css';
 
@@ -13,6 +14,7 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: resolverUrlSitio(process.env),
   title: 'Órbitas',
   description:
     'La ley de gravitación de Newton y seis órbitas del problema de los tres cuerpos, para ver y tocar.',
