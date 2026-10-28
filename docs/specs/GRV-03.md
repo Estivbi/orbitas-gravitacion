@@ -1,6 +1,6 @@
 # GRV-03 · Sistema de diseño y escena 3D
 
-**Estado:** aprobada · **Tamaño:** L · **Rama:** `feature/sistema-de-diseno-y-escena-3d` → `develop`
+**Estado:** implementada, pendiente de revisión · **Tamaño:** L · **Rama:** `feature/sistema-de-diseno-y-escena-3d` → `develop`
 
 ## Contexto
 
@@ -138,6 +138,8 @@ interface PropsEscenaOrbita {
   alFotograma?: (u: number, estado: Readonly<Estado>) => void; // el buffer se reutiliza: no guardarlo
   alError?: (causa: Error) => void; // sin WebGL2 o contexto perdido
 }
+// Añadido en la implementación (no figuraba en el contrato): alCambiarVista?: (vista: Readonly<VistaCamara>) => void;
+// se llama de forma síncrona cada vez que cambia la vista objetivo; VisorOrbita escribe con él `data-vista`.
 interface PropsVisorOrbita { slug: Slug; miniatura: TrazadoMiniatura; titulo: string; controlAnimacion?: boolean /* true */ }
 <MiniaturaOrbita trazado />   // presentacional, sin 'use client'
 ```
@@ -146,7 +148,7 @@ interface PropsVisorOrbita { slug: Slug; miniatura: TrazadoMiniatura; titulo: st
 
 **HTML del servidor del visor.** El HTML prerenderizado trae el contenedor con `data-estado-escena="cargando"`, la miniatura SVG y una región `role="status"` vacía dentro del contenedor del visor (el aviso de `sin-webgl` y `error` se escribe en esa región, que existe desde el principio); nunca trae el botón de animación.
 
-**Tokens** (en `@theme static` de `src/app/globals.css`, documentados en `DESIGN.md`): `--font-sans`; `--text-etiqueta` 14 px, `--text-cuerpo` 18 px, `--text-titular-xs` 27 px, `--text-subtitulo` 36 px, `--text-titular-sm` 42 px, `--text-titular` 48 px y `--text-titular-lg` y `--text-display`, que usan `clamp` para ir de 46 px en móvil a 78 px y 113 px en escritorio; cada tamaño con su `--text-x--line-height` y su `--text-x--letter-spacing`; `--spacing: 6px`; `--radius-boton` 24 px; `--container-pagina` 1280 px.
+**Tokens** (en `@theme static` de `src/app/globals.css`, documentados en `DESIGN.md`): `--font-sans`; `--text-etiqueta` 14 px, `--text-cuerpo` 18 px, `--text-titular-xs` 27 px, `--text-subtitulo` 36 px, `--text-titular-sm` 42 px, `--text-titular` 48 px y `--text-titular-lg` y `--text-display`, que usan `clamp` para ir de 46 px en móvil a 78 px y 113 px en escritorio; cada tamaño con su `--text-x--line-height` y su `--text-x--letter-spacing`; `--spacing: 6px`; `--radius-boton` 24 px; `--container-pagina` 1280 px. La implementación añade `--breakpoint-columnas` 900 px (corte de una a dos columnas de la portada y del visor; clases `columnas:` y `max-columnas:`), documentado en `DESIGN.md`.
 
 ## Criterios de aceptación
 
@@ -187,7 +189,7 @@ La limpieza al desmontar el componente (muchas idas y vueltas sin aviso de demas
 
 1. `docs`: esta spec y sus correcciones.
 2. `test`: criterios 1 a 20 en rojo, con `pngjs` como dependencia de desarrollo. Este commit marca la spec como aprobada. `tests/unit/layout.test.ts` (GRV-01) importa `layout.tsx`, que pasará a usar `next/font/local`, algo que Vitest no puede ejecutar fuera de Next: en este mismo commit ese test mockea `next/font/local`.
-3. `feat`: dependencias (`three`, `@types/three`, `@fontsource-variable/inter`), tokens y layout, núcleo puro, componentes y portada. También los cambios de `devops`: `playwright.config.ts` con `timeout: 60_000`, `retries: 1` en CI y los argumentos de SwiftShader, y una regla de ESLint que prohíbe importar `three` fuera de `src/components/escena/`; el contexto manual del grupo serial de las pruebas E2E activa trazas. La tabla de tokens de `DESIGN.md` (una fila por token, con su valor), que exige el criterio 1, se completa en este paso con los valores de `globals.css`.
+3. `feat`: dependencias (`three`, `@types/three`, `@fontsource-variable/inter`), tokens y layout, núcleo puro, componentes y portada. También los cambios de `devops`: `playwright.config.ts` con `timeout: 60_000`, `retries: 1` en CI y los argumentos de SwiftShader, y una regla de ESLint que prohíbe importar `three` fuera de `src/components/escena/`. El contexto manual del grupo serial de las pruebas E2E no arranca trazas a mano: Playwright 1.64 ya traza los contextos creados con `browser.newContext()` según el `use.trace` de la configuración. La tabla de tokens de `DESIGN.md` (una fila por token, con su valor), que exige el criterio 1, se completa en este paso con los valores de `globals.css`.
 4. `docs`: ADR 0005 (escena, estelas y color), el resto de `DESIGN.md`, `AGENTS.md` (propiedad de `src/lib/escena/` y de `DESIGN.md`), ticket y estado.
 5. Revisión y enlace para abrir el PR.
 
@@ -197,7 +199,7 @@ La limpieza al desmontar el componente (muchas idas y vueltas sin aviso de demas
 
 ## Riesgos y límites
 
-- **WebGL en el CI.** Las pruebas necesitan WebGL por software en GitHub Actions. El flujo solo corre en PR y en `develop`/`main`, así que si falla se verá en el primer PR. Se añaden los argumentos de SwiftShader a la configuración como precaución, más `timeout: 60_000` y `retries: 1` en CI (WebGL por software es lento y puede fallar un intento aislado), y el contexto manual del grupo serial activa trazas para diagnosticar los fallos.
+- **WebGL en el CI.** Las pruebas necesitan WebGL por software en GitHub Actions. El flujo solo corre en PR y en `develop`/`main`, así que si falla se verá en el primer PR. Se añaden los argumentos de SwiftShader a la configuración como precaución, más `timeout: 60_000` y `retries: 1` en CI (WebGL por software es lento y puede fallar un intento aislado), y el `use.trace` de la configuración (`retain-on-failure`) graba las trazas para diagnosticar los fallos, también las del contexto manual del grupo serial, que no necesita arrancarlas a mano.
 - **`next/font/local` en Vitest.** Vitest no ejecuta `next/font/local` fuera de Next, así que `tests/unit/layout.test.ts` (GRV-01) lo mockea; cualquier otro test que importe el layout debe hacer lo mismo.
 - **Migración de tokens.** Cambiar `--spacing` altera el significado de `p-4` y `gap-6`: hay que revisar la portada y las pruebas de GRV-01.
 - **`next/font/local` con `node_modules` y Turbopack.** Si no lo resuelve, se copia el archivo y su licencia al repositorio.
