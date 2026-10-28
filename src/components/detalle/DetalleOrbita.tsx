@@ -1,23 +1,16 @@
-'use client';
-
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { VISTA_INICIAL, type VistaCamara } from '@/lib/escena/camara';
+import { useCallback, useRef, useState } from 'react';
+import { VISTA_INICIAL } from '@/lib/escena/camara';
 import type { TrazadoMiniatura } from '@/lib/escena/miniatura';
 import type { Estado, Slug } from '@/lib/fisica/tipos';
-import { LONGITUD_ESTELA, VELOCIDAD_INICIAL, type Velocidad } from '@/lib/galeria/controles';
-import { debeActualizar, type LecturaTelemetria } from '@/lib/galeria/telemetria';
+import type { Velocidad } from '@/lib/galeria/controles';
+import type { LecturaTelemetria } from '@/lib/galeria/telemetria';
+import type { PuntoDeReanudacion } from '@/store/almacenInterfaz';
 import type { ApiEscena } from '../escena/tipos';
 import { useReproduccion } from '../escena/useReproduccion';
 import { VisorOrbita, type EstadoEscena } from '../escena/VisorOrbita';
 import { ControlesReproduccion, type ApiControles } from './ControlesReproduccion';
 import { Telemetria, type ApiTelemetria } from './Telemetria';
-
-export interface PuntoDeSalida {
-  /** Fracción del periodo, en [0, 1). */
-  posicion: number;
-  /** Vista de cámara objetivo (la de `alCambiarVista`), no la suavizada. */
-  vista: VistaCamara;
-}
+import { useSesionVisor } from './useSesionVisor';
 
 interface PropsDetalleOrbita {
   slug: Slug;
@@ -28,20 +21,17 @@ interface PropsDetalleOrbita {
   distanciaMinima: number;
   velocidadMaxima: number;
   lecturaInicial: LecturaTelemetria;
-  /**
-   * Preferencias compartidas entre órbitas. Si no se pasan, el detalle las guarda él mismo;
-   * si se pasan, las controla quien llama (el almacén de interfaz).
-   */
-  velocidad?: Velocidad;
-  alCambiarVelocidad?: (velocidad: Velocidad) => void;
-  longitudEstela?: number;
-  alCambiarLongitudEstela?: (longitud: number) => void;
+  /** Preferencias compartidas entre órbitas: las controla quien llama (el almacén de interfaz). */
+  velocidad: Velocidad;
+  alCambiarVelocidad: (velocidad: Velocidad) => void;
+  longitudEstela: number;
+  alCambiarLongitudEstela: (longitud: number) => void;
   /** Dónde retomar la órbita en esta sesión: se lee al montar. */
-  reanudacion?: PuntoDeSalida;
+  reanudacion: PuntoDeReanudacion | undefined;
   /** Al montar el detalle. */
-  alMontar?: () => void;
+  alMontar: () => void;
   /** Al desmontarlo, solo si la escena llegó a dibujar un fotograma. */
-  alSalir?: (punto: PuntoDeSalida) => void;
+  alSalir: (punto: PuntoDeReanudacion) => void;
 }
 
 /**
@@ -57,19 +47,14 @@ export function DetalleOrbita({
   distanciaMinima,
   velocidadMaxima,
   lecturaInicial,
-  velocidad: velocidadControlada,
+  velocidad,
   alCambiarVelocidad,
-  longitudEstela: longitudControlada,
+  longitudEstela,
   alCambiarLongitudEstela,
   reanudacion,
   alMontar,
   alSalir,
 }: PropsDetalleOrbita) {
-  const [velocidadPropia, setVelocidadPropia] = useState<Velocidad>(VELOCIDAD_INICIAL);
-  const [longitudPropia, setLongitudPropia] = useState<number>(LONGITUD_ESTELA.inicial);
-  const velocidad = velocidadControlada ?? velocidadPropia;
-  const longitudEstela = longitudControlada ?? longitudPropia;
-
   const [estadoEscena, setEstadoEscena] = useState<EstadoEscena>('cargando');
   const { reproduciendo, alternar, fijar } = useReproduccion();
   const alPausar = useCallback(() => fijar(false), [fijar]);
@@ -78,57 +63,25 @@ export function DetalleOrbita({
   const controles = useRef<ApiControles>(null);
   const telemetria = useRef<ApiTelemetria>(null);
 
-  // Estado de la sesión del visor, fuera de React.
-  const [inicio] = useState(() => reanudacion);
-  const ultimaPosicion = useRef<number | null>(null);
-  const ultimaVista = useRef<VistaCamara | null>(inicio?.vista ?? null);
-  const escritura = useRef({ ms: -Infinity, u: NaN });
-  const reproduciendoActual = useRef(reproduciendo);
-  const llamadas = useRef({ alMontar, alSalir });
-  useEffect(() => {
-    reproduciendoActual.current = reproduciendo;
-    llamadas.current = { alMontar, alSalir };
+  const { inicio, alCambiarVista, registrarFotograma } = useSesionVisor({
+    reanudacion,
+    reproduciendo,
+    alMontar,
+    alSalir,
   });
-
-  useEffect(() => {
-    const actuales = llamadas.current;
-    actuales.alMontar?.();
-    return () => {
-      const vista = ultimaVista.current;
-      if (ultimaPosicion.current !== null && vista) {
-        llamadas.current.alSalir?.({ posicion: ultimaPosicion.current, vista });
-      }
-    };
-  }, []);
 
   const alListo = useCallback((api: ApiEscena) => {
     escena.current = api;
   }, []);
 
-  const alCambiarVista = useCallback((vista: Readonly<VistaCamara>) => {
-    ultimaVista.current = { ...vista };
-  }, []);
-
-  // Una sola decisión de ritmo por fotograma; telemetría y deslizador se escriben juntos.
-  const alFotograma = useCallback((u: number, estado: Readonly<Estado>) => {
-    ultimaPosicion.current = u;
-    const enMarcha = reproduciendoActual.current;
-    const ahora = performance.now();
-    if (!debeActualizar(ahora, escritura.current.ms, enMarcha)) return;
-    if (!enMarcha && u === escritura.current.u) return;
-    escritura.current = { ms: ahora, u };
-    telemetria.current?.escribir(u, estado);
-    controles.current?.mostrarPosicion(u);
-  }, []);
-
-  const elegirVelocidad = (nueva: Velocidad) => {
-    setVelocidadPropia(nueva);
-    alCambiarVelocidad?.(nueva);
-  };
-  const elegirLongitud = (nueva: number) => {
-    setLongitudPropia(nueva);
-    alCambiarLongitudEstela?.(nueva);
-  };
+  const alFotograma = useCallback(
+    (u: number, estado: Readonly<Estado>) => {
+      if (!registrarFotograma(u)) return;
+      telemetria.current?.escribir(u, estado);
+      controles.current?.mostrarPosicion(u);
+    },
+    [registrarFotograma],
+  );
 
   return (
     <div
@@ -166,9 +119,9 @@ export function DetalleOrbita({
           alAlternar={alternar}
           alPausar={alPausar}
           velocidad={velocidad}
-          alCambiarVelocidad={elegirVelocidad}
+          alCambiarVelocidad={alCambiarVelocidad}
           longitudEstela={longitudEstela}
-          alCambiarLongitudEstela={elegirLongitud}
+          alCambiarLongitudEstela={alCambiarLongitudEstela}
           alFijarPosicion={(u) => escena.current?.fijarPosicion(u)}
           alRestablecerVista={() => escena.current?.restablecerVista()}
         />

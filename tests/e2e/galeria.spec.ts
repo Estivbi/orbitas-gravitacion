@@ -327,6 +327,43 @@ test.describe('volver con el enlace y sin persistencia', () => {
   });
 });
 
+test.describe('logotipo tras volver con atrás', () => {
+  test('GRV-04 · criterio 36: galería, A, atrás, B y logotipo no restauran el foco ni el desplazamiento', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await esperarLista(page);
+    await enlaceDe(page, 'goggles').scrollIntoViewIfNeeded();
+    await enlaceDe(page, 'goggles').click();
+    await expect(page).toHaveURL(/\/orbitas\/goggles$/);
+    await expect(page.locator('[data-detalle="goggles"]')).toHaveCount(1);
+
+    // Con atrás, la galería recupera el foco en A y la entrada queda marcada como «por historial».
+    await page.goBack();
+    await expect(page).toHaveURL('/');
+    await expect(page.locator(ENLACES_GALERIA)).toHaveCount(6);
+    await expect.poll(() => orbitaEnfocada(page), { timeout: 10_000 }).toBe('goggles');
+
+    // Abrir B desmarca esa entrada: el logotipo ya no la trata como una llegada por historial.
+    await enlaceDe(page, 'lagrange').scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await enlaceDe(page, 'lagrange').click();
+    await expect(page).toHaveURL(/\/orbitas\/lagrange$/);
+    await expect(page.locator('[data-detalle="lagrange"]')).toHaveCount(1);
+
+    await page.getByRole('link', { name: 'Órbitas, inicio' }).click();
+    await expect(page).toHaveURL('/');
+    await expect(page.locator(ENLACES_GALERIA)).toHaveCount(6);
+    await esperarLista(page);
+    await esperarAsentado(page);
+    await page.waitForTimeout(500);
+
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    expect(await hayEnfocadoEnLaGaleria(page)).toBe(false);
+    expect(await orbitaEnfocada(page)).toBeNull();
+  });
+});
+
 test.describe('navegación entre órbitas', () => {
   test('GRV-04 · criterio 21: anterior y siguiente navegan sin recargar, de forma cíclica, y «Volver» enfoca la miniatura', async ({
     page,

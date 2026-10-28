@@ -23,6 +23,7 @@ import {
   esperarReproduciendo,
   leerActualizaciones,
   leerCifras,
+  leerFotogramas,
   leerPosicion,
   leerPosicionConHora,
   leerVista,
@@ -501,6 +502,16 @@ test.describe.serial('detalle de la figura de ocho (una sola carga)', () => {
 
     const antes = await leerActualizaciones(page);
     await page.waitForTimeout(1000);
+    expect(await leerActualizaciones(page)).toBe(antes);
+
+    // Girar la cámara repinta la escena sin mover la posición: las cifras no se reescriben.
+    const fotogramasAntes = await leerFotogramas(page);
+    const vistaAntes = await leerVista(page);
+    await page.locator(LIENZO).focus();
+    for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft');
+    await expect.poll(() => leerVista(page), { timeout: 5_000 }).not.toEqual(vistaAntes);
+    await esperarAsentado(page);
+    expect(await leerFotogramas(page)).toBeGreaterThan(fotogramasAntes);
     expect(await leerActualizaciones(page)).toBe(antes);
 
     await posicion(page).fill('0.5');

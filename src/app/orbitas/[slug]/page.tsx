@@ -39,7 +39,7 @@ export default async function PaginaOrbita({ params }: Props) {
     <article className="mx-auto flex max-w-pagina flex-col gap-6 px-4 pb-16 columnas:gap-10">
       <Link
         href={RUTA_GALERIA}
-        className="text-ash-gray hover:text-bone-white focus-visible:text-bone-white text-etiqueta flex min-h-11 w-fit items-center py-2 font-semibold uppercase"
+        className="text-ash-gray hover:text-bone-white focus-visible:text-bone-white text-etiqueta flex min-h-8 w-fit items-center py-2 font-semibold uppercase"
       >
         Volver a la galería
       </Link>

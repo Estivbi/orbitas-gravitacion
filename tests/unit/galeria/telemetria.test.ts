@@ -5,6 +5,7 @@ import {
   debeActualizar,
   formatearLectura,
   leerTelemetria,
+  valorDeFase,
 } from '@/lib/galeria/telemetria';
 import { energiaDe, momentoLinealDe, orbita, TODAS, trayectoriaDe } from '../fisica/ayudas';
 
@@ -181,5 +182,35 @@ describe('GRV-04 · criterio 6: ritmo de la telemetría', () => {
     expect(debeActualizar(99, 0, true, 200)).toBe(false);
     expect(debeActualizar(200, 0, true, 200)).toBe(true);
     expect(debeActualizar(1, 0, false, 50)).toBe(true);
+  });
+});
+
+describe('GRV-04 · criterio 30: valor de la barra de fase', () => {
+  it('trunca a tres decimales, no redondea', () => {
+    expect(valorDeFase(0.9996)).toBe('0.999');
+    expect(valorDeFase(0.4999)).toBe('0.499');
+    expect(valorDeFase(0.5006)).toBe('0.500');
+    expect(valorDeFase(0.0019)).toBe('0.001');
+  });
+
+  it('los valores exactos de tres decimales se conservan', () => {
+    for (const [fase, texto] of [
+      [0, '0.000'],
+      [0.001, '0.001'],
+      [0.29, '0.290'],
+      [0.5, '0.500'],
+      [0.999, '0.999'],
+    ] as const) {
+      expect(valorDeFase(fase), String(fase)).toBe(texto);
+    }
+  });
+
+  it('se limita a [0, 0.999] y lo no finito vale 0', () => {
+    expect(valorDeFase(1)).toBe('0.999');
+    expect(valorDeFase(7)).toBe('0.999');
+    expect(valorDeFase(-0.5)).toBe('0.000');
+    expect(valorDeFase(NaN)).toBe('0.000');
+    expect(valorDeFase(Infinity)).toBe('0.000');
+    expect(valorDeFase(-Infinity)).toBe('0.000');
   });
 });

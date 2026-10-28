@@ -3,7 +3,7 @@ import type { Slug } from '@/lib/fisica/tipos';
 import { rutaDeOrbita } from '@/lib/galeria/navegacion';
 
 const CLASES_ENLACE =
-  'text-ash-gray hover:text-bone-white focus-visible:text-bone-white text-etiqueta flex min-h-11 items-center py-2 font-semibold uppercase';
+  'text-ash-gray hover:text-bone-white focus-visible:text-bone-white text-etiqueta flex min-h-8 items-center py-2 font-semibold uppercase';
 
 interface Vecina {
   slug: Slug;

@@ -1,7 +1,12 @@
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { VistaCamara } from '@/lib/escena/camara';
 import type { Slug } from '@/lib/fisica/tipos';
-import { LONGITUD_ESTELA, esVelocidad, type Velocidad } from '@/lib/galeria/controles';
+import {
+  LONGITUD_ESTELA,
+  VELOCIDAD_INICIAL,
+  esVelocidad,
+  type Velocidad,
+} from '@/lib/galeria/controles';
 import { esOrden, ORDEN_INICIAL, type OrdenGaleria } from '@/lib/galeria/orden';
 
 export interface PuntoDeReanudacion {
@@ -35,7 +40,7 @@ export type AlmacenInterfaz = StoreApi<EstadoInterfaz & AccionesInterfaz>;
 export const ESTADO_INICIAL: Readonly<EstadoInterfaz> = Object.freeze({
   ordenGaleria: ORDEN_INICIAL,
   ultimaOrbita: null,
-  velocidad: 1,
+  velocidad: VELOCIDAD_INICIAL,
   longitudEstela: LONGITUD_ESTELA.inicial,
   reanudacion: Object.freeze({}),
   entradaPorHistorial: false,

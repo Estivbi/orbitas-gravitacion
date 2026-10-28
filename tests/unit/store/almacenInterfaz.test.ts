@@ -243,6 +243,61 @@ describe('GRV-04 · criterio 7: reanudación', () => {
   });
 });
 
+describe('GRV-04 · criterio 7: reanudación sin cambio ni valores no finitos', () => {
+  it('guardar dos veces el mismo punto notifica una sola vez y conserva la referencia', () => {
+    const almacen = crearAlmacenInterfaz();
+    const escucha = vigilar(almacen);
+    almacen.getState().guardarReanudacion('goggles', { posicion: 0.5, vista: vista() });
+    expect(escucha).toHaveBeenCalledTimes(1);
+    const guardada = almacen.getState().reanudacion;
+    almacen.getState().guardarReanudacion('goggles', { posicion: 0.5, vista: vista() });
+    expect(escucha).toHaveBeenCalledTimes(1);
+    expect(almacen.getState().reanudacion).toBe(guardada);
+    // Una posición que se envuelve al mismo valor tampoco cuenta como cambio.
+    almacen.getState().guardarReanudacion('goggles', { posicion: 1.5, vista: vista() });
+    expect(almacen.getState().reanudacion).toBe(guardada);
+  });
+
+  it('cambiar solo la posición o solo un campo de la vista sí notifica', () => {
+    const almacen = crearAlmacenInterfaz();
+    almacen.getState().guardarReanudacion('goggles', { posicion: 0.4, vista: vista() });
+    const escucha = vigilar(almacen);
+    almacen.getState().guardarReanudacion('goggles', { posicion: 0.5, vista: vista() });
+    almacen.getState().guardarReanudacion('goggles', {
+      posicion: 0.5,
+      vista: { ...vista(), acimut: 2 },
+    });
+    almacen.getState().guardarReanudacion('goggles', {
+      posicion: 0.5,
+      vista: { ...vista(), acimut: 2, polar: 0.1 },
+    });
+    almacen.getState().guardarReanudacion('goggles', {
+      posicion: 0.5,
+      vista: { ...vista(), acimut: 2, polar: 0.1, distancia: 1.5 },
+    });
+    expect(escucha).toHaveBeenCalledTimes(4);
+  });
+
+  it('una vista con acimut, polar o distancia no finitos se ignora sin notificar', () => {
+    const almacen = crearAlmacenInterfaz();
+    almacen.getState().guardarReanudacion('goggles', { posicion: 0.2, vista: vista() });
+    const antes = almacen.getState().reanudacion;
+    const escucha = vigilar(almacen);
+    const casos: VistaCamara[] = [
+      { ...vista(), acimut: NaN },
+      { ...vista(), polar: Infinity },
+      { ...vista(), distancia: NaN },
+      { ...vista(), acimut: -Infinity },
+    ];
+    for (const caso of casos) {
+      almacen.getState().guardarReanudacion('goggles', { posicion: 0.6, vista: caso });
+      almacen.getState().guardarReanudacion('moth-i', { posicion: 0.6, vista: caso });
+    }
+    expect(almacen.getState().reanudacion).toBe(antes);
+    expect(escucha).not.toHaveBeenCalled();
+  });
+});
+
 describe('GRV-04 · criterio 7: entrada por historial', () => {
   it('marcarEntradaPorHistorial fija el valor y repetirlo no notifica', () => {
     const almacen = crearAlmacenInterfaz();

@@ -1,6 +1,7 @@
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { ESLint } from 'eslint';
+import * as ts from 'typescript';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { existe, leer, leerJson, raiz } from './utils';
 
@@ -31,6 +32,40 @@ function importa(codigo: string, modulo: string): boolean {
 /** Código sin comentarios de bloque ni de línea (un «no persiste» en un comentario no es persistencia). */
 function sinComentarios(codigo: string): string {
   return codigo.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(?<!:)\/\/.*$/gm, '');
+}
+
+/**
+ * Llamadas a `nombre(...)` que no están dentro de ninguna función (ámbito del módulo), sin contar
+ * la propia declaración. Se analiza el árbol sintáctico, así que no importa cómo esté formateado.
+ */
+function llamadasEnAmbitoDeModulo(codigo: string, nombre: string): string[] {
+  const fuente = ts.createSourceFile(
+    'x.tsx',
+    codigo,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const halladas: string[] = [];
+  const dentroDeFuncion = (nodo: ts.Node): boolean => {
+    for (let padre = nodo.parent; padre; padre = padre.parent) {
+      if (ts.isFunctionLike(padre) || ts.isClassStaticBlockDeclaration(padre)) return true;
+    }
+    return false;
+  };
+  const visitar = (nodo: ts.Node): void => {
+    if (
+      ts.isCallExpression(nodo) &&
+      ts.isIdentifier(nodo.expression) &&
+      nodo.expression.text === nombre &&
+      !dentroDeFuncion(nodo)
+    ) {
+      halladas.push(nodo.getText(fuente));
+    }
+    ts.forEachChild(nodo, visitar);
+  };
+  visitar(fuente);
+  return halladas;
 }
 
 /** Persistencia en el navegador: localStorage, sessionStorage, la función persist o su middleware. */
@@ -103,6 +138,39 @@ describe('GRV-04 · criterio 10: zustand solo vive en src/store', () => {
     const modulo = leer('src/store/almacenInterfaz.ts');
     expect(modulo).not.toMatch(/^export\s+const\s+\w+\s*=\s*(?:create|createStore)\s*[(<]/m);
     expect(modulo).not.toMatch(/^const\s+\w+\s*=\s*crearAlmacenInterfaz\(/m);
+  });
+
+  it('la detección de instancias de módulo distingue el ámbito del módulo del interior de una función', () => {
+    for (const codigo of [
+      'export const almacen = crearAlmacenInterfaz();',
+      'const a =\n  crearAlmacenInterfaz({ velocidad: 2 });',
+      'export const usar = useStore(crearAlmacenInterfaz());',
+    ]) {
+      expect(llamadasEnAmbitoDeModulo(codigo, 'crearAlmacenInterfaz'), codigo).toHaveLength(1);
+    }
+    for (const codigo of [
+      'export function f() { return crearAlmacenInterfaz(); }',
+      'const f = () => crearAlmacenInterfaz();',
+      'function P() { const [a] = useState(() => crearAlmacenInterfaz()); return a; }',
+      '// const a = crearAlmacenInterfaz();',
+    ]) {
+      expect(llamadasEnAmbitoDeModulo(codigo, 'crearAlmacenInterfaz'), codigo).toEqual([]);
+    }
+  });
+
+  it('el proveedor crea el almacén dentro de useState, con un inicializador perezoso', () => {
+    const proveedor = sinComentarios(leer('src/store/ProveedorAlmacen.tsx'));
+    expect(proveedor).toMatch(
+      /const\s*\[\s*almacen\s*\]\s*=\s*useState\(\s*\(\)\s*=>\s*crearAlmacenInterfaz\(\)\s*\)/,
+    );
+  });
+
+  it('ningún archivo de src instancia crearAlmacenInterfaz() fuera de una función', () => {
+    const archivos = archivosDe('src');
+    expect(archivos.length).toBeGreaterThan(0);
+    for (const ruta of archivos) {
+      expect(llamadasEnAmbitoDeModulo(leer(ruta), 'crearAlmacenInterfaz'), ruta).toEqual([]);
+    }
   });
 
   it('package.json declara zustand en dependencies con un rango ^5', () => {

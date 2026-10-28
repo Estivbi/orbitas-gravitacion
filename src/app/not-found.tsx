@@ -15,7 +15,7 @@ export default function NoEncontrada() {
       <p className="max-w-90">La dirección que buscas no existe, pero las seis soluciones sí.</p>
       <Link
         href={RUTA_GALERIA}
-        className="text-ash-gray hover:text-bone-white focus-visible:text-bone-white text-etiqueta flex min-h-11 items-center py-2 font-semibold uppercase"
+        className="text-ash-gray hover:text-bone-white focus-visible:text-bone-white text-etiqueta flex min-h-8 items-center py-2 font-semibold uppercase"
       >
         Volver a la galería
       </Link>
