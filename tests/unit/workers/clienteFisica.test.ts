@@ -1,48 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Trayectoria } from '@/lib/fisica';
-import { crearClienteFisica, type TrabajadorLike } from '@/workers/clienteFisica';
-import type { Peticion, Respuesta } from '@/workers/protocolo';
-
-type EscuchaMensaje = (evento: { data: Respuesta }) => void;
-type EscuchaError = (evento: { message: string }) => void;
-
-class TrabajadorFalso implements TrabajadorLike {
-  enviados: Peticion[] = [];
-  private escuchasMensaje: EscuchaMensaje[] = [];
-  private escuchasError: EscuchaError[] = [];
-
-  postMessage(mensaje: Peticion): void {
-    this.enviados.push(mensaje);
-  }
-
-  addEventListener(tipo: 'message', escucha: EscuchaMensaje): void;
-  addEventListener(tipo: 'error', escucha: EscuchaError): void;
-  addEventListener(tipo: 'message' | 'error', escucha: EscuchaMensaje | EscuchaError): void {
-    if (tipo === 'message') {
-      this.escuchasMensaje.push(escucha as EscuchaMensaje);
-    } else {
-      this.escuchasError.push(escucha as EscuchaError);
-    }
-  }
-
-  terminate(): void {}
-
-  responder(respuesta: Respuesta): void {
-    this.escuchasMensaje.forEach((escucha) => escucha({ data: respuesta }));
-  }
-
-  fallar(mensaje: string): void {
-    this.escuchasError.forEach((escucha) => escucha({ message: mensaje }));
-  }
-
-  peticion(indice: number): Peticion {
-    const enviada = this.enviados[indice];
-    if (!enviada) {
-      throw new Error(`No se envió la petición ${indice}`);
-    }
-    return enviada;
-  }
-}
+import { crearClienteFisica } from '@/workers/clienteFisica';
+import { TrabajadorFalso } from './trabajadorFalso';
 
 const trayectoriaFalsa = (periodo: number): Trayectoria => ({
   periodo,
@@ -53,10 +12,20 @@ const trayectoriaFalsa = (periodo: number): Trayectoria => ({
   velocidadMaxima: 1,
 });
 
+/** La fábrica entrega los trabajadores falsos en orden y crea otros nuevos si hacen falta. */
 function preparar() {
-  const trabajador = new TrabajadorFalso();
-  const fabrica = vi.fn(() => trabajador);
-  return { trabajador, fabrica, cliente: crearClienteFisica(fabrica) };
+  const trabajadores = [new TrabajadorFalso()];
+  let creados = 0;
+  const fabrica = vi.fn(() => {
+    const siguiente = trabajadores[creados] ?? new TrabajadorFalso();
+    if (!trabajadores[creados]) {
+      trabajadores.push(siguiente);
+    }
+    creados++;
+    return siguiente;
+  });
+  const [trabajador] = trabajadores as [TrabajadorFalso];
+  return { trabajador, trabajadores, fabrica, cliente: crearClienteFisica(fabrica) };
 }
 
 describe('GRV-02 · criterio 17: cliente del Worker', () => {
@@ -105,13 +74,15 @@ describe('GRV-02 · criterio 17: cliente del Worker', () => {
     await expect(promesa).rejects.toThrow('fallo de cálculo');
   });
 
-  it('rechaza las pendientes cuando el Worker emite un error', async () => {
+  it('rechaza todas las pendientes ante una respuesta de error sin id', async () => {
     const { trabajador, cliente } = preparar();
-    const promesa = cliente.calcularTrayectoria('lagrange');
+    const lagrange = cliente.calcularTrayectoria('lagrange');
+    const goggles = cliente.calcularTrayectoria('goggles');
 
-    trabajador.fallar('no se pudo cargar el script');
+    trabajador.responder({ tipo: 'error', id: null, mensaje: 'petición ilegible' });
 
-    await expect(promesa).rejects.toThrow('no se pudo cargar el script');
+    await expect(lagrange).rejects.toThrow('petición ilegible');
+    await expect(goggles).rejects.toThrow('petición ilegible');
   });
 
   it('reutiliza la promesa de un slug ya pedido sin enviar otro mensaje', () => {
@@ -121,6 +92,55 @@ describe('GRV-02 · criterio 17: cliente del Worker', () => {
     const segunda = cliente.calcularTrayectoria('lagrange');
 
     expect(segunda).toBe(primera);
+    expect(trabajador.enviados).toHaveLength(1);
+  });
+
+  it('permite reintentar un slug cuya petición falló', async () => {
+    const { trabajador, cliente } = preparar();
+    const fallida = cliente.calcularTrayectoria('lagrange');
+    trabajador.responder({ tipo: 'error', id: trabajador.peticion(0).id, mensaje: 'fallo' });
+    await expect(fallida).rejects.toThrow('fallo');
+
+    const reintento = cliente.calcularTrayectoria('lagrange');
+    expect(reintento).not.toBe(fallida);
+    expect(trabajador.enviados).toHaveLength(2);
+
+    trabajador.responder({
+      tipo: 'resultado',
+      id: trabajador.peticion(1).id,
+      slug: 'lagrange',
+      trayectoria: trayectoriaFalsa(5),
+    });
+    expect((await reintento).periodo).toBe(5);
+  });
+
+  it('rechaza las pendientes, descarta el Worker que falla y crea otro en la siguiente petición', async () => {
+    const { trabajador, trabajadores, fabrica, cliente } = preparar();
+    const promesa = cliente.calcularTrayectoria('lagrange');
+
+    trabajador.fallar('no se pudo cargar el script');
+
+    await expect(promesa).rejects.toThrow('no se pudo cargar el script');
+    expect(trabajador.terminado).toBe(true);
+
+    void cliente.calcularTrayectoria('lagrange');
+    expect(fabrica).toHaveBeenCalledTimes(2);
+    expect(trabajadores[1]?.enviados).toHaveLength(1);
+  });
+
+  it('rechaza y permite reintentar si no se puede crear el Worker', async () => {
+    const trabajador = new TrabajadorFalso();
+    let intentos = 0;
+    const cliente = crearClienteFisica(() => {
+      if (++intentos === 1) {
+        throw new Error('Worker no disponible');
+      }
+      return trabajador;
+    });
+
+    await expect(cliente.calcularTrayectoria('lagrange')).rejects.toThrow('Worker no disponible');
+
+    void cliente.calcularTrayectoria('lagrange');
     expect(trabajador.enviados).toHaveLength(1);
   });
 });

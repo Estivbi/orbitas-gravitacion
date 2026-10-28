@@ -28,8 +28,11 @@ export function crearClienteFisica(fabrica: () => TrabajadorLike) {
 
   function obtenerTrabajador(): TrabajadorLike {
     if (!trabajador) {
-      trabajador = fabrica();
-      trabajador.addEventListener('message', ({ data }) => {
+      const nuevo = fabrica();
+      nuevo.addEventListener('message', ({ data }) => {
+        if (!data) {
+          return;
+        }
         if (data.id === null) {
           // Sin id no se sabe a quién responder: se avisa a todos.
           rechazarTodas(new Error(data.tipo === 'error' ? data.mensaje : 'Respuesta sin id'));
@@ -46,13 +49,21 @@ export function crearClienteFisica(fabrica: () => TrabajadorLike) {
           pendiente.resolver(data.trayectoria);
         }
       });
-      trabajador.addEventListener('error', ({ message }) => {
+      nuevo.addEventListener('error', ({ message }) => {
+        // Un Worker que falla (por ejemplo, porque no carga su script) no volverá a responder:
+        // se descarta para que la siguiente petición cree uno nuevo.
+        nuevo.terminate();
+        if (trabajador === nuevo) {
+          trabajador = undefined;
+        }
         rechazarTodas(new Error(message));
       });
+      trabajador = nuevo;
     }
     return trabajador;
   }
 
+  /** Todos los llamadores reciben el mismo objeto: no se debe modificar. */
   function calcularTrayectoria(slug: Slug): Promise<Trayectoria> {
     const guardada = cache.get(slug);
     if (guardada) {
@@ -61,7 +72,13 @@ export function crearClienteFisica(fabrica: () => TrabajadorLike) {
     const promesa = new Promise<Trayectoria>((resolver, rechazar) => {
       const id = siguienteId++;
       pendientes.set(id, { resolver, rechazar });
-      obtenerTrabajador().postMessage({ tipo: 'calcular', id, slug });
+      try {
+        obtenerTrabajador().postMessage({ tipo: 'calcular', id, slug });
+      } catch (causa) {
+        // Si no se pudo crear el Worker, la petición no quedará pendiente para siempre.
+        pendientes.delete(id);
+        rechazar(causa instanceof Error ? causa : new Error(String(causa)));
+      }
     });
     cache.set(slug, promesa);
     // Si falla, se olvida para poder reintentar; quien la pidió recibe el rechazo igualmente.

@@ -1,10 +1,14 @@
 #!/usr/bin/env node
-// Medición independiente del motor de física (GRV-02).
+// Medición del motor de física con una reimplementación separada (GRV-02).
 //
 // Es una implementación aparte de RK4 con duplicación de paso, escrita sin importar nada de
 // src/lib/fisica, para comprobar desde fuera los números de la spec y de los ADR 0002 y 0003:
 // cierre de cada órbita, deriva de energía y momento angular, extremos, nodos y error de
 // interpolación de tres estrategias. Si cambia el catálogo hay que actualizar los datos de aquí.
+//
+// Limitación: comparte el algoritmo con la librería (RK4 con duplicación de paso), así que detecta
+// errores de implementación pero no de diseño. El diseño lo cubren las pruebas de conservación y
+// la comparación con una referencia más fina.
 //
 // Uso: npm run medir:fisica
 
@@ -181,7 +185,7 @@ for (const [slug, periodo, inicial] of ORBITAS) {
   );
 
   const referencia = integrar(inicial, periodo, 1e-13, periodo / 7200);
-  // Rejilla uniforme del brief: n intervalos iguales, integrados con precisión hasta cada instante.
+  // Rejilla uniforme del planteamiento inicial: n intervalos iguales, integrados con precisión hasta cada instante.
   const uniforme = (n) => {
     const duracion = periodo / n;
     const tiempos = Array.from({ length: n + 1 }, (_, k) => k * duracion);

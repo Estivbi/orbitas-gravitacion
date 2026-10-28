@@ -17,7 +17,9 @@ function validarFraccion(u: number): void {
 
 /** Fracción del periodo envuelta a [0, 1): 1,25 y −0,75 equivalen a 0,25. */
 function envolver(u: number): number {
-  return u - Math.floor(u);
+  const fraccion = u - Math.floor(u);
+  // Para u = −1e-17 la resta da exactamente 1: se trata como 0 para mantener el intervalo [0, 1).
+  return fraccion >= 1 ? 0 : fraccion;
 }
 
 function buscarSegmento(t: Trayectoria, tiempo: number): number {
@@ -47,6 +49,9 @@ export function indiceEn(t: Trayectoria, u: number): number {
  */
 export function estadoEn(t: Trayectoria, u: number, salida: Estado = new Float64Array(N)): Estado {
   validarFraccion(u);
+  if (salida.length !== N) {
+    throw new RangeError(`La salida debe tener ${N} valores (recibidos: ${salida.length})`);
+  }
   const tiempo = envolver(u) * t.periodo;
   const i = buscarSegmento(t, tiempo);
 

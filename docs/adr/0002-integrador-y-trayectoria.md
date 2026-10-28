@@ -4,7 +4,7 @@
 
 ## Contexto
 
-El motor tiene que calcular las seis órbitas con precisión controlada y servirlas a la escena, a las miniaturas y a la telemetría. En cinco de ellas hay encuentros muy cercanos: la distancia mínima real entre dos cuerpos es de 0,011 en Butterfly I y de 0,013 en Yin-Yang I. Un paso fijo diverge en esos encuentros, y una trayectoria guardada en una rejilla uniforme los representa mal.
+El motor tiene que calcular las seis órbitas con precisión controlada y servirlas a la escena, a las miniaturas y a la telemetría. En cuatro de ellas hay encuentros muy cercanos: la distancia mínima real entre dos cuerpos es de 0,011 en Butterfly I y de 0,013 en Yin-Yang I. Un paso fijo diverge en esos encuentros, y una trayectoria guardada en una rejilla uniforme los representa mal.
 
 ## Opciones
 
@@ -13,7 +13,7 @@ El motor tiene que calcular las seis órbitas con precisión controlada y servir
 | 720 muestras uniformes por periodo e interpolación lineal | Es lo que proponía el planteamiento inicial. Error de posición entre muestras de hasta 4,2e-2, del orden de la propia distancia mínima. La «distancia mínima» de la telemetría saldría hasta siete veces mayor que la real |
 | 2880 muestras uniformes e interpolación de Hermite | Mejora, pero no basta: hasta 2,5e-3 en Yin-Yang I. El error se concentra en los encuentros y una rejilla uniforme no puede adaptarse |
 | **Pasos adaptativos como nodos e interpolación de Hermite** | Elegida. Los nodos son densos justo donde hace falta. Error ≤ 2,2e-7 en las seis |
-| Dormand–Prince 5(4) con salida densa | Más eficiente (unas 6 evaluaciones de fuerza por paso frente a unas 11 de la duplicación) y trae interpolación de cuarto orden. Más código, y con menos de 10 000 nodos y pocos milisegundos por órbita el ahorro no compensa |
+| Dormand–Prince 5(4) con salida densa | Más eficiente (unas 6 evaluaciones de fuerza por paso frente a 12 de la duplicación: 4 por cada una de las 3 integraciones de RK4) y trae interpolación de cuarto orden. Más código, y con menos de 10 000 nodos y pocos milisegundos por órbita el ahorro no compensa |
 | Integrador simpléctico de paso fijo | Conserva bien la energía a largo plazo, pero un paso fijo no resuelve los encuentros cercanos |
 | Regularización de Kustaanheimo–Stiefel | Pensada para colisiones. Innecesaria con distancias de al menos 0,011 |
 
@@ -26,7 +26,7 @@ El motor tiene que calcular las seis órbitas con precisión controlada y servir
 
 ## Evidencia
 
-`npm run medir:fisica` reproduce estas cifras con un integrador independiente de `src/lib/fisica`.
+`npm run medir:fisica` reproduce estas cifras con una reimplementación separada de `src/lib/fisica`: comparte el algoritmo pero no el código, así que detecta errores de implementación, no de diseño. El error de interpolación de las velocidades (≤ 1,1e-4) no lo mide el script, sino el criterio 10 de la spec.
 
 | Órbita | 720 uniformes + lineal | 2880 uniformes + Hermite | Pasos adaptativos + Hermite |
 |---|---|---|---|

@@ -4,7 +4,7 @@
 
 ## Contexto
 
-Las seis órbitas son periódicas, pero los datos de las cuatro halladas numéricamente tienen cinco cifras, así que tras un periodo el estado no vuelve exactamente al inicial. Medido con un integrador independiente, el mayor desacuerdo entre el estado inicial y el estado tras `T` (posiciones y velocidades) es:
+Las seis órbitas son periódicas, pero los datos de las cuatro halladas numéricamente tienen cinco cifras, así que tras un periodo el estado no vuelve exactamente al inicial. Medido con `npm run medir:fisica`, el mayor desacuerdo entre el estado inicial y el estado tras `T` (posiciones y velocidades) es:
 
 | Órbita | Cierre |
 |---|---|
@@ -35,7 +35,7 @@ Se integra exactamente de `0` a `T`. La reproducción envuelve la fracción del 
 
 ## Consecuencias
 
-- Al cerrar el bucle hay un salto de hasta el cierre de la tabla. En posición es menor que un píxel en pantalla; en velocidad llega a 2,4e-3 en Goggles.
+- Al cerrar el bucle hay un salto de hasta el cierre de la tabla. En posición llega a 6,7e-4 (el radio máximo es ≈ 1,4), una fracción de píxel en un lienzo de unos 800 px; en velocidad llega a 2,4e-3 en Goggles.
 - `estadoEn(t, 1)` equivale a `estadoEn(t, 0)`; el último nodo de la trayectoria, que es el estado tras `T`, no se usa como estado de reproducción.
 - Quien dibuje estelas con envoltura debe saltarse ese último nodo, que duplica al primero salvo por el cierre.
 - Si algún día se quisiera simular más de un periodo, haría falta una órbita estable o una indicación visible de que la trayectoria se desvía.

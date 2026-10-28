@@ -74,7 +74,7 @@ describe('GRV-02 · criterio 9: estructura de la trayectoria', () => {
   });
 });
 
-describe('GRV-02 · criterio 19: coste razonable', () => {
+describe('GRV-02 · criterio 18: coste razonable', () => {
   it('integra las seis órbitas con menos de 20 000 nodos cada una y en menos de 3 s', () => {
     const inicio = performance.now();
     const trayectorias = TODAS.map((slug) => integrarPeriodo(orbita(slug)));
