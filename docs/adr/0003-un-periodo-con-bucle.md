@@ -17,7 +17,7 @@ Las seis órbitas son periódicas, pero los datos de las cuatro halladas numéri
 
 Sobre la estabilidad:
 
-- La figura de ocho es linealmente estable.
+- La figura de ocho es estable: los cálculos de Simó, recogidos en el artículo de Chenciner y Montgomery, indican que es completamente elíptica con torsión.
 - La solución equilátera de Lagrange con masas iguales es inestable (criterio de Routh): si cierra tan bien es porque sus datos son exactos.
 - De las cuatro numéricas, el artículo que las presenta esperaba que fueran estables o marginalmente inestables. Li y Liao (arXiv:1312.6796) afirman que varias de las órbitas de ese artículo se alejan de la periodicidad con el tiempo. No se ha determinado cuáles, y esa cita no se ha cotejado con el original.
 

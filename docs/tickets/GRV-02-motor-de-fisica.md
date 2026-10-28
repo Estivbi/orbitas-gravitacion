@@ -84,7 +84,7 @@ Con una página desechable (no se versiona) y Chromium se comprobó que Next 16 
 
 ## Límites
 
-- **Contraste con las fuentes.** Los valores de Chenciner y Montgomery se tomaron tal como los reproducen dos artículos leídos a través de un buscador, y conviene cotejarlos con el PDF original. No se consultó el artículo de Moore (1993). La cita de Li y Liao no se ha cotejado con el original.
+- **Contraste con las fuentes.** Los valores de Chenciner y Montgomery se verificaron contra el PDF del artículo (Figura 1) y los de las cuatro órbitas numéricas contra la Tabla I de Šuvakov y Dmitrašinović. No se consultó el artículo de Moore (1993). La cita de Li y Liao no se ha cotejado con el original.
 - **Un solo periodo.** El salto al cerrar el bucle llega a 2,4e-3 en velocidad en Goggles (ADR 0003).
 - **Extremos de la trayectoria.** `distanciaMinima` y `velocidadMaxima` se calculan sobre los nodos y son una cota, con un error pequeño.
 - **El Worker aún no tiene una prueba E2E permanente**, y la transferencia de sus buffers (`fisica.worker.ts`) no tiene ninguna prueba automática. El `npm run build` del repositorio no lo ejercita hasta que una página use el cliente (GRV-04).
