@@ -19,6 +19,25 @@ describe('GRV-03 · criterio 9: reloj de la órbita', () => {
   it('recorta dt a [0, 0,25]', () => {
     expect(avanzarPosicion(0, 5, 1, 1)).toBeCloseTo(0.25, 12);
     expect(avanzarPosicion(0.4, -1, 1, 1)).toBe(0.4);
+    expect(avanzarPosicion(0.4, -0.3, 1, 1)).toBe(0.4);
+  });
+
+  it('el recorte actúa sobre dt, no sobre el incremento: con velocidad 2 y periodo 10', () => {
+    expect(avanzarPosicion(0, 5, 2, 10)).toBeCloseTo(0.05, 12);
+    expect(avanzarPosicion(0, 0.25, 2, 10)).toBeCloseTo(0.05, 12);
+    expect(avanzarPosicion(0.2, 9, 100, 10)).toBeCloseTo(0.7, 12);
+    expect(avanzarPosicion(0.2, 9, -100, 10)).toBeCloseTo(0.7, 12);
+  });
+
+  it('el periodo escala el avance', () => {
+    expect(avanzarPosicion(0, 0.25, 1, 10)).toBeCloseTo(0.025, 12);
+    expect(avanzarPosicion(0, 0.25, 1, 5)).toBeCloseTo(0.05, 12);
+  });
+
+  it('un retroceso minúsculo desde 0 envuelve a un valor menor que 1', () => {
+    const resultado = avanzarPosicion(0, 1e-17, -1, 1);
+    expect(resultado).toBeGreaterThanOrEqual(0);
+    expect(resultado).toBeLessThan(1);
   });
 
   it('nunca devuelve 1 ni NaN, tampoco en los bordes', () => {
@@ -42,6 +61,8 @@ describe('GRV-03 · criterio 9: reloj de la órbita', () => {
       [0.25, 0.25],
       [1.25, 0.25],
       [-0.25, 0.75],
+      [-3.75, 0.25],
+      [7, 0],
       [2, 0],
       [1, 0],
       [0, 0],
@@ -50,7 +71,8 @@ describe('GRV-03 · criterio 9: reloj de la órbita', () => {
     });
 
     it('un valor negativo diminuto vale 0 y no 1', () => {
-      expect(envolverPosicion(-1e-17)).toBe(0);
+      expect(envolverPosicion(-1e-17)).toBeCloseTo(0, 12);
+      expect(envolverPosicion(-1e-17)).toBeLessThan(1);
     });
   });
 });

@@ -14,6 +14,8 @@ describe('GRV-03 · criterio 8: campo ambiental', () => {
     const a = generarCampoAmbiental(300, 7);
     const b = generarCampoAmbiental(300, 8);
     expect(Array.from(b.posiciones)).not.toEqual(Array.from(a.posiciones));
+    expect(Array.from(b.alfas)).not.toEqual(Array.from(a.alfas));
+    expect(Array.from(b.paleta)).not.toEqual(Array.from(a.paleta));
   });
 
   it('tiene exactamente la cantidad pedida de partículas', () => {
@@ -51,5 +53,61 @@ describe('GRV-03 · criterio 8: campo ambiental', () => {
       usados.add(indice);
     }
     expect(usados.size).toBeGreaterThan(1);
+  });
+
+  describe('dispersión', () => {
+    const cantidad = 2000;
+    const campo = generarCampoAmbiental(cantidad, 11);
+    const radios = Array.from({ length: cantidad }, (_, i) =>
+      Math.hypot(
+        campo.posiciones[3 * i]!,
+        campo.posiciones[3 * i + 1]!,
+        campo.posiciones[3 * i + 2]!,
+      ),
+    );
+    const ordenados = [...radios].sort((a, b) => a - b);
+    const percentil = (p: number) => ordenados[Math.floor(p * (cantidad - 1))]!;
+
+    it('los radios se reparten por toda la cáscara y no se concentran', () => {
+      expect(percentil(0.05)).toBeLessThan(9);
+      expect(percentil(0.95)).toBeGreaterThan(13);
+      expect(percentil(1) - percentil(0)).toBeGreaterThan(7);
+      expect(percentil(0.5)).toBeGreaterThan(7);
+      expect(percentil(0.5)).toBeLessThan(13);
+    });
+
+    it('hay partículas a ambos lados de cada eje', () => {
+      for (const eje of [0, 1, 2]) {
+        let positivas = 0;
+        let negativas = 0;
+        for (let i = 0; i < cantidad; i++) {
+          const valor = campo.posiciones[3 * i + eje]!;
+          if (valor > 0) positivas++;
+          if (valor < 0) negativas++;
+        }
+        expect(positivas, `eje ${eje} positivo`).toBeGreaterThan(0.2 * cantidad);
+        expect(negativas, `eje ${eje} negativo`).toBeGreaterThan(0.2 * cantidad);
+      }
+    });
+
+    it('al menos el 90 % de las posiciones son distintas', () => {
+      const distintas = new Set<string>();
+      for (let i = 0; i < cantidad; i++) {
+        distintas.add(
+          `${campo.posiciones[3 * i]},${campo.posiciones[3 * i + 1]},${campo.posiciones[3 * i + 2]}`,
+        );
+      }
+      expect(distintas.size).toBeGreaterThanOrEqual(0.9 * cantidad);
+    });
+
+    it('el alfa recorre buena parte de su rango y no es constante', () => {
+      const alfas = Array.from(campo.alfas);
+      expect(Math.max(...alfas) - Math.min(...alfas)).toBeGreaterThan(0.3);
+    });
+
+    it('se usan las cuatro entradas de la paleta', () => {
+      const usados = new Set(campo.paleta);
+      expect(usados.size).toBe(TAMANO_PALETA);
+    });
   });
 });

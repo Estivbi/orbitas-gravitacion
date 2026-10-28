@@ -25,7 +25,7 @@ Los colores viven en el bloque `@theme` de `src/app/globals.css`. Cambiar el ace
 | Tercer tono | `--color-deep-verdant` | `text-deep-verdant` | `#15846e` | Campo ambiental de partículas |
 | Tercer cuerpo | `--color-orbit-teal` | `text-orbit-teal` | `#2bbf9f` | Tercer cuerpo y su estela. Excepción deliberada: `#15846e` queda apagado sobre negro |
 
-Colores de los tres cuerpos, en orden: `electric-iris`, `saffron-spark`, `orbit-teal`.
+Colores de los tres cuerpos, por índice: cuerpo 0 `electric-iris`, cuerpo 1 `saffron-spark`, cuerpo 2 `orbit-teal`.
 
 Sin degradados en componentes. Error, éxito y aviso se definen cuando haya formularios (el aviso del modo reducido usa `saffron-spark`).
 
@@ -34,8 +34,8 @@ Sin degradados en componentes. Error, éxito y aviso se definen cuando haya form
 ### Tipografía
 
 - Familia única: Inter, cargada con `next/font` (GRV-03), como sustituta de la tipografía de la referencia.
-- Titulares: peso 400, de 78 a 113 px en escritorio con `clamp` para móvil, interlineado 1,1 y tracking −0,04 em. La jerarquía sale de la escala, no del peso.
-- Cuerpo: 18 px. Peso 200 solo en 18 px o más y en pantallas anchas; en móvil y por debajo de 16 px, peso 300 o 400.
+- Titulares (`h1` a `h6`): peso 400 en cualquier ancho, de 78 a 113 px en escritorio con `clamp` para móvil, interlineado 1,1 y tracking −0,04 em. La jerarquía sale de la escala, no del peso.
+- Cuerpo: 18 px. Peso 300 con menos de 640 px de ancho de viewport y peso 200 con 640 px o más; por debajo de 18 px nunca peso 200 (300 o 400).
 - Etiquetas: 14 px, peso 600, mayúsculas, tracking 0,025 em.
 - Cifras con `font-variant-numeric: tabular-nums`.
 
@@ -60,7 +60,7 @@ Sin degradados en componentes. Error, éxito y aviso se definen cuando haya form
 - **Telemetría:** columnas de cifras grandes y ligeras con etiqueta ámbar en mayúsculas, sin recuadros.
 - **Miniatura de órbita:** SVG suelto con su nombre debajo, sin tarjeta.
 - **Escena:** estelas hechas de triángulos pequeños (contorno fino, opacidad por vértice) y un campo ambiental de unos 300 triángulos a baja opacidad.
-- **Foco:** contorno blanco de 2 px con 3 px de separación, nunca violeta.
+- **Foco:** contorno blanco de 2 px con 3 px de separación, nunca violeta (regla global `:focus-visible`). En el lienzo de la escena el contorno se dibuja hacia dentro.
 
 ## Hacer / No hacer
 
@@ -69,6 +69,6 @@ Sin degradados en componentes. Error, éxito y aviso se definen cuando haya form
 
 ## Responsive y accesibilidad
 
-- Puntos de corte: móvil (hasta 640 px), tablet (hasta 1024 px) y escritorio. La composición pasa a una columna por debajo de 900 px.
+- Puntos de corte: móvil (menos de 640 px), tablet (de 640 px hasta 1024 px) y escritorio. La composición pasa a una columna por debajo de 900 px.
 - Contraste mínimo AA (4,5:1), foco visible y objetivos táctiles de al menos 44 px.
 - Un solo tema, oscuro.

@@ -40,22 +40,22 @@ describe('GRV-03 · criterio 5: cámara', () => {
   });
 
   describe('teclado', () => {
-    it('las flechas horizontales giran el acimut 0,14 en sentidos opuestos', () => {
+    it('ArrowLeft resta 0,14 al acimut y ArrowRight lo suma, sin tocar el polar', () => {
       const izquierda = girar(ordenDeTecla('ArrowLeft'));
       const derecha = girar(ordenDeTecla('ArrowRight'));
-      expect(Math.abs(izquierda.dAcimut)).toBeCloseTo(0.14, 10);
-      expect(izquierda.dPolar).toBe(0);
-      expect(derecha.dAcimut).toBeCloseTo(-izquierda.dAcimut, 10);
-      expect(derecha.dPolar).toBe(0);
+      expect(izquierda.dAcimut).toBeCloseTo(-0.14, 12);
+      expect(derecha.dAcimut).toBeCloseTo(0.14, 12);
+      expect(izquierda.dPolar).toBeCloseTo(0, 12);
+      expect(derecha.dPolar).toBeCloseTo(0, 12);
     });
 
-    it('las flechas verticales giran el ángulo polar 0,1 en sentidos opuestos', () => {
+    it('ArrowUp resta 0,1 al polar y ArrowDown lo suma, sin tocar el acimut', () => {
       const arriba = girar(ordenDeTecla('ArrowUp'));
       const abajo = girar(ordenDeTecla('ArrowDown'));
-      expect(Math.abs(arriba.dPolar)).toBeCloseTo(0.1, 10);
-      expect(arriba.dAcimut).toBe(0);
-      expect(abajo.dPolar).toBeCloseTo(-arriba.dPolar, 10);
-      expect(abajo.dAcimut).toBe(0);
+      expect(arriba.dPolar).toBeCloseTo(-0.1, 12);
+      expect(abajo.dPolar).toBeCloseTo(0.1, 12);
+      expect(arriba.dAcimut).toBeCloseTo(0, 12);
+      expect(abajo.dAcimut).toBeCloseTo(0, 12);
     });
 
     it.each(['+', '='])('%s acerca con factor 0,88', (tecla) => {
@@ -87,20 +87,40 @@ describe('GRV-03 · criterio 5: cámara', () => {
 
     it('sin modificadores explícitos se comporta como sin ninguno pulsado', () => {
       expect(ordenDeTecla('Home', SIN_MODIFICADORES)).toEqual({ tipo: 'restablecer' });
+      expect(ordenDeTecla('ArrowRight', SIN_MODIFICADORES)).toEqual(ordenDeTecla('ArrowRight'));
+    });
+
+    it('con los tres modificadores a la vez tampoco hay orden', () => {
+      expect(ordenDeTecla('Home', { ctrl: true, meta: true, alt: true })).toBeNull();
     });
   });
 
   describe('ratón, rueda y tacto', () => {
-    it('arrastrar gira 0,008 rad por píxel y el sentido se invierte con el desplazamiento', () => {
-      const adelante = girar(ordenDeArrastre(100, 0));
-      const atras = girar(ordenDeArrastre(-100, 0));
-      expect(Math.abs(adelante.dAcimut)).toBeCloseTo(0.8, 10);
-      expect(adelante.dPolar).toBe(0);
-      expect(atras.dAcimut).toBeCloseTo(-adelante.dAcimut, 10);
+    it('arrastrar a la derecha resta acimut: dAcimut = −dx · 0,008', () => {
+      const derecha = girar(ordenDeArrastre(100, 0));
+      const izquierda = girar(ordenDeArrastre(-100, 0));
+      expect(derecha.dAcimut).toBeCloseTo(-0.8, 12);
+      expect(izquierda.dAcimut).toBeCloseTo(0.8, 12);
+      expect(derecha.dPolar).toBeCloseTo(0, 12);
+      expect(izquierda.dPolar).toBeCloseTo(0, 12);
+    });
 
-      const vertical = girar(ordenDeArrastre(0, 50));
-      expect(Math.abs(vertical.dPolar)).toBeCloseTo(0.4, 10);
-      expect(vertical.dAcimut).toBe(0);
+    it('arrastrar hacia abajo resta polar: dPolar = −dy · 0,008', () => {
+      const abajo = girar(ordenDeArrastre(0, 50));
+      const arriba = girar(ordenDeArrastre(0, -50));
+      expect(abajo.dPolar).toBeCloseTo(-0.4, 12);
+      expect(arriba.dPolar).toBeCloseTo(0.4, 12);
+      expect(abajo.dAcimut).toBeCloseTo(0, 12);
+      expect(arriba.dAcimut).toBeCloseTo(0, 12);
+    });
+
+    it('cada eje usa su propio desplazamiento y un arrastre nulo no gira', () => {
+      const mixto = girar(ordenDeArrastre(30, -20));
+      expect(mixto.dAcimut).toBeCloseTo(-0.24, 12);
+      expect(mixto.dPolar).toBeCloseTo(0.16, 12);
+      const nulo = girar(ordenDeArrastre(0, 0));
+      expect(nulo.dAcimut).toBeCloseTo(0, 12);
+      expect(nulo.dPolar).toBeCloseTo(0, 12);
     });
 
     it('la rueda acerca con exp(deltaY · 0,0012)', () => {
@@ -128,11 +148,20 @@ describe('GRV-03 · criterio 5: cámara', () => {
   describe('giro automático', () => {
     const vista: VistaCamara = { acimut: 1, polar: 0.9, distancia: 1.3 };
 
-    it('solo cambia el acimut, en proporción a dt', () => {
+    it('la velocidad del giro automático es de 0,06 rad/s', () => {
+      expect(VELOCIDAD_GIRO_AUTOMATICO).toBe(0.06);
+      expect(girarAutomaticamente(vista, 0.1).acimut - vista.acimut).toBeCloseTo(0.006, 10);
+    });
+
+    it('solo cambia el acimut, en proporción a dt y en sentido positivo', () => {
       const girada = girarAutomaticamente(vista, 0.1);
       expect(girada.acimut - vista.acimut).toBeCloseTo(VELOCIDAD_GIRO_AUTOMATICO * 0.1, 10);
       expect(girada.polar).toBe(vista.polar);
       expect(girada.distancia).toBe(vista.distancia);
+      expect(girarAutomaticamente(vista, 0.2).acimut - vista.acimut).toBeCloseTo(
+        VELOCIDAD_GIRO_AUTOMATICO * 0.2,
+        10,
+      );
     });
 
     it('recorta dt a [0, 0,25]', () => {
@@ -140,7 +169,20 @@ describe('GRV-03 · criterio 5: cámara', () => {
         VELOCIDAD_GIRO_AUTOMATICO * 0.25,
         10,
       );
-      expect(girarAutomaticamente(vista, -3).acimut).toBe(vista.acimut);
+      expect(girarAutomaticamente(vista, 0.25).acimut - vista.acimut).toBeCloseTo(
+        VELOCIDAD_GIRO_AUTOMATICO * 0.25,
+        10,
+      );
+      expect(girarAutomaticamente(vista, -3).acimut).toBeCloseTo(vista.acimut, 12);
+      expect(girarAutomaticamente(vista, 0).acimut).toBeCloseTo(vista.acimut, 12);
+    });
+
+    it('normaliza el acimut a [0, 2π) al pasar de la vuelta', () => {
+      const casi: VistaCamara = { ...vista, acimut: 2 * Math.PI - 0.001 };
+      const girada = girarAutomaticamente(casi, 0.1);
+      expect(girada.acimut).toBeGreaterThanOrEqual(0);
+      expect(girada.acimut).toBeLessThan(2 * Math.PI);
+      expect(girada.acimut).toBeCloseTo(VELOCIDAD_GIRO_AUTOMATICO * 0.1 - 0.001, 9);
     });
   });
 
@@ -197,6 +239,41 @@ describe('GRV-03 · criterio 5: cámara', () => {
       }
     });
 
+    it('un giro dentro de los límites no se recorta', () => {
+      const vista = aplicarOrden(
+        { acimut: 1, polar: 0.2, distancia: 1 },
+        { tipo: 'girar', dAcimut: 0, dPolar: -0.07 },
+      );
+      expect(vista.polar).toBeCloseTo(0.13, 12);
+      const tope = aplicarOrden(
+        { acimut: 1, polar: 0.2, distancia: 1 },
+        { tipo: 'girar', dAcimut: 0, dPolar: -0.09 },
+      );
+      expect(tope.polar).toBeCloseTo(POLAR_MINIMO, 12);
+    });
+
+    it('un incremento de −1e-17 desde 0 da un acimut en [0, 2π), nunca 2π', () => {
+      const vista = aplicarOrden(
+        { ...VISTA_INICIAL, acimut: 0 },
+        { tipo: 'girar', dAcimut: -1e-17, dPolar: 0 },
+      );
+      expect(vista.acimut).toBeGreaterThanOrEqual(0);
+      expect(vista.acimut).toBeLessThan(2 * Math.PI);
+    });
+
+    it('envuelve incrementos de varias vueltas en ambos sentidos', () => {
+      const delante = aplicarOrden(
+        { ...VISTA_INICIAL, acimut: 0 },
+        { tipo: 'girar', dAcimut: 14 * Math.PI + 0.3, dPolar: 0 },
+      );
+      expect(delante.acimut).toBeCloseTo(0.3, 9);
+      const detras = aplicarOrden(
+        { ...VISTA_INICIAL, acimut: 0 },
+        { tipo: 'girar', dAcimut: -14 * Math.PI - 0.3, dPolar: 0 },
+      );
+      expect(detras.acimut).toBeCloseTo(2 * Math.PI - 0.3, 9);
+    });
+
     it('restablecer devuelve la vista inicial', () => {
       const lejos: VistaCamara = { acimut: 4, polar: 2, distancia: 2.5 };
       expect(aplicarOrden(lejos, { tipo: 'restablecer' })).toEqual(VISTA_INICIAL);
@@ -213,10 +290,12 @@ describe('GRV-03 · criterio 5: cámara', () => {
     it('crece con el radio', () => {
       expect(distanciaInicial(2, 16 / 9)).toBeGreaterThan(distanciaInicial(1, 16 / 9));
       expect(distanciaInicial(1, 16 / 9)).toBeCloseTo(3.3, 10);
+      expect(distanciaInicial(2, 16 / 9)).toBeCloseTo(6.6, 10);
     });
 
     it('es mayor en pantallas verticales', () => {
       expect(distanciaInicial(1, 0.5)).toBeGreaterThan(distanciaInicial(1, 16 / 9));
+      expect(distanciaInicial(2, 0.5)).toBeGreaterThan(distanciaInicial(2, 16 / 9));
     });
 
     it('la posición de la cámara está a distancia · distanciaBase del origen', () => {
@@ -228,6 +307,32 @@ describe('GRV-03 · criterio 5: cámara', () => {
       for (const vista of vistas) {
         const [x, y, z] = posicionCamara(vista, 8);
         expect(Math.hypot(x, y, z)).toBeCloseTo(vista.distancia * 8, 9);
+      }
+    });
+
+    it('acimut 0 mira desde +x y acimut π/2 desde +y, con el polar en el ecuador', () => {
+      const desdeX = posicionCamara({ acimut: 0, polar: Math.PI / 2, distancia: 1 }, 1);
+      expect(desdeX[0]).toBeCloseTo(1, 12);
+      expect(desdeX[1]).toBeCloseTo(0, 12);
+      expect(desdeX[2]).toBeCloseTo(0, 12);
+      const desdeY = posicionCamara({ acimut: Math.PI / 2, polar: Math.PI / 2, distancia: 1 }, 1);
+      expect(desdeY[0]).toBeCloseTo(0, 12);
+      expect(desdeY[1]).toBeCloseTo(1, 12);
+      expect(desdeY[2]).toBeCloseTo(0, 12);
+    });
+
+    it('coincide con las coordenadas esféricas con z arriba, escaladas por distancia · base', () => {
+      const vistas: VistaCamara[] = [
+        { acimut: 0.6, polar: 1, distancia: 1 },
+        { acimut: 3.5, polar: 2.2, distancia: 1.7 },
+        { acimut: 5.9, polar: 0.4, distancia: 2.5 },
+      ];
+      for (const { acimut, polar, distancia } of vistas) {
+        const d = distancia * 7;
+        const [x, y, z] = posicionCamara({ acimut, polar, distancia }, 7);
+        expect(x).toBeCloseTo(d * Math.sin(polar) * Math.cos(acimut), 9);
+        expect(y).toBeCloseTo(d * Math.sin(polar) * Math.sin(acimut), 9);
+        expect(z).toBeCloseTo(d * Math.cos(polar), 9);
       }
     });
 

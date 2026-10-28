@@ -23,7 +23,7 @@ test.describe('GRV-03 · criterio 17: estados alternativos', () => {
     const contenedor = page.locator(CONTENEDOR);
     await expect(contenedor.locator('svg').first()).toBeVisible();
     await expect(contenedor.locator('canvas')).toHaveCount(0);
-    const aviso = page.locator('[role="status"]');
+    const aviso = contenedor.getByRole('status');
     await expect(aviso).toBeVisible();
     await expect(aviso).toContainText(/escena 3D/i);
     await expect(page.getByRole('button', { name: /animación/i })).toHaveCount(0);
@@ -34,6 +34,9 @@ test.describe('GRV-03 · criterio 17: estados alternativos', () => {
   test('si el Worker no carga, el estado es error y la miniatura sigue visible', async ({
     page,
   }) => {
+    // Se sustituye window.Worker por una clase que emite `error`, en vez de abortar la petición del
+    // Worker con page.route: la URL de su chunk lleva un hash que cambia en cada compilación y
+    // Playwright no distingue las peticiones de Worker de las de otros scripts.
     await page.addInitScript(() => {
       class WorkerQueFalla {
         onerror: ((evento: Event) => void) | null = null;
@@ -60,7 +63,7 @@ test.describe('GRV-03 · criterio 17: estados alternativos', () => {
 
     const contenedor = page.locator(CONTENEDOR);
     await expect(contenedor.locator('svg').first()).toBeVisible();
-    const aviso = page.locator('[role="status"]');
+    const aviso = contenedor.getByRole('status');
     await expect(aviso).toBeVisible();
     expect((await aviso.innerText()).trim().length).toBeGreaterThan(0);
     await expect(page.getByRole('button', { name: /animación/i })).toHaveCount(0);

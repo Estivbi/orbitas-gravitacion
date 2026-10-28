@@ -17,6 +17,16 @@ const TAMANOS = [
   'display',
 ];
 
+/** Tamaños de texto fijos en px; titular-lg y display usan clamp. */
+const TAMANOS_EN_PX: [string, string][] = [
+  ['etiqueta', '14px'],
+  ['cuerpo', '18px'],
+  ['titular-xs', '27px'],
+  ['subtitulo', '36px'],
+  ['titular-sm', '42px'],
+  ['titular', '48px'],
+];
+
 const COLORES = [
   'void',
   'bone-white',
@@ -49,6 +59,10 @@ function declaraciones(): Map<string, string> {
   );
 }
 
+/** Literales de color en código: #rgb, #rrggbb, #rrggbbaa, 0xRRGGBB, rgb(, rgba(, hsl( y hsla(. */
+const COLOR_LITERAL =
+  /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b|\b0x[0-9a-fA-F]{6}\b|\b(?:rgba?|hsla?)\s*\(/i;
+
 function archivosDe(carpeta: string): string[] {
   const ruta = join(raiz, carpeta);
   try {
@@ -77,27 +91,65 @@ describe('GRV-03 · criterio 1: tokens completos', () => {
     expect(valores.get('--container-pagina')).toBe('1280px');
   });
 
-  it.each(TOKENS_ESPERADOS)('DESIGN.md documenta %s con su valor', (nombre) => {
-    const valor = declaraciones().get(nombre) ?? '';
-    const fila = leer('DESIGN.md')
-      .split('\n')
-      .find((linea) => linea.includes(`\`${nombre}\``));
-    expect(fila).toBeDefined();
-    if (/^(#[0-9a-fA-F]{6}|\d+(\.\d+)?px)$/.test(valor)) {
-      const numero = valor.replace(/px$/, '');
-      const patron = valor.startsWith('#') ? valor.toLowerCase() : `${numero}\\s?px`;
-      expect((fila ?? '').toLowerCase()).toMatch(new RegExp(patron));
+  it.each(TAMANOS_EN_PX)('el tamaño de texto %s vale %s', (tamano, valor) => {
+    expect(declaraciones().get(`--text-${tamano}`)).toBe(valor);
+  });
+
+  it.each([
+    ['titular-lg', '78px'],
+    ['display', '113px'],
+  ])('--text-%s usa clamp desde 46 px en móvil hasta %s en escritorio', (tamano, maximo) => {
+    const valor = declaraciones().get(`--text-${tamano}`) ?? '';
+    expect(valor).toMatch(/^clamp\(/);
+    expect(valor).toContain('46px');
+    expect(valor).toContain(maximo);
+  });
+
+  // Los colores ya los cubre tests/repo/tokens.test.ts: aquí solo los tokens nuevos.
+  it.each(TOKENS_ESPERADOS.filter((nombre) => !nombre.startsWith('--color-')))(
+    'DESIGN.md documenta %s con su valor',
+    (nombre) => {
+      const valor = declaraciones().get(nombre) ?? '';
+      const fila = leer('DESIGN.md')
+        .split('\n')
+        .find((linea) => linea.includes(`\`${nombre}\``));
+      expect(fila).toBeDefined();
+      if (/^\d+(\.\d+)?px$/.test(valor)) {
+        const numero = valor.replace(/px$/, '');
+        expect((fila ?? '').toLowerCase()).toMatch(new RegExp(`(?<![\\d.])${numero}\\s?px`));
+      }
+    },
+  );
+
+  it('la expresión de colores literales detecta todas las formas y no da falsos positivos', () => {
+    for (const literal of [
+      "'#fff'",
+      "'#8052ff'",
+      "'#8052ff80'",
+      'new Color(0x8052ff)',
+      'rgb(1, 2, 3)',
+      'rgba(0,0,0,0.5)',
+      'hsl(10 20% 30%)',
+      'hsla(10, 20%, 30%, 1)',
+    ]) {
+      expect(COLOR_LITERAL.test(literal), literal).toBe(true);
+    }
+    for (const limpio of [
+      "getPropertyValue('--color-void')",
+      'const semilla = 0x6d2b79f5',
+      'document.getElementById("contenido")',
+      "href='#contenido'",
+    ]) {
+      expect(COLOR_LITERAL.test(limpio), limpio).toBe(false);
     }
   });
 
   it.each(['src/components/escena', 'src/lib/escena'])(
-    '%s existe y no contiene colores hexadecimales',
+    '%s existe y no contiene colores literales',
     (carpeta) => {
       const fuentes = archivosDe(carpeta).filter((ruta) => /\.(ts|tsx)$/.test(ruta));
       expect(fuentes.length).toBeGreaterThan(0);
-      const conColor = fuentes.filter((ruta) =>
-        /#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/.test(leer(ruta)),
-      );
+      const conColor = fuentes.filter((ruta) => COLOR_LITERAL.test(leer(ruta)));
       expect(conColor).toEqual([]);
     },
   );
