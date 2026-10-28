@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Link from 'next/link';
+import { ProveedorAlmacen } from '@/store/ProveedorAlmacen';
 import './globals.css';
 
 // Inter variable (subconjunto latino, licencia OFL) autoalojada desde @fontsource-variable/inter.
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </Link>
         </header>
         <main id="contenido" tabIndex={-1} className="outline-none">
-          {children}
+          <ProveedorAlmacen>{children}</ProveedorAlmacen>
         </main>
         <footer className="text-ash-gray text-etiqueta mx-auto max-w-pagina px-4 py-10 font-light">
           Órbitas · la ley de Newton y el problema de los tres cuerpos, para ver y tocar.
