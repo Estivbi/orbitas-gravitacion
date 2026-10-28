@@ -1,7 +1,10 @@
 @import 'tailwindcss';
 
-/* Único sitio donde viven los colores. Cambiar el acento es editar una línea. */
-@theme {
+/*
+ * Único sitio donde viven los tokens. `static` hace que Tailwind emita siempre las variables:
+ * la escena 3D lee los --color-* del documento al montarse.
+ */
+@theme static {
   --color-void: #000000;
   --color-bone-white: #ffffff;
   --color-ash-gray: #9a9a9a;
@@ -10,6 +13,39 @@
   --color-saffron-spark: #ffb829;
   --color-deep-verdant: #15846e;
   --color-orbit-teal: #2bbf9f;
+
+  --font-sans:
+    var(--fuente-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-etiqueta: 14px;
+  --text-etiqueta--line-height: 1.2;
+  --text-etiqueta--letter-spacing: 0.025em;
+  --text-cuerpo: 18px;
+  --text-cuerpo--line-height: 1.5;
+  --text-cuerpo--letter-spacing: normal;
+  --text-titular-xs: 27px;
+  --text-titular-xs--line-height: 1;
+  --text-titular-xs--letter-spacing: -0.02em;
+  --text-subtitulo: 36px;
+  --text-subtitulo--line-height: 1.2;
+  --text-subtitulo--letter-spacing: -0.02em;
+  --text-titular-sm: 42px;
+  --text-titular-sm--line-height: 1.2;
+  --text-titular-sm--letter-spacing: -0.04em;
+  --text-titular: 48px;
+  --text-titular--line-height: 1.1;
+  --text-titular--letter-spacing: -0.04em;
+  --text-titular-lg: clamp(46px, 32.7px + 3.54vw, 78px);
+  --text-titular-lg--line-height: 1.1;
+  --text-titular-lg--letter-spacing: -0.04em;
+  --text-display: clamp(46px, 22.4px + 6.29vw, 113px);
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.04em;
+
+  --spacing: 6px;
+  --radius-boton: 24px;
+  --container-pagina: 1280px;
+  --breakpoint-columnas: 900px;
 }
 
 @layer base {
@@ -20,5 +56,42 @@
   body {
     background-color: var(--color-void);
     color: var(--color-bone-white);
+    font-size: var(--text-cuerpo);
+    line-height: var(--text-cuerpo--line-height);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (min-width: 640px) {
+    body {
+      font-weight: 200;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 400;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-bone-white);
+    outline-offset: 3px;
+  }
+
+  canvas:focus-visible {
+    outline-offset: -3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 }

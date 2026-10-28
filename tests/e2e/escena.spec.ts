@@ -77,7 +77,6 @@ async function gestoTactil(cdp: CDPSession, inicio: PuntoTactil[], pasos: PuntoT
 test.describe.serial('GRV-03 · escena con WebGL (una sola carga)', () => {
   let contexto: BrowserContext;
   let page: Page;
-  let hayFallos = false;
 
   test.beforeAll(async ({ browser, baseURL }) => {
     test.setTimeout(120_000);
@@ -86,21 +85,14 @@ test.describe.serial('GRV-03 · escena con WebGL (una sola carga)', () => {
       hasTouch: true,
       viewport: { width: 1280, height: 720 },
     });
-    // Contexto manual: Playwright no activa solo las trazas, así que se graban aquí y se guardan si falla algo.
-    await contexto.tracing.start({ screenshots: true, snapshots: true });
+    // Las trazas del contexto manual las graba Playwright (`use.trace` de la configuración) y las
+    // conserva si algo falla: arrancarlas aquí también lanza «Tracing has been already started».
     page = await contexto.newPage();
     await page.goto('/');
     await esperarLista(page);
   });
 
-  test.afterEach((_fixtures, testInfo) => {
-    if (testInfo.status !== testInfo.expectedStatus) hayFallos = true;
-  });
-
-  test.afterAll(async (_fixtures, testInfo) => {
-    await contexto.tracing.stop(
-      hayFallos ? { path: testInfo.outputPath('traza-escena.zip') } : undefined,
-    );
+  test.afterAll(async () => {
     await contexto.close();
   });
 
