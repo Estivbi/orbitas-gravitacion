@@ -25,7 +25,7 @@ Los colores viven en el bloque `@theme` de `src/app/globals.css`. Cambiar el ace
 | Tercer tono | `--color-deep-verdant` | `text-deep-verdant` | `#15846e` | Campo ambiental de partículas |
 | Tercer cuerpo | `--color-orbit-teal` | `text-orbit-teal` | `#2bbf9f` | Tercer cuerpo y su estela. Excepción deliberada: `#15846e` queda apagado sobre negro |
 
-Colores de los tres cuerpos, en orden: `electric-iris`, `saffron-spark`, `orbit-teal`.
+Colores de los tres cuerpos, por índice: cuerpo 0 `electric-iris`, cuerpo 1 `saffron-spark`, cuerpo 2 `orbit-teal`.
 
 Sin degradados en componentes. Error, éxito y aviso se definen cuando haya formularios (el aviso del modo reducido usa `saffron-spark`).
 
@@ -33,17 +33,39 @@ Sin degradados en componentes. Error, éxito y aviso se definen cuando haya form
 
 ### Tipografía
 
-- Familia única: Inter, cargada con `next/font` (GRV-03), como sustituta de la tipografía de la referencia.
-- Titulares: peso 400, de 78 a 113 px en escritorio con `clamp` para móvil, interlineado 1,1 y tracking −0,04 em. La jerarquía sale de la escala, no del peso.
-- Cuerpo: 18 px. Peso 200 solo en 18 px o más y en pantallas anchas; en móvil y por debajo de 16 px, peso 300 o 400.
+- Familia única: Inter variable (subconjunto latino, licencia OFL), autoalojada con `next/font/local` (GRV-03, ADR 0005), como sustituta de la tipografía de la referencia.
+- Titulares (`h1` a `h6`): peso 400 en cualquier ancho, de 78 a 113 px en escritorio con `clamp` para móvil, interlineado 1,1 y tracking −0,04 em. La jerarquía sale de la escala, no del peso.
+- Cuerpo: 18 px. Peso 300 con menos de 640 px de ancho de viewport y peso 200 con 640 px o más; por debajo de 18 px nunca peso 200 (300 o 400).
 - Etiquetas: 14 px, peso 600, mayúsculas, tracking 0,025 em.
 - Cifras con `font-variant-numeric: tabular-nums`.
 
+| Token | Clase Tailwind | Valor | Uso |
+|---|---|---|---|
+| `--font-sans` | `font-sans` | `var(--fuente-inter)`, después `ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | Única familia. `--fuente-inter` la define `next/font/local` en el layout |
+
+Escala de texto. Cada tamaño tiene tres tokens, que `globals.css` declara juntos; `titular-lg` y `display` usan `clamp` (46 px en móvil, 78 px y 113 px en escritorio) y por eso su tamaño se da como fórmula.
+
+| Clase Tailwind | Tamaño | Interlineado | Espaciado entre letras | Uso |
+|---|---|---|---|---|
+| `text-etiqueta` | `--text-etiqueta`: 14 px | `--text-etiqueta--line-height`: 1.2 | `--text-etiqueta--letter-spacing`: 0.025em | Etiquetas, botones, enlace de salto y pie |
+| `text-cuerpo` | `--text-cuerpo`: 18 px | `--text-cuerpo--line-height`: 1.5 | `--text-cuerpo--letter-spacing`: normal | Texto corrido |
+| `text-titular-xs` | `--text-titular-xs`: 27 px | `--text-titular-xs--line-height`: 1 | `--text-titular-xs--letter-spacing`: -0.02em | Titulares menores |
+| `text-subtitulo` | `--text-subtitulo`: 36 px | `--text-subtitulo--line-height`: 1.2 | `--text-subtitulo--letter-spacing`: -0.02em | Subtítulos |
+| `text-titular-sm` | `--text-titular-sm`: 42 px | `--text-titular-sm--line-height`: 1.2 | `--text-titular-sm--letter-spacing`: -0.04em | Titulares de sección |
+| `text-titular` | `--text-titular`: 48 px | `--text-titular--line-height`: 1.1 | `--text-titular--letter-spacing`: -0.04em | Titulares |
+| `text-titular-lg` | `--text-titular-lg`: clamp(46px, 32.7px + 3.54vw, 78px) | `--text-titular-lg--line-height`: 1.1 | `--text-titular-lg--letter-spacing`: -0.04em | `h1` de la portada |
+| `text-display` | `--text-display`: clamp(46px, 22.4px + 6.29vw, 113px) | `--text-display--line-height`: 1.1 | `--text-display--letter-spacing`: -0.04em | Titulares de escala máxima |
+
 ### Espaciado, radios y elevación
 
-- Unidad base de 6 px. Escala: 6, 12, 18, 24, 30, 36, 60, 96, 120.
-- Separación entre secciones de 60 a 120 px. Ancho máximo del contenido 1280 px.
-- Radio de 24 px en botones.
+| Token | Clase Tailwind | Valor | Uso |
+|---|---|---|---|
+| `--spacing` | `p-*`, `gap-*`, `m-*`, `size-*`… | 6 px | Unidad base: cada clase numérica es un múltiplo de 6 px |
+| `--radius-boton` | `rounded-boton` | 24 px | Radio de los botones |
+| `--container-pagina` | `max-w-pagina` | 1280 px | Ancho máximo del contenido |
+
+- Escala: 6, 12, 18, 24, 30, 36, 60, 96, 120 px (`*-1`, `*-2`, `*-3`, `*-4`, `*-5`, `*-6`, `*-10`, `*-16`, `*-20`).
+- Separación entre secciones de 60 a 120 px.
 - Sin sombras, sin bordes, sin elevación: los elementos flotan y solo los separa el espacio.
 
 ### Movimiento
@@ -60,7 +82,7 @@ Sin degradados en componentes. Error, éxito y aviso se definen cuando haya form
 - **Telemetría:** columnas de cifras grandes y ligeras con etiqueta ámbar en mayúsculas, sin recuadros.
 - **Miniatura de órbita:** SVG suelto con su nombre debajo, sin tarjeta.
 - **Escena:** estelas hechas de triángulos pequeños (contorno fino, opacidad por vértice) y un campo ambiental de unos 300 triángulos a baja opacidad.
-- **Foco:** contorno blanco de 2 px con 3 px de separación, nunca violeta.
+- **Foco:** contorno blanco de 2 px con 3 px de separación, nunca violeta (regla global `:focus-visible`). En el lienzo de la escena el contorno se dibuja hacia dentro.
 
 ## Hacer / No hacer
 
@@ -69,6 +91,11 @@ Sin degradados en componentes. Error, éxito y aviso se definen cuando haya form
 
 ## Responsive y accesibilidad
 
-- Puntos de corte: móvil (hasta 640 px), tablet (hasta 1024 px) y escritorio. La composición pasa a una columna por debajo de 900 px.
+- Puntos de corte: móvil (menos de 640 px), tablet (de 640 px hasta 1024 px) y escritorio. La composición pasa a una columna por debajo de 900 px.
+
+| Token | Clase Tailwind | Valor | Uso |
+|---|---|---|---|
+| `--breakpoint-columnas` | `columnas:*`, `max-columnas:*` | 900 px | Corte de una a dos columnas (texto y escena) |
+
 - Contraste mínimo AA (4,5:1), foco visible y objetivos táctiles de al menos 44 px.
 - Un solo tema, oscuro.

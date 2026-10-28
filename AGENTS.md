@@ -23,9 +23,9 @@ Los subagentes viven en `.claude/agents/<nombre>.md`.
 
 | Agente | Rol | Es dueño de | Puede escribir |
 |---|---|---|---|
-| arquitecto | Diseño, specs y ADRs | `docs/adr/`, `docs/specs/` | Solo documentación |
-| frontend | Interfaz | `src/app/` (salvo `api/`), `src/components/`, `src/store/`, `tests/e2e/` | Sí |
-| backend | Física, worker y API del tutor | `src/lib/`, `src/workers/`, `src/app/api/`, `scripts/medir-fisica.mjs` | Sí |
+| arquitecto | Diseño, specs y ADRs | `docs/adr/`, `docs/specs/`, `DESIGN.md` (lo lee `frontend`) | Solo documentación |
+| frontend | Interfaz | `src/app/` (salvo `api/`), `src/components/`, `src/lib/escena/`, `src/store/`, `tests/e2e/` | Sí |
+| backend | Física, worker y API del tutor | `src/lib/` (salvo `escena/`), `src/workers/`, `src/app/api/`, `scripts/medir-fisica.mjs` | Sí |
 | seguridad | Revisión de seguridad | — | No (solo informa) |
 | devops | CI, contenedores, despliegue | `.github/`, `Dockerfile`, `docker-compose.yml`, `scripts/` (salvo `medir-fisica.mjs`) | Sí |
 | documentacion | Docs de ticket y estado | `docs/tickets/`, `docs/estado.md`, `README.md` | Solo documentación |

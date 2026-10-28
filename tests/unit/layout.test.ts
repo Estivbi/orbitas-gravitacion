@@ -1,4 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// Vitest no ejecuta next/font/local fuera de Next: se sustituye por una fuente de mentira.
+vi.mock('next/font/local', () => ({
+  default: () => ({ className: 'f', variable: 'v', style: {} }),
+}));
+
 import { metadata } from '../../src/app/layout';
 
 describe('GRV-01 · criterio 5: prueba de humo unitaria', () => {
