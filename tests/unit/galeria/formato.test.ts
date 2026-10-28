@@ -12,9 +12,6 @@ const MENOS = '−';
 const DURO = ' ';
 const VEZ = '×';
 
-/** El contrato no fija si el espacio de «50,0 % del periodo» es duro o normal: se compara sin distinguirlo. */
-const sinDuros = (texto: string) => texto.replaceAll(DURO, ' ');
-
 describe('GRV-04 · criterio 3: formatearCifra', () => {
   it('usa el signo menos U+2212 y coma decimal', () => {
     const texto = formatearCifra(-1.287142, 3);
@@ -67,6 +64,7 @@ describe('GRV-04 · criterio 3: formatearPorcentaje', () => {
 
   it('trunca en lugar de redondear', () => {
     expect(formatearPorcentaje(0.3749)).toBe(`37,4${DURO}%`);
+    expect(formatearPorcentaje(0.3749999995)).toBe(`37,4${DURO}%`);
     expect(formatearPorcentaje(0.0009)).toBe(`0,0${DURO}%`);
   });
 
@@ -112,21 +110,39 @@ describe('GRV-04 · criterio 3: formatearTiempo', () => {
 });
 
 describe('GRV-04 · criterio 3: textos de los deslizadores', () => {
+  // `textoPosicion` compone `formatearPorcentaje`: lleva U+00A0 antes de «%» y el resto son espacios normales.
   it('textoPosicion da el porcentaje y el tiempo con su periodo', () => {
-    expect(sinDuros(textoPosicion(0.5, 6.32591398))).toBe('50,0 % del periodo (t = 3,16 de 6,33)');
+    const texto = textoPosicion(0.5, 6.32591398);
+    expect(texto).toBe(`50,0${DURO}% del periodo (t = 3,16 de 6,33)`);
+    expect(texto.charCodeAt(4)).toBe(0xa0);
   });
 
   it('textoPosicion empieza por el porcentaje de formatearPorcentaje', () => {
-    expect(sinDuros(textoPosicion(0.3744, 10))).toBe('37,4 % del periodo (t = 3,74 de 10,00)');
-    expect(sinDuros(textoPosicion(0, 6.32591398))).toBe('0,0 % del periodo (t = 0,00 de 6,33)');
-    expect(sinDuros(textoPosicion(0.999, 10))).toBe('99,9 % del periodo (t = 9,99 de 10,00)');
+    expect(textoPosicion(0.3744, 10)).toBe(`37,4${DURO}% del periodo (t = 3,74 de 10,00)`);
+    expect(textoPosicion(0, 6.32591398)).toBe(`0,0${DURO}% del periodo (t = 0,00 de 6,33)`);
+    expect(textoPosicion(0.999, 10)).toBe(`99,9${DURO}% del periodo (t = 9,99 de 10,00)`);
+    expect(textoPosicion(0.3744, 10).startsWith(formatearPorcentaje(0.3744))).toBe(true);
   });
 
-  it('textoEstela redondea el porcentaje a un entero', () => {
-    expect(sinDuros(textoEstela(0.05))).toBe('5 % del periodo');
-    expect(sinDuros(textoEstela(0.15))).toBe('15 % del periodo');
-    expect(sinDuros(textoEstela(1))).toBe('100 % del periodo');
-    expect(sinDuros(textoEstela(0.5))).toBe('50 % del periodo');
+  it('textoPosicion trunca el porcentaje y el tiempo, no los redondea', () => {
+    // 63,26 % y 6,326 s: redondeados serían «63,3 %» y «6,33».
+    expect(textoPosicion(0.6326, 10)).toBe(`63,2${DURO}% del periodo (t = 6,32 de 10,00)`);
+  });
+
+  it('textoPosicion nunca muestra 100,0 % aunque u sea casi 1', () => {
+    const texto = textoPosicion(1 - 1e-12, 10);
+    expect(texto.startsWith(`99,9${DURO}% del periodo (t = `)).toBe(true);
+    expect(texto.endsWith(' de 10,00)')).toBe(true);
+    expect(texto).not.toContain('100');
+  });
+
+  // `textoEstela` no compone `formatearPorcentaje`: espacio normal antes de «%».
+  it('textoEstela redondea el porcentaje a un entero, con espacio normal antes de «%»', () => {
+    expect(textoEstela(0.05)).toBe('5 % del periodo');
+    expect(textoEstela(0.15)).toBe('15 % del periodo');
+    expect(textoEstela(1)).toBe('100 % del periodo');
+    expect(textoEstela(0.5)).toBe('50 % del periodo');
+    expect(textoEstela(0.5)).not.toContain(DURO);
   });
 
   it('textoVelocidad usa el signo de multiplicar U+00D7 y coma decimal', () => {

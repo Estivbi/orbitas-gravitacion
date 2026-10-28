@@ -51,6 +51,15 @@ describe('GRV-04 · criterio 8: URL del sitio', () => {
     expect(url.pathname).toBe('/');
   });
 
+  it('descarta la query y el hash: el href es solo el origen con su barra', () => {
+    expect(resolverUrlSitio({ URL_SITIO: 'https://orbitas.example.dev/?a=1' }).href).toBe(
+      'https://orbitas.example.dev/',
+    );
+    expect(resolverUrlSitio({ URL_SITIO: 'https://orbitas.example.dev/?a=1#x' }).href).toBe(
+      'https://orbitas.example.dev/',
+    );
+  });
+
   it.each(['no es una url', 'ftp://orbitas.example.dev', 'https://orbitas.example.dev/base'])(
     'lanza un Error que nombra URL_SITIO con «%s»',
     (valor) => {

@@ -28,6 +28,14 @@ function importa(codigo: string, modulo: string): boolean {
   ).test(codigo);
 }
 
+/** Código sin comentarios de bloque ni de línea (un «no persiste» en un comentario no es persistencia). */
+function sinComentarios(codigo: string): string {
+  return codigo.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(?<!:)\/\/.*$/gm, '');
+}
+
+/** Persistencia en el navegador: localStorage, sessionStorage, la función persist o su middleware. */
+const PERSISTENCIA = /\b(?:localStorage|sessionStorage)\b|\bpersist\s*\(|zustand\/middleware/;
+
 /** La misma expresión de GRV-03 (tests/repo/sistemaDeDiseno.test.ts), aplicada a las carpetas nuevas. */
 const COLOR_LITERAL =
   /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b|\b0x[0-9a-fA-F]{6}\b|\b(?:rgba?|hsla?)\s*\(/i;
@@ -63,11 +71,31 @@ describe('GRV-04 · criterio 10: zustand solo vive en src/store', () => {
     expect(fuera).toEqual([]);
   });
 
+  it('la detección de persistencia ignora los comentarios y reconoce el uso real', () => {
+    for (const codigo of [
+      '// el estado no persiste tras recargar',
+      '/* nada de localStorage\n   ni de sessionStorage */',
+      'const persistente = false;',
+      'const url = "http://x"; // sessionStorage no',
+    ]) {
+      expect(sinComentarios(codigo), codigo).not.toMatch(PERSISTENCIA);
+    }
+    for (const codigo of [
+      'window.localStorage.setItem("a", "b");',
+      'sessionStorage.clear();',
+      'export const useA = create(persist((set) => ({}), { name: "a" }));',
+      "import { persist } from 'zustand/middleware';",
+      '// nota\nconst x = localStorage;',
+    ]) {
+      expect(sinComentarios(codigo), codigo).toMatch(PERSISTENCIA);
+    }
+  });
+
   it('src/store no usa localStorage, sessionStorage ni persist', () => {
     const almacen = archivosDe('src/store');
     expect(almacen.length).toBeGreaterThan(0);
     for (const ruta of almacen) {
-      expect(leer(ruta), ruta).not.toMatch(/localStorage|sessionStorage|persist/);
+      expect(sinComentarios(leer(ruta)), ruta).not.toMatch(PERSISTENCIA);
     }
   });
 
@@ -233,6 +261,7 @@ describe('GRV-04 · criterio 10: reglas de importación de ESLint (lintText)', (
   describe('el barril de la física no se importa por valor en el código de cliente', () => {
     const CLIENTE = [
       'src/components/galeria/x.tsx',
+      'src/components/galeria/x.ts',
       'src/components/detalle/x.tsx',
       'src/components/comunes/x.tsx',
       'src/store/x.ts',
@@ -300,6 +329,18 @@ describe('GRV-04 · criterio 10: reglas de importación de ESLint (lintText)', (
             )
           ).length,
         ).toBeGreaterThan(0);
+        // El código de dominio tampoco puede subir a las capas de interfaz (patrón `^@/(app|components|store|workers)`).
+        for (const modulo of ['@/store/x', '@/components/galeria/x', '@/app/x', '@/workers/x']) {
+          expect(
+            (
+              await restricciones(
+                'src/lib/galeria/orden.ts',
+                `import { x } from '${modulo}';\nexport const y = x;\n`,
+              )
+            ).length,
+            `src/lib/galeria/orden.ts importa ${modulo}`,
+          ).toBeGreaterThan(0);
+        }
         // Y en el almacén, zustand sigue permitido aunque el bloque del barril lo cubra.
         expect(await restricciones('src/store/x.ts', ZUSTAND)).toEqual([]);
       },

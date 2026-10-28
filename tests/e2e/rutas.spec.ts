@@ -47,16 +47,12 @@ interface Manifiesto {
   dynamicRoutes: Record<string, { fallback: unknown }>;
 }
 
-function leerManifiestoCompleto(): Manifiesto {
+function leerManifiesto(): Manifiesto {
   const ruta = '.next/prerender-manifest.json';
   if (!existsSync(ruta)) {
     throw new Error(`No existe ${ruta}: el servidor de pruebas hace build antes de arrancar`);
   }
   return JSON.parse(readFileSync(ruta, 'utf8')) as Manifiesto;
-}
-
-function leerManifiesto(): Record<string, EntradaDelManifiesto> {
-  return leerManifiestoCompleto().routes;
 }
 
 /** Lo que el catálogo y la física dicen que debe verse en cada detalle, calculado en Node. */
@@ -72,7 +68,7 @@ const esperadoDe = (slug: (typeof SLUGS)[number]) => {
 
 test.describe('rutas estáticas', () => {
   test('GRV-04 · criterio 11: el build prerenderiza las seis rutas de detalle, sin otras, y el HTML está acotado', () => {
-    const manifiesto = leerManifiestoCompleto();
+    const manifiesto = leerManifiesto();
     const rutas = manifiesto.routes;
 
     // `dynamicParams = false`: un slug que no está en generateStaticParams es 404, no se genera

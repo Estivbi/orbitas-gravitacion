@@ -77,6 +77,20 @@ describe('GRV-04 · criterio 5: telemetría en vivo con un estado construido a m
     });
   });
 
+  it('formatearLectura trunca el tiempo y la fase en lugar de redondearlos', () => {
+    const casi = formatearLectura({
+      tiempo: 6.32585,
+      fase: 0.99999,
+      energia: 0,
+      momentoLineal: 0,
+      distanciaMinima: 1,
+      velocidadMaxima: 1,
+    });
+    // Redondeados serían «6,33» y «100,0 %».
+    expect(casi.tiempo).toBe('6,32');
+    expect(casi.fase).toBe(`99,9${DURO}%`);
+  });
+
   it('la lectura no depende de que el estado sea el mismo objeto de un fotograma a otro', () => {
     const copia = Float64Array.from(A_MANO);
     expect(leerTelemetria(copia, 0.25, 10)).toEqual(lectura);
