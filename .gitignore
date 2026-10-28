@@ -26,3 +26,6 @@ docs/privado/
 .idea/
 *.log
 .vitest/
+
+# Vercel (enlace y compilación locales)
+.vercel/

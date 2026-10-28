@@ -29,6 +29,8 @@ Colores de los tres cuerpos, por índice: cuerpo 0 `electric-iris`, cuerpo 1 `sa
 
 Sin degradados en componentes. Error, éxito y aviso se definen cuando haya formularios (el aviso del modo reducido usa `saffron-spark`).
 
+Excepción de color: `src/app/icon.svg` no lee variables CSS, así que su `fill` es un literal igual a `--color-electric-iris`. Una prueba de repositorio ata ese valor al token de `globals.css`; si el acento cambia, cambian los dos.
+
 > Los colores violeta y ámbar son una decisión del proyecto. Todo pasa por los tokens, así que cambiarlos no toca ningún componente.
 
 ### Tipografía
@@ -77,9 +79,10 @@ Escala de texto. Cada tamaño tiene tres tokens, que `globals.css` declara junto
 
 - **Botón principal:** relleno `electric-iris`, texto blanco en mayúsculas de 14 px, peso 600, radio 24 px. Uno solo por vista (en el detalle, «Reproducir/Pausar»).
 - **Enlace fantasma:** sin contenedor, `ash-gray`, blanco al pasar el ratón o al enfocar.
-- **Deslizador:** `accent-color` violeta, con etiqueta y valor encima.
-- **Velocidades:** texto con subrayado ámbar en la activa, sin segmentos con borde.
-- **Telemetría:** columnas de cifras grandes y ligeras con etiqueta ámbar en mayúsculas, sin recuadros.
+- **Deslizador:** `accent-color` violeta (`--color-electric-iris`), con etiqueta ámbar y valor encima. Área táctil de al menos 44 px de alto y de ancho; el foco es el contorno blanco global.
+- **Selector de texto:** grupo de radios (`role="radiogroup"`) con aspecto de texto, sin segmentos con borde, y subrayado ámbar en la opción activa. Una sola parada de tabulación y flechas nativas. El nombre accesible del grupo es su etiqueta visible (ámbar, mayúsculas) y el foco se dibuja sobre la etiqueta de la opción. Lo usan «Velocidad de reproducción» (`0,25×` a `4×`) y «Ordenar por» (Catálogo, Periodo, Energía).
+- **Telemetría:** columnas de cifras tabulares, grandes y ligeras (27 px en móvil y 42 px desde 900 px), con etiqueta ámbar en mayúsculas y sin recuadros, bordes ni fondos. Las cifras en vivo llevan `aria-hidden="true"` y cada columna añade un texto estático legible (valor inicial o extremo del periodo) para los lectores de pantalla; sin regiones `aria-live` ni `<output>`. Por debajo de 900 px va justo bajo el visor.
+- **Navegación entre órbitas:** enlaces fantasma «Volver a la galería», «Anterior: X» y «Siguiente: Y», sin contenedor.
 - **Miniatura de órbita:** SVG suelto con su nombre debajo, sin tarjeta.
 - **Escena:** estelas hechas de triángulos pequeños (contorno fino, opacidad por vértice) y un campo ambiental de unos 300 triángulos a baja opacidad.
 - **Foco:** contorno blanco de 2 px con 3 px de separación, nunca violeta (regla global `:focus-visible`). En el lienzo de la escena el contorno se dibuja hacia dentro.
@@ -97,5 +100,5 @@ Escala de texto. Cada tamaño tiene tres tokens, que `globals.css` declara junto
 |---|---|---|---|
 | `--breakpoint-columnas` | `columnas:*`, `max-columnas:*` | 900 px | Corte de una a dos columnas (texto y escena) |
 
-- Contraste mínimo AA (4,5:1), foco visible y objetivos táctiles de al menos 44 px.
+- Contraste mínimo AA (4,5:1), foco visible y objetivos táctiles de al menos 44 px (botones, deslizadores y etiquetas de los radios, en alto y en ancho).
 - Un solo tema, oscuro.
