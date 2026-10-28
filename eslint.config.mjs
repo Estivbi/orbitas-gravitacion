@@ -42,6 +42,33 @@ export default defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    // three solo se importa desde la escena (src/components/escena/), que se carga en cliente.
+    files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+    ignores: ['src/components/escena/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^three(/|$)',
+              message: 'three solo puede importarse desde src/components/escena/.',
+            },
+          ],
+        },
+      ],
+      // Cubre import('three'), que no pasa por no-restricted-imports. En src/lib y src/workers
+      // lo sustituye su propia regla, que prohíbe cualquier import() dinámico.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "ImportExpression[source.type='Literal'][source.value=/^three(\\/|$)/]",
+          message: 'three solo puede importarse desde src/components/escena/.',
+        },
+      ],
+    },
+  },
+  {
     // src/lib es TypeScript puro: se prueba en Node y se ejecuta también dentro de un Worker.
     files: ['src/lib/**/*.{ts,tsx}'],
     rules: {
