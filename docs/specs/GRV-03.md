@@ -1,6 +1,6 @@
 # GRV-03 · Sistema de diseño y escena 3D
 
-**Estado:** borrador revisado, pendiente de aprobación · **Tamaño:** L · **Rama:** `feature/sistema-de-diseno-y-escena-3d` → `develop`
+**Estado:** aprobada · **Tamaño:** L · **Rama:** `feature/sistema-de-diseno-y-escena-3d` → `develop`
 
 ## Contexto
 
@@ -27,7 +27,7 @@ La interfaz de los controles de reproducción (selector de velocidades, deslizad
 | Espaciado | `--spacing: 6px` como unidad base de Tailwind | `p-1` a `p-20` son múltiplos de 6 y la escala 6, 12, 18, 24, 30, 36, 60, 96 y 120 sale de 1, 2, 3, 4, 5, 6, 10, 16 y 20. Cambia el significado de `p-4` y `gap-6` respecto a la portada actual |
 | Colores en JavaScript | `@theme static` para que Tailwind emita siempre las variables; la escena lee `--color-*` del documento al montar | Los colores siguen viviendo solo en `globals.css`. Una prueba de repositorio impide literales hexadecimales en `src/components/escena` y `src/lib/escena` |
 | three | Importaciones con nombre, cargado con `next/dynamic` y `ssr: false`; solo `ShaderMaterial`; `ColorManagement` desactivado y `outputColorSpace` lineal; lienzo opaco | Chunk aparte que no entra en la primera pintura, y los colores de pantalla son exactamente los de los tokens. `ColorManagement` es global: se toca una vez al cargar el módulo. Coste: código imperativo |
-| Cuerpos | Un punto grande con halo radial, con el mismo sombreador que las marcas | Sin esfera, sprite ni textura. Menos código y un solo tratamiento de color |
+| Cuerpos | Un punto grande con halo radial, con el mismo sombreador que las marcas; colores `saffron-spark`, `orbit-teal` y `electric-iris`, como en el prototipo | Sin esfera, sprite ni textura. Menos código y un solo tratamiento de color |
 | Cómo llega la órbita | La miniatura SVG se calcula en el servidor al prerenderizar; la trayectoria completa la pide el cliente al Worker | El HTML ya trae algo visible y no se envían ≈70 KB por la red. Coste: un instante en el que solo se ve la miniatura |
 | Estelas | Polilínea con los nodos adaptativos, exacta en los encuentros cercanos, y marcas triangulares ancladas a una rejilla fija del periodo | Una estela de muestras uniformes cortaría las curvas (ADR 0002). Las marcas ancladas se calculan una vez con `muestrear` y no cuestan llamadas por fotograma. Coste: hasta ≈27 000 vértices en el peor caso (Goggles con estela completa) |
 | Alfa de la estela | Función del tiempo (edad relativa), no del índice del vértice | Con nodos adaptativos, los encuentros acumulan cientos de nodos en un instante y el degradado por índice los comería |
@@ -75,7 +75,7 @@ export const MARCAS_POR_PERIODO = 240; // rejilla fija u_k = k / 240
 export interface DatosCuerpo { linea: Float32Array; lineaAlfa: Float32Array; marcas: Float32Array; marcasAlfa: Float32Array }
 export type DatosEstelas = [DatosCuerpo, DatosCuerpo, DatosCuerpo];
 export function alfaDeEdad(edadRelativa: number): number; // (1 − e)^1,6, con e en [0, 1]
-export function crearDatosEstelas(t: Trayectoria): DatosEstelas; // línea: n + 1 vértices por cuerpo; precalcula la rejilla con muestrear
+export function crearDatosEstelas(t: Trayectoria): DatosEstelas; // línea: con n nodos, capacidad de n + 1 vértices por cuerpo (3 valores por vértice, z = 0); precalcula la rejilla con muestrear
 export function construirEstelas(
   t: Trayectoria, u: number, longitud: number, destino: DatosEstelas,
 ): { vertices: number; marcas: number }; // RangeError si longitud no está en [0,05, 1] o u no es finito
@@ -98,7 +98,8 @@ export interface TrazadoMiniatura { viewBox: string; trazos: [string, string, st
 export function trazarMiniatura(t: Trayectoria): TrazadoMiniatura;
 
 // src/lib/escena/ambiente.ts
-export interface CampoAmbiental { posiciones: Float32Array; paleta: Uint8Array; alfas: Float32Array }
+export const TAMANO_PALETA = 4; // violeta, azafrán, verde azulado y blanco
+export interface CampoAmbiental { posiciones: Float32Array; paleta: Uint8Array; alfas: Float32Array } // posiciones: 3 valores por partícula
 export function generarCampoAmbiental(cantidad: number, semilla: number): CampoAmbiental; // determinista
 ```
 
@@ -141,9 +142,9 @@ Las pruebas puras van en `tests/unit/escena/` y `tests/repo/`; las de navegador,
 **Núcleo puro**
 
 5. **Cámara.** Dadas las órdenes de la cámara, entonces cada tecla devuelve la orden de la tabla (flechas, `+`, `=`, `-`, `Home`, espacio) y `null` con cualquier otra tecla o con Ctrl, Meta o Alt pulsados; el pellizco acerca cuando los dedos se separan, aleja cuando se juntan y devuelve `null` con separaciones no positivas; el giro automático solo cambia el acimut, proporcionalmente a `dt` y recortando `dt` fuera de `[0, 0,25]`; el ángulo polar y la distancia nunca salen de sus límites aunque se repita la orden; el acimut se normaliza a `[0, 2π)`; `restablecer` devuelve `VISTA_INICIAL`; `distanciaInicial` crece con el radio y es mayor en pantallas verticales; y `posicionCamara` devuelve puntos a `distancia · distanciaBase` del origen. *(Vitest)*
-6. **Estelas.** Dada una trayectoria, una fracción `u` y una longitud, cuando se construyen las estelas, entonces el último vértice de cada cuerpo es `estadoEn(t, u)` y el primero corresponde al instante `u − longitud`; con `longitud = 1` hay exactamente `n + 1` vértices también en `u = 0`, en un nodo exacto y justo antes de 1; con envoltura no se repite el último nodo ni hay vértices duplicados; el alfa de un vértice depende solo de su edad (a la mitad de la longitud vale `alfaDeEdad(0,5)` sea cual sea la densidad de nodos); las marcas son puntos de la rejilla fija dentro de la ventana, con la misma posición entre fotogramas mientras no salgan de ella; una longitud fuera de `[0,05, 1]` o un `u` no finito lanzan `RangeError`; no hay `NaN`; y reutilizar el destino no cambia el resultado. *(Vitest)*
+6. **Estelas.** Dada una trayectoria, una fracción `u` y una longitud, cuando se construyen las estelas, entonces el último vértice de cada cuerpo es `estadoEn(t, u)` y el primero corresponde al instante `u − longitud`; con `longitud = 1` y `n` nodos hay exactamente `n + 1` vértices si `u` no cae en un nodo (también justo antes de 1) y `n` si cae en uno (también `u = 0`), nunca más que la capacidad; con envoltura no se repite el último nodo ni hay dos vértices seguidos iguales; el alfa de un vértice depende solo de su edad (a la mitad de la longitud vale `alfaDeEdad(0,5)` sea cual sea la densidad de nodos); las marcas son puntos de la rejilla fija dentro de la ventana, con la misma posición entre fotogramas mientras no salgan de ella; una longitud fuera de `[0,05, 1]` o un `u` no finito lanzan `RangeError`; no hay `NaN`; y reutilizar el destino no cambia el resultado. *(Vitest)*
 7. **Miniatura.** Dada cada una de las seis órbitas, cuando se traza su miniatura, entonces hay tres trazos de como máximo 400 puntos con coordenadas finitas, la `y` está invertida, el `viewBox` contiene todos los puntos con un margen, el `d` total ocupa menos de 12 KB y el resultado es idéntico en dos llamadas. *(Vitest)*
-8. **Campo ambiental.** Dado un número y una semilla, cuando se genera el campo, entonces dos llamadas dan los mismos valores, hay exactamente ese número de partículas a una distancia del origen entre 4,5 y 15,5, con alfa entre 0,18 y 0,58 y un índice de paleta válido. *(Vitest)*
+8. **Campo ambiental.** Dado un número y una semilla, cuando se genera el campo, entonces dos llamadas dan los mismos valores, hay exactamente ese número de partículas a una distancia del origen entre 4,5 y 15,5, con alfa entre 0,18 y 0,58 y un índice de paleta entero entre 0 y `TAMANO_PALETA − 1`. *(Vitest)*
 9. **Reloj de la órbita.** Dados una posición, un `dt`, una velocidad y un periodo, cuando se avanza, entonces el resultado es `u + dt · velocidad / periodo` envuelto en `[0, 1)`; nunca vale 1 ni `NaN`; una velocidad negativa retrocede con envoltura; un `dt` fuera de `[0, 0,25]` se recorta; y `envolverPosicion(-1e-17)` vale 0. *(Vitest)*
 
 **Escena en el navegador**
