@@ -31,6 +31,7 @@ npm test              # pruebas unitarias
 npm run test:e2e      # pruebas de extremo a extremo (Playwright)
 npm run build         # compilación de producción
 npm run comprobar:commits  # formato de los commits de la rama (por defecto, frente a origin/develop)
+npm run medir:fisica  # medición independiente del motor de física
 ```
 
 Si Playwright no encuentra su navegador, instálalo con `npx playwright install chromium` o apunta a uno existente con la variable `PLAYWRIGHT_CHROMIUM_PATH`.

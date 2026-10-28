@@ -25,9 +25,9 @@ Los subagentes viven en `.claude/agents/<nombre>.md`.
 |---|---|---|---|
 | arquitecto | Diseño, specs y ADRs | `docs/adr/`, `docs/specs/` | Solo documentación |
 | frontend | Interfaz | `src/app/` (salvo `api/`), `src/components/`, `src/store/`, `tests/e2e/` | Sí |
-| backend | Física, worker y API del tutor | `src/lib/`, `src/workers/`, `src/app/api/` | Sí |
+| backend | Física, worker y API del tutor | `src/lib/`, `src/workers/`, `src/app/api/`, `scripts/medir-fisica.mjs` | Sí |
 | seguridad | Revisión de seguridad | — | No (solo informa) |
-| devops | CI, contenedores, despliegue | `.github/`, `Dockerfile`, `docker-compose.yml` | Sí |
+| devops | CI, contenedores, despliegue | `.github/`, `Dockerfile`, `docker-compose.yml`, `scripts/` (salvo `medir-fisica.mjs`) | Sí |
 | documentacion | Docs de ticket y estado | `docs/tickets/`, `docs/estado.md`, `README.md` | Solo documentación |
 | pr-reviewer | Revisión de la rama contra su spec | — | No (solo informa) |
 
@@ -72,6 +72,7 @@ Node 22 (`.nvmrc`) y npm.
 | `npm test` | Vitest |
 | `npm run test:e2e` | Playwright |
 | `npm run comprobar:commits` | Valida el formato de los commits del rango (por defecto `origin/develop..HEAD`) |
+| `npm run medir:fisica` | Mide con un integrador independiente las cifras de los ADR de física |
 
 ## Particularidades del proyecto
 
