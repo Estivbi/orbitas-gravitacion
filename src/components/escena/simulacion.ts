@@ -31,6 +31,7 @@ export function crearSimulacion(
 ): Simulacion {
   const inicial = leerProps();
   const vistaInicial = () => leerProps().vistaInicial ?? VISTA_INICIAL;
+  const vistaRestablecida = () => leerProps().vistaRestablecida ?? vistaInicial();
   let u = envolverPosicion(inicial.posicionInicial ?? 0);
   let objetivo: VistaCamara = { ...vistaInicial() };
   let dibujada: VistaCamara = { ...objetivo };
@@ -66,7 +67,7 @@ export function crearSimulacion(
     },
     ordenar(orden) {
       objetivo =
-        orden.tipo === 'restablecer' ? { ...vistaInicial() } : aplicarOrden(objetivo, orden);
+        orden.tipo === 'restablecer' ? { ...vistaRestablecida() } : aplicarOrden(objetivo, orden);
       giroDetenido = true;
       leerProps().alCambiarVista?.(objetivo);
     },

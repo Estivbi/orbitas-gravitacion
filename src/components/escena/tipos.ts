@@ -19,8 +19,10 @@ export interface PropsEscenaOrbita {
   longitudEstela?: number;
   /** Fracción del periodo al montar; por defecto 0. */
   posicionInicial?: number;
-  /** También es la vista a la que vuelve la orden «restablecer». Por defecto `VISTA_INICIAL`. */
+  /** Vista al montar. Por defecto `VISTA_INICIAL`. */
   vistaInicial?: VistaCamara;
+  /** Destino de la orden «restablecer» (Inicio y `restablecerVista`). Por defecto, `vistaInicial ?? VISTA_INICIAL`. */
+  vistaRestablecida?: VistaCamara;
   giroAutomatico?: boolean;
   /** Se lee al montar. */
   ruedaActiva?: boolean;
