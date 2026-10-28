@@ -47,6 +47,7 @@ Rama: `feature/galeria-y-detalle-de-orbitas` → `develop`. Commits del rango `d
 | `a3b8d38` | `feat(GRV-04): añadir la galería, el almacén de interfaz y la restauración del foco al volver` |
 | `b6996e5` | `feat(GRV-04): añadir las rutas de detalle, la página 404, los metadatos, el sitemap y el icono` |
 | `fbaa25d` | `docs(GRV-04): documentar la decisión del estado de interfaz, las rutas y los metadatos` |
+| `ab673e7` | `fix(GRV-04): cerrar los huecos de test de la revisión y simplificar el detalle (en curso)` |
 
 Los cuatro `feat` son los cuatro bloques por riesgo del orden de trabajo de la spec: (a) el visor, (b) controles y telemetría, (c) galería, almacén y foco, (d) rutas y metadatos. El `(parcial)` del segundo significa que ese commit deja a medias los controles del detalle, que se cierran en los dos siguientes.
 
