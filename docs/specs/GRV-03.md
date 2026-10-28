@@ -11,13 +11,13 @@ GRV-01 dejó Tailwind y los ocho colores. GRV-02 dejó el motor que calcula las 
 1. **Sistema de diseño.** Tokens completos en `@theme`, tipografía Inter autoalojada con `next/font` y reglas base: foco visible, peso del texto según el ancho y `prefers-reduced-motion`.
 2. **Estructura accesible del layout.** Enlace de salto, cabecera, `main` y pie.
 3. **Núcleo puro de la escena** en `src/lib/escena/`: cámara, estelas, miniatura y campo ambiental. TypeScript puro, sin three, probado en Node.
-4. **`EscenaOrbita`**: componente con three que dibuja los tres cuerpos, sus estelas hechas de triángulos y un campo ambiental, con cámara controlable por ratón y teclado, y que se detiene cuando no se ve.
+4. **`EscenaOrbita`**: componente con three que dibuja los tres cuerpos, sus estelas hechas de triángulos y un campo ambiental, con cámara controlable por ratón, tacto (arrastre y pellizco) y teclado, giro automático opcional de la cámara, posición controlable desde fuera, y que se detiene cuando no se ve.
 5. **`VisorOrbita`**: envoltorio que muestra primero la miniatura SVG, carga la escena y la trayectoria sin bloquear la primera pintura, ofrece el control de animación y, si no hay WebGL2 o falla el cálculo, deja la miniatura con un aviso.
 6. **Portada.** La escena hero con la figura de ocho y su titular, que sustituyen al marcador provisional.
 
 ## Fuera de alcance
 
-Controles de reproducción completos (velocidades, deslizador de posición y de longitud de estela), telemetría, rutas de detalle y galería (GRV-04). `fijarPosicion` y el estado inicial de posición y vista, que añadirá GRV-04 a la interfaz `ApiEscena`. Giro automático de la cámara y pellizco táctil (la cámara se mueve solo cuando el usuario actúa). La ley interactiva y el tutor (GRV-05). Medir el presupuesto de rendimiento y Lighthouse (GRV-06). Postprocesado.
+La interfaz de los controles de reproducción (selector de velocidades, deslizador de posición y de longitud de estela), la telemetría, las rutas de detalle y la galería (GRV-04). Este ticket deja la escena preparada para ellos: acepta velocidad, longitud de estela, posición y vista inicial por props, y expone `fijarPosicion`. La ley interactiva y el tutor (GRV-05). Medir el presupuesto de rendimiento y Lighthouse (GRV-06). Postprocesado.
 
 ## Decisiones propuestas
 
@@ -34,6 +34,9 @@ Controles de reproducción completos (velocidades, deslizador de posición y de 
 | Ciclo de vida | El lienzo lo crea three en cada montaje y se añade a un `div` de React; la limpieza cancela el bucle, desconecta observadores, libera geometrías y materiales y pierde el contexto | Evita fugas de contexto WebGL y problemas con StrictMode. Las props cambian dentro del bucle por referencias, sin recrear el renderer |
 | Detección | Una sonda previa con `getContext('webgl2')` sobre un lienzo desechable; un `webglcontextlost` se trata como falta de WebGL | three ≥ r163 solo admite WebGL2. Sin la sonda, three escribe un error en la consola antes de fallar |
 | Pruebas de la escena | Playwright con el WebGL del Chromium; `pngjs` para contar píxeles; WebGL desactivado con un script de inicio que hace devolver `null` a `getContext` | Se comprueba que se dibuja de verdad. Coste: una dependencia de desarrollo y pruebas que dependen de WebGL por software en el CI |
+| Giro automático | Opcional (`giroAutomatico`), activo en la portada: 0,06 rad/s de acimut. Se detiene al pausar, con movimiento reducido y en cuanto la persona toca la cámara; no vuelve solo | Da vida a la portada sin quitar el control. Cuenta como movimiento automático, así que obedece al mismo botón de pausa |
+| Tacto | Un dedo en horizontal gira el acimut; un dedo en vertical desplaza la página (`touch-action: pan-y`); dos dedos acercan y alejan | El móvil no puede quedarse atrapado en la escena al hacer scroll. Coste: con un dedo no se controla el ángulo polar; en móvil se hace con dos dedos o con teclado |
+| Reloj de la órbita | La fracción del periodo avanza con una función pura (`avanzarPosicion`), con velocidad, envoltura y posición fijada desde fuera | Se prueba en Node, y GRV-04 reutiliza lo mismo para su deslizador |
 | Control de animación | Botón «Pausar animación» o «Reproducir animación» junto a la escena, más la tecla Espacio | Lo exige la accesibilidad (WCAG 2.2.2) para todo movimiento automático |
 | Lienzo accesible | `role="img"`, `tabindex="0"`, `aria-label` descriptivo y `aria-describedby` hacia un texto de instrucciones visible; el foco se dibuja hacia dentro | Es suficiente para el teclado y documenta su límite con lectores de pantalla |
 
@@ -58,6 +61,9 @@ export interface Modificadores { ctrl: boolean; meta: boolean; alt: boolean }
 export function ordenDeTecla(tecla: string, modificadores?: Modificadores): OrdenCamara | 'alternar' | null;
 export function ordenDeArrastre(dx: number, dy: number): OrdenCamara; // 0,008 rad por píxel
 export function ordenDeRueda(deltaY: number): OrdenCamara;           // factor exp(deltaY · 0,0012)
+export function ordenDePellizco(separacionAnterior: number, separacionActual: number): OrdenCamara | null; // factor anterior / actual; null si alguna es ≤ 0
+export const VELOCIDAD_GIRO_AUTOMATICO = 0.06; // rad/s
+export function girarAutomaticamente(vista: VistaCamara, dt: number): VistaCamara; // solo acimut; dt en segundos, entre 0 y 0,25
 export function aplicarOrden(vista: VistaCamara, orden: OrdenCamara): VistaCamara; // respeta límites; acimut en [0, 2π)
 export function distanciaInicial(radioMaximo: number, relacionAspecto: number): number; // 3,3 · radio; mayor si es vertical
 export function posicionCamara(vista: VistaCamara, distanciaBase: number): [number, number, number]; // esféricas, z arriba
@@ -78,6 +84,13 @@ export function construirEstelas(
 Algoritmo de `construirEstelas`, en tiempo desenvuelto: `tFin = envolver(u) · T`, `tInicio = tFin − longitud · T` (puede ser negativo). Los vértices son `estadoEn` en el inicio, después los nodos con tiempo **estrictamente** entre inicio y fin recorridos con módulo y sin incluir nunca el último nodo, y al final `estadoEn(u)`. Las marcas son los puntos de la rejilla cuyo tiempo desenvuelto cae en `(tInicio, tFin]`. La edad relativa es `(tFin − t) / (longitud · T)`.
 
 ```ts
+// src/lib/escena/reloj.ts
+// Avanza la fracción del periodo: u + dt · velocidad / periodo, envuelta en [0, 1). dt entre 0 y 0,25 s; si no, se recorta.
+export function avanzarPosicion(u: number, dt: number, velocidad: number, periodo: number): number;
+export function envolverPosicion(u: number): number; // -1e-17 → 0, nunca 1
+```
+
+```ts
 // src/lib/escena/miniatura.ts
 export interface TrazadoMiniatura { viewBox: string; trazos: [string, string, string] }
 // Diezma conservando un punto solo si dista más de radioMaximo / 200 del anterior, más el último;
@@ -91,12 +104,15 @@ export function generarCampoAmbiental(cantidad: number, semilla: number): CampoA
 
 ```tsx
 // src/components/escena/
-interface ApiEscena { restablecerVista(): void }
+interface ApiEscena { restablecerVista(): void; fijarPosicion(u: number): void } // fijarPosicion envuelve u
 interface PropsEscenaOrbita {
   trayectoria: Trayectoria; etiqueta: string; descripcionId: string; reproduciendo: boolean;
   alAlternarReproduccion?: () => void;
   velocidad?: number;       // 1
   longitudEstela?: number;  // 0,5; entre 0,05 y 1
+  posicionInicial?: number; // 0; fracción del periodo
+  vistaInicial?: VistaCamara; // VISTA_INICIAL
+  giroAutomatico?: boolean; // false
   ruedaActiva?: boolean;    // false
   particulasAmbientales?: number; // 300
   alListo?: (api: ApiEscena) => void;
@@ -124,30 +140,32 @@ Las pruebas puras van en `tests/unit/escena/` y `tests/repo/`; las de navegador,
 
 **Núcleo puro**
 
-5. **Cámara.** Dadas las órdenes de la cámara, entonces cada tecla devuelve la orden de la tabla (flechas, `+`, `=`, `-`, `Home`, espacio) y `null` con cualquier otra tecla o con Ctrl, Meta o Alt pulsados; el ángulo polar y la distancia nunca salen de sus límites aunque se repita la orden; el acimut se normaliza a `[0, 2π)`; `restablecer` devuelve `VISTA_INICIAL`; `distanciaInicial` crece con el radio y es mayor en pantallas verticales; y `posicionCamara` devuelve puntos a `distancia · distanciaBase` del origen. *(Vitest)*
+5. **Cámara.** Dadas las órdenes de la cámara, entonces cada tecla devuelve la orden de la tabla (flechas, `+`, `=`, `-`, `Home`, espacio) y `null` con cualquier otra tecla o con Ctrl, Meta o Alt pulsados; el pellizco acerca cuando los dedos se separan, aleja cuando se juntan y devuelve `null` con separaciones no positivas; el giro automático solo cambia el acimut, proporcionalmente a `dt` y recortando `dt` fuera de `[0, 0,25]`; el ángulo polar y la distancia nunca salen de sus límites aunque se repita la orden; el acimut se normaliza a `[0, 2π)`; `restablecer` devuelve `VISTA_INICIAL`; `distanciaInicial` crece con el radio y es mayor en pantallas verticales; y `posicionCamara` devuelve puntos a `distancia · distanciaBase` del origen. *(Vitest)*
 6. **Estelas.** Dada una trayectoria, una fracción `u` y una longitud, cuando se construyen las estelas, entonces el último vértice de cada cuerpo es `estadoEn(t, u)` y el primero corresponde al instante `u − longitud`; con `longitud = 1` hay exactamente `n + 1` vértices también en `u = 0`, en un nodo exacto y justo antes de 1; con envoltura no se repite el último nodo ni hay vértices duplicados; el alfa de un vértice depende solo de su edad (a la mitad de la longitud vale `alfaDeEdad(0,5)` sea cual sea la densidad de nodos); las marcas son puntos de la rejilla fija dentro de la ventana, con la misma posición entre fotogramas mientras no salgan de ella; una longitud fuera de `[0,05, 1]` o un `u` no finito lanzan `RangeError`; no hay `NaN`; y reutilizar el destino no cambia el resultado. *(Vitest)*
 7. **Miniatura.** Dada cada una de las seis órbitas, cuando se traza su miniatura, entonces hay tres trazos de como máximo 400 puntos con coordenadas finitas, la `y` está invertida, el `viewBox` contiene todos los puntos con un margen, el `d` total ocupa menos de 12 KB y el resultado es idéntico en dos llamadas. *(Vitest)*
 8. **Campo ambiental.** Dado un número y una semilla, cuando se genera el campo, entonces dos llamadas dan los mismos valores, hay exactamente ese número de partículas a una distancia del origen entre 4,5 y 15,5, con alfa entre 0,18 y 0,58 y un índice de paleta válido. *(Vitest)*
+9. **Reloj de la órbita.** Dados una posición, un `dt`, una velocidad y un periodo, cuando se avanza, entonces el resultado es `u + dt · velocidad / periodo` envuelto en `[0, 1)`; nunca vale 1 ni `NaN`; una velocidad negativa retrocede con envoltura; un `dt` fuera de `[0, 0,25]` se recorta; y `envolverPosicion(-1e-17)` vale 0. *(Vitest)*
 
 **Escena en el navegador**
 
-9. **Miniatura desde el servidor.** Dada la portada con JavaScript desactivado, entonces el HTML trae la miniatura SVG de la figura de ocho con sus tres trazos. *(Playwright)*
-10. **three fuera del código inicial.** Dada la portada, cuando se descarga su HTML, entonces ninguno de los JavaScript que referencia (`<script src>` y `<link rel="preload" as="script">`) contiene `WebGLRenderer`, y al menos uno de los que se cargan después sí lo contiene. *(Playwright)*
-11. **La escena se dibuja.** Dada la portada con WebGL, cuando carga, entonces el contenedor pasa a `data-estado-escena="lista"`, la miniatura deja de ser visible, hay un lienzo opaco con `role="img"`, etiqueta descriptiva, `aria-describedby` y `tabindex="0"`, el texto de instrucciones es visible, y una captura del lienzo tiene al menos 150 píxeles cerca de cada uno de los tres colores de los cuerpos (tolerancia de 60 por canal). Esta es la prueba permanente del Worker en el navegador. *(Playwright con `pngjs`)*
-12. **Control de la cámara.** Dado el lienzo con foco, cuando se pulsa una flecha, entonces `data-vista` cambia; cuando se pulsa `+` sin modificadores, la distancia disminuye, y con Ctrl pulsado no cambia; `Home` devuelve la vista inicial; arrastrar con el ratón la cambia; la rueda sobre el lienzo desplaza la página y no cambia la vista; y el lienzo tiene `touch-action: pan-y`. *(Playwright)*
-13. **Animación.** Dada la escena en marcha, cuando se pulsa «Pausar animación» o la tecla Espacio, entonces `data-reproduciendo` pasa a `false`, el texto del botón pasa a «Reproducir animación» y `data-posicion` y `data-vista` no cambian durante un segundo; al reanudar, la posición avanza sin saltar; el botón mide al menos 44 px de alto y de ancho; y no aparece hasta que la escena está lista. *(Playwright)*
-14. **Movimiento reducido.** Dado `prefers-reduced-motion: reduce`, cuando carga la portada, entonces la escena empieza pausada y `data-posicion` no cambia en un segundo. *(Playwright)*
-15. **Pausa cuando no se ve.** Dada la escena en marcha, cuando `document.hidden` pasa a verdadero (redefinido con `Object.defineProperty`) y se lanza `visibilitychange`, entonces `data-fotogramas` deja de crecer; al volver crece de nuevo y la posición no salta. *(Playwright)*
-16. **Estados alternativos.** Dado un navegador sin WebGL2 (un script de inicio hace que `getContext` devuelva `null`), cuando carga la portada, entonces el contenedor pasa a `data-estado-escena="sin-webgl"`, la miniatura sigue visible, un elemento `role="status"`, presente desde el principio, explica que no se puede mostrar la escena 3D, el botón de animación no aparece y no hay eventos `pageerror` ni errores de consola salvo `Failed to load resource`. Dado que falla la carga del Worker (la petición se aborta), entonces el estado es `error`, con la miniatura y un aviso. *(Playwright)*
-17. **Lienzo estable.** Dada la escena en marcha, cuando se pausa y se reanuda, entonces el lienzo es el mismo elemento; con `deviceScaleFactor: 3` el ancho del lienzo no pasa del doble de su ancho en CSS; y el contenedor del visor tiene la misma caja antes y después de `lista`. *(Playwright)*
-18. **Responsive.** Dada la portada a 375, 768 y 1440 px, entonces no hay desbordamiento horizontal y la escena mide al menos 360 px de alto en móvil. *(Playwright)*
+10. **Miniatura desde el servidor.** Dada la portada con JavaScript desactivado, entonces el HTML trae la miniatura SVG de la figura de ocho con sus tres trazos. *(Playwright)*
+11. **three fuera del código inicial.** Dada la portada, cuando se descarga su HTML, entonces ninguno de los JavaScript que referencia (`<script src>` y `<link rel="preload" as="script">`) contiene `WebGLRenderer`, y al menos uno de los que se cargan después sí lo contiene. *(Playwright)*
+12. **La escena se dibuja.** Dada la portada con WebGL, cuando carga, entonces el contenedor pasa a `data-estado-escena="lista"`, la miniatura deja de ser visible, hay un lienzo opaco con `role="img"`, etiqueta descriptiva, `aria-describedby` y `tabindex="0"`, el texto de instrucciones es visible, y una captura del lienzo tiene al menos 150 píxeles cerca de cada uno de los tres colores de los cuerpos (tolerancia de 60 por canal). Esta es la prueba permanente del Worker en el navegador. *(Playwright con `pngjs`)*
+13. **Control de la cámara.** Dado el lienzo con foco, cuando se pulsa una flecha, entonces `data-vista` cambia; cuando se pulsa `+` sin modificadores, la distancia disminuye, y con Ctrl pulsado no cambia; `Home` devuelve la vista inicial; arrastrar con el ratón la cambia; un gesto de dos dedos que se separan (eventos táctiles enviados por el protocolo del navegador) reduce la distancia y uno que se juntan la aumenta; la rueda sobre el lienzo desplaza la página y no cambia la vista; y el lienzo tiene `touch-action: pan-y`. *(Playwright)*
+14. **Animación.** Dada la escena en marcha, cuando se pulsa «Pausar animación» o la tecla Espacio, entonces `data-reproduciendo` pasa a `false`, el texto del botón pasa a «Reproducir animación» y `data-posicion` y `data-vista` no cambian durante un segundo; al reanudar, la posición avanza sin saltar; el botón mide al menos 44 px de alto y de ancho; y no aparece hasta que la escena está lista. *(Playwright)*
+15. **Movimiento reducido.** Dado `prefers-reduced-motion: reduce`, cuando carga la portada, entonces la escena empieza pausada y `data-posicion` no cambia en un segundo. *(Playwright)*
+16. **Pausa cuando no se ve.** Dada la escena en marcha, cuando `document.hidden` pasa a verdadero (redefinido con `Object.defineProperty`) y se lanza `visibilitychange`, entonces `data-fotogramas` deja de crecer; al volver crece de nuevo y la posición no salta. *(Playwright)*
+17. **Estados alternativos.** Dado un navegador sin WebGL2 (un script de inicio hace que `getContext` devuelva `null`), cuando carga la portada, entonces el contenedor pasa a `data-estado-escena="sin-webgl"`, la miniatura sigue visible, un elemento `role="status"`, presente desde el principio, explica que no se puede mostrar la escena 3D, el botón de animación no aparece y no hay eventos `pageerror` ni errores de consola salvo `Failed to load resource`. Dado que falla la carga del Worker (la petición se aborta), entonces el estado es `error`, con la miniatura y un aviso. *(Playwright)*
+18. **Lienzo estable.** Dada la escena en marcha, cuando se pausa y se reanuda, entonces el lienzo es el mismo elemento; con `deviceScaleFactor: 3` el ancho del lienzo no pasa del doble de su ancho en CSS; y el contenedor del visor tiene la misma caja antes y después de `lista`. *(Playwright)*
+19. **Responsive.** Dada la portada a 375, 768 y 1440 px, entonces no hay desbordamiento horizontal y la escena mide al menos 360 px de alto en móvil. *(Playwright)*
+20. **Giro automático.** Dada la portada con la escena en marcha, cuando pasan dos segundos sin tocarla, entonces el acimut de `data-vista` ha cambiado y la distancia y el ángulo polar no; cuando se pausa, no cambia; en cuanto se pulsa una flecha o se arrastra, el giro automático se detiene y, tras volver a reproducir, no se reanuda; y con movimiento reducido no gira. *(Playwright)*
 
 La limpieza al desmontar el componente (muchas idas y vueltas sin aviso de demasiados contextos WebGL) no tiene prueba en este ticket, porque la portada no navega: se comprobará en GRV-04, con el primer E2E con navegación.
 
 ## Orden de trabajo
 
 1. `docs`: esta spec y sus correcciones.
-2. `test`: criterios 1 a 18 en rojo, con `pngjs` como dependencia de desarrollo. Este commit marca la spec como aprobada.
+2. `test`: criterios 1 a 20 en rojo, con `pngjs` como dependencia de desarrollo. Este commit marca la spec como aprobada.
 3. `feat`: dependencias (`three`, `@types/three`, `@fontsource-variable/inter`), tokens y layout, núcleo puro, componentes y portada. También los cambios de `devops`: `playwright.config.ts` con los argumentos de SwiftShader y una regla de ESLint que prohíbe importar `three` fuera de `src/components/escena/`.
 4. `docs`: ADR 0005 (escena, estelas y color), `DESIGN.md`, `AGENTS.md` (propiedad de `src/lib/escena/` y de `DESIGN.md`), ticket y estado.
 5. Revisión y enlace para abrir el PR.
@@ -164,6 +182,7 @@ La limpieza al desmontar el componente (muchas idas y vueltas sin aviso de demas
 - **Tamaño de three.** No se mide hasta GRV-06; si no cabe en el presupuesto, se poda.
 - **Tamaño de punto.** El máximo de `gl_PointSize` depende de la GPU. El tamaño usado (≈ 9 px CSS por DPR) queda muy por debajo de los límites habituales.
 - **Lectores de pantalla.** El lienzo es una imagen con instrucciones visibles; los lectores en modo lectura pueden interceptar las flechas. Se documenta el límite.
+- **Posición y vista inicial por props.** `posicionInicial`, `vistaInicial` y `fijarPosicion` quedan cubiertos en este ticket por las pruebas del reloj y de la cámara (Node), pero su conexión con la interfaz no tiene E2E hasta que GRV-04 añada el deslizador y las URL compartibles.
 - **Pausa por visibilidad en el lienzo.** La parte de `IntersectionObserver` no tiene prueba, porque la portada cabe en la pantalla. Se prueba el caso de la pestaña oculta.
 - **Movimiento reducido en caliente.** El estado inicial se decide al cargar; los cambios de preferencia durante la sesión no se escuchan.
 - **Los atributos `data-*`** son parte del contrato de las pruebas.
