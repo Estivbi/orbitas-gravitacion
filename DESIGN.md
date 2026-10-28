@@ -96,5 +96,6 @@ Escala de texto. Cada tamaño tiene tres tokens, que `globals.css` declara junto
 | Token | Clase Tailwind | Valor | Uso |
 |---|---|---|---|
 | `--breakpoint-columnas` | `columnas:*`, `max-columnas:*` | 900 px | Corte de una a dos columnas (texto y escena) |
+
 - Contraste mínimo AA (4,5:1), foco visible y objetivos táctiles de al menos 44 px.
 - Un solo tema, oscuro.

@@ -25,7 +25,7 @@ GRV-03 dibuja por primera vez una órbita en 3D con three y fija el sistema de d
 ## Consecuencias
 
 - La escena es código imperativo en `montarEscena`: cada recurso (renderer, geometrías, materiales, observadores, manejadores) registra su limpieza y se libera en orden inverso, también si el montaje falla a medias. El lienzo se crea en cada montaje y se añade a un `div` de React, lo que evita fugas de contexto con StrictMode. El bucle se detiene con la pestaña oculta o la escena fuera de pantalla.
-- Las estelas necesitan buffers de hasta `n + 1` vértices por cuerpo (≈ 27 000 en el peor caso, Goggles con estela completa). Se reservan una vez por trayectoria y se reutilizan en cada fotograma.
+- Las estelas necesitan buffers de hasta `n + 1` vértices por cuerpo (≈ 9 000 vértices por cuerpo, ≈ 27 000 entre los tres, en el peor caso: Goggles con estela completa). Se reservan una vez por trayectoria y se reutilizan en cada fotograma.
 - El campo ambiental, la miniatura y el reloj son deterministas y se prueban en Node sin navegador. Lo que depende de WebGL (que se dibuje de verdad, la cámara, la pausa) se prueba con Playwright sobre el WebGL por software del CI, que es lento y puede fallar un intento aislado.
 - `ColorManagement` es global: cualquier otro módulo que use three y se cargue en la misma página heredará el ajuste. Hoy solo la escena lo usa.
 - El tamaño de three no se ha medido; GRV-06 comprobará el presupuesto y, si no cabe, se poda.
