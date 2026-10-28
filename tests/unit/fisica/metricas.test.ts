@@ -30,9 +30,10 @@ describe('GRV-02 · criterio 12: métricas', () => {
 
 describe('GRV-02 · criterio 13: extremos de la trayectoria', () => {
   it('Lagrange: distancia mínima √3 y velocidad máxima 3^(−1/4)', () => {
+    // Es un valor integrado (tolerancia 1e-10 por paso), no analítico: de ahí 1e-9.
     const t = trayectoriaDe('lagrange');
-    expect(Math.abs(t.distanciaMinima - Math.sqrt(3))).toBeLessThanOrEqual(1e-12);
-    expect(Math.abs(t.velocidadMaxima - LAGRANGE.omega)).toBeLessThanOrEqual(1e-12);
+    expect(Math.abs(t.distanciaMinima - Math.sqrt(3))).toBeLessThanOrEqual(1e-9);
+    expect(Math.abs(t.velocidadMaxima - LAGRANGE.omega)).toBeLessThanOrEqual(1e-9);
   });
 
   it.each(TODAS.filter((slug) => slug !== 'lagrange'))(

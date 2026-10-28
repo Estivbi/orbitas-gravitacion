@@ -28,14 +28,14 @@ Medido contra una integración de referencia de tolerancia 1e-13, el error máxi
 
 | Órbita | 720 uniformes + lineal | 2880 uniformes + Hermite | Pasos adaptativos + Hermite |
 |---|---|---|---|
-| Lagrange | 9,5e-6 | 1,9e-13 | 5,7e-11 |
-| Figura de ocho | 2,1e-5 | 8,8e-12 | 2,2e-9 |
-| Butterfly I | 1,3e-2 | 8,2e-4 | 7,7e-8 |
+| Lagrange | 9,5e-6 | 9,7e-13 | 5,6e-11 |
+| Figura de ocho | 2,1e-5 | 2,6e-12 | 2,2e-9 |
+| Butterfly I | 1,6e-2 | 8,1e-4 | 7,3e-8 |
 | Goggles | 2,2e-2 | 7,0e-4 | 2,2e-7 |
-| Moth I | 6,8e-3 | 4,3e-6 | 2,3e-8 |
-| Yin-Yang I | 4,2e-2 | 2,7e-3 | 2,2e-7 |
+| Moth I | 6,9e-3 | 4,2e-6 | 2,3e-8 |
+| Yin-Yang I | 4,2e-2 | 2,5e-3 | 2,2e-7 |
 
-Hay encuentros muy cercanos: la distancia mínima real es de 0,011 en Butterfly I y 0,013 en Yin-Yang I. Con la rejilla uniforme del brief una telemetría de «distancia mínima» habría mostrado 0,025 y 0,091 (hasta siete veces más), y el cuerpo recortaría la curva. Con los pasos del propio integrador como nodos y Hermite, el error baja de 3e-7 en las seis, con 720 a 9000 nodos por órbita (hasta ≈1 MB). Coste: la trayectoria no es una rejilla uniforme. El segmento se busca por bisección y las estelas recorren nodos (`indiceEn`) o usan `muestrear`.
+Hay encuentros muy cercanos: la distancia mínima real es de 0,011 en Butterfly I y 0,013 en Yin-Yang I. Con la rejilla uniforme del brief una telemetría de «distancia mínima» habría mostrado 0,025 y 0,091 (hasta siete veces más), y el cuerpo recortaría la curva. Con los pasos del propio integrador como nodos y Hermite, el error baja de 3e-7 en las seis, con 724 a 9034 nodos por órbita (hasta ≈1 MB). Coste: la trayectoria no es una rejilla uniforme. El segmento se busca por bisección y las estelas recorren nodos (`indiceEn`) o usan `muestrear`.
 
 ### 2. Figura de ocho con los datos de Chenciner–Montgomery y Simó
 
@@ -78,14 +78,14 @@ Medidas con un integrador independiente (script `scripts/medir-fisica.mjs`, que 
 
 | Slug | Cierre (posiciones y velocidades) | Máx. \|ΔE\| | Máx. \|ΔL\| | Distancia mínima | Velocidad máxima | Nodos |
 |---|---|---|---|---|---|---|
-| `lagrange` | 5,4e-11 | 2,4e-13 | 3,1e-13 | 1,73205 | 0,7598 | 722 |
-| `figura-de-ocho` | 1,1e-7 | 1,2e-10 | 1,7e-11 | 0,6905 | 1,2717 | 731 |
-| `butterfly-i` | 1,2e-3 | 1,2e-8 | 1,5e-12 | 0,0110 | 9,5504 | 5648 |
-| `goggles` | 2,4e-3 | 1,2e-8 | 9,9e-12 | 0,0185 | 7,4894 | 9032 |
-| `moth-i` | 2,3e-4 | 2,8e-9 | 1,6e-11 | 0,0795 | 3,5609 | 3201 |
-| `yin-yang-i` | 8,6e-4 | 7,1e-9 | 3,7e-11 | 0,0133 | 8,7224 | 5395 |
+| `lagrange` | 5,4e-11 | 2,4e-13 | 3,1e-13 | 1,7321 | 0,7598 | 724 |
+| `figura-de-ocho` | 1,1e-7 | 6,6e-11 | 1,7e-11 | 0,6905 | 1,2717 | 733 |
+| `butterfly-i` | 1,2e-3 | 1,5e-8 | 2,3e-12 | 0,0110 | 9,5503 | 5650 |
+| `goggles` | 2,4e-3 | 1,4e-8 | 1,7e-11 | 0,0185 | 7,4894 | 9034 |
+| `moth-i` | 2,3e-4 | 3,5e-9 | 2,3e-11 | 0,0794 | 3,5609 | 3202 |
+| `yin-yang-i` | 8,6e-4 | 1,2e-8 | 3,8e-11 | 0,0133 | 8,7224 | 5396 |
 
-El momento lineal total queda por debajo de 3,7e-14 en todas. El momento angular inicial es 0 en las cinco órbitas con parámetros y `3 · 3^(−1/4) = 2,279507` en Lagrange. Error de interpolación frente a la referencia: posición ≤ 2,2e-7 (Goggles y Yin-Yang I) y velocidad ≤ 1,1e-4 (Yin-Yang I).
+El momento lineal total queda por debajo de 4,3e-14 en todas. El momento angular inicial es 0 en las cinco órbitas con parámetros y `3 · 3^(−1/4) = 2,279507` en Lagrange. Error de interpolación frente a la referencia: posición ≤ 2,2e-7 (Goggles y Yin-Yang I) y velocidad ≤ 1,1e-4 (Yin-Yang I).
 
 ## Contratos
 
@@ -155,34 +155,35 @@ El Worker transfiere al hilo principal los dos `ArrayBuffer` de la trayectoria; 
 
 ## Criterios de aceptación
 
-Cada uno tiene su prueba, en `tests/unit/fisica/`, `tests/unit/workers/` y `tests/repo/`.
+Cada uno tiene su prueba, en `tests/unit/fisica/` y `tests/unit/workers/`.
+
+El aislamiento de `src/lib/` (sin React, Next, three ni globales del navegador) y del Worker (solo importa `@/lib/fisica` y `./protocolo`) lo vigilan reglas de ESLint, `no-restricted-imports` y `no-restricted-globals`, que se añaden a `eslint.config.mjs`. Un criterio con test dedicado para esas reglas se recortó para acotar el alcance: las vigila el lint del CI.
 
 1. **Catálogo completo.** Dado el catálogo, cuando se listan sus slugs, entonces son exactamente los seis de la tabla, en ese orden, con nombre, descripción y crédito no vacíos y periodo mayor que 0; `obtenerOrbita('no-existe')` devuelve `undefined`; y cada `estadoInicial` está congelado y sobrevive a `JSON.stringify` y `JSON.parse` como un array de 12 números.
 2. **Convención de estado.** Dadas las cinco órbitas con parámetros, cuando se lee su estado inicial, entonces las posiciones son (−1, 0), (1, 0), (0, 0) y las velocidades `(vx, vy)`, `(vx, vy)`, `(−2vx, −2vy)`. En Lagrange, los cuerpos están a radio 1 en 90°, 210° y 330°, con velocidad tangencial de módulo `3^(−1/4)`, y el periodo vale `2π · 3^(1/4)` con tolerancia relativa 1e-15.
 3. **Datos de la tabla.** Dado el catálogo, cuando se leen periodo y velocidades de las cinco órbitas con parámetros, entonces coinciden exactamente con la tabla de datos.
-4. **Momento lineal.** Dada cada órbita, cuando se integra un periodo, entonces el módulo del momento lineal es ≤ 1e-12 en todos los nodos (medido ≤ 3,7e-14).
-5. **Energía.** Dada cada órbita, cuando se integra un periodo, entonces `|E(t) − E(0)| ≤ 1e-6` en todos los nodos (medido ≤ 1,2e-8), y `E(0)` coincide con la tabla con tolerancia 1e-5; en Lagrange con `−√3/2` con tolerancia 1e-12.
-6. **Momento angular.** Dada cada órbita, cuando se integra un periodo, entonces `L(0)` es 0 con tolerancia 1e-12 en las cinco con parámetros y `3 · 3^(−1/4)` con tolerancia 1e-12 en Lagrange, y `|L(t) − L(0)| ≤ 1e-9` en todos los nodos (medido ≤ 3,7e-11).
+4. **Momento lineal.** Dada cada órbita, cuando se integra un periodo, entonces el módulo del momento lineal es ≤ 1e-12 en todos los nodos (medido ≤ 4,3e-14).
+5. **Energía.** Dada cada órbita, cuando se integra un periodo, entonces `|E(t) − E(0)| ≤ 1e-6` en todos los nodos (medido ≤ 1,5e-8), y `E(0)` coincide con la tabla con tolerancia 1e-5; en Lagrange con `−√3/2` con tolerancia 1e-12.
+6. **Momento angular.** Dada cada órbita, cuando se integra un periodo, entonces `L(0)` es 0 con tolerancia 1e-12 en las cinco con parámetros y `3 · 3^(−1/4)` con tolerancia 1e-12 en Lagrange, y `|L(t) − L(0)| ≤ 1e-9` en todos los nodos (medido ≤ 3,8e-11).
 7. **Cierre.** Dada cada órbita, cuando se integra un periodo, entonces el estado final (posiciones y velocidades) difiere del inicial menos que la tolerancia por órbita: Lagrange 1e-9, figura de ocho 1e-6, Butterfly I 3e-3, Goggles 5e-3, Moth I 1e-3, Yin-Yang I 3e-3. Las tolerancias dejan margen sobre lo medido y no se ajustan para que pase una prueba: si una órbita no cierra, se documenta como límite.
 8. **Determinismo.** Dadas dos integraciones de la misma órbita, también en orden distinto, entonces los `Float64Array` resultantes son idénticos bit a bit.
 9. **Estructura de la trayectoria.** Dada cada trayectoria, entonces `tiempos[0] === 0`, el último tiempo es exactamente `periodo`, los tiempos son estrictamente crecientes, ningún intervalo supera `pasoMaximo` (con holgura relativa de 1e-12) y hay al menos 721 nodos con el `pasoMaximo` por defecto; `estados.length === 12 · tiempos.length`; el primer estado es el inicial bit a bit; `tiempos` y `estados` tienen buffers distintos de tamaño exacto; y el `estadoInicial` del catálogo no cambia tras integrar, interpolar y muestrear.
-10. **Interpolación.** Dada cada trayectoria, cuando se llama a `estadoEn`, entonces con `u = 0` devuelve el estado inicial exactamente, en cada nodo, salvo el último (que por la envoltura equivale al primero), coincide con él con tolerancia absoluta 1e-12, y devuelve la instancia `salida` cuando se la pasa. En 7200 instantes equiespaciados, frente a una referencia (`integrarPeriodo` con tolerancia 1e-12 y `pasoMaximo = T/7200`), la posición difiere menos de 1e-6 (medido ≤ 2,2e-7) y la velocidad menos de 5e-4 (medido ≤ 1,1e-4). Esta prueba comprueba la interpolación; la física la cubren los criterios 4 a 7 y 14.
+10. **Interpolación.** Dada cada trayectoria, cuando se llama a `estadoEn`, entonces con `u = 0` devuelve el estado inicial exactamente, en cada nodo, salvo el último (que por la envoltura equivale al primero), coincide con él con tolerancia absoluta 1e-12 en posición (medido ≤ 1,5e-14) y 1e-9 en velocidad (medido ≤ 1e-11: `u·T` no recupera `tiempos[i]` exactamente, y en los encuentros la velocidad cambia hasta ~10⁴ por unidad de tiempo), y devuelve la instancia `salida` cuando se la pasa. En 7200 instantes equiespaciados, frente a una referencia (`integrarPeriodo` con tolerancia 1e-12 y `pasoMaximo = T/7200`), la posición difiere menos de 1e-6 (medido ≤ 2,2e-7) y la velocidad menos de 5e-4 (medido ≤ 1,1e-4). Esta prueba comprueba la interpolación; la física la cubren los criterios 4 a 7 y 14.
 11. **Envoltura, muestreo e índice.** Dado `estadoEn`, cuando `u` es `1,25`, `−0,75` o `1`, entonces equivale a `0,25`, `0,25` y `0`. `muestrear(t, n)` devuelve `n` estados en `u_k = k / n` que coinciden bit a bit con `estadoEn`. `indiceEn(t, u)` devuelve el índice `i` tal que `tiempos[i] ≤ u·T < tiempos[i + 1]`.
 12. **Métricas.** Dado un estado construido a mano con tres cuerpos en (0, 0), (3, 0) y (0, 4) y velocidades conocidas, cuando se calculan sus métricas, entonces energía, momento lineal, momento angular, distancia mínima (3) y velocidad máxima coinciden con el valor calculado a mano. Dado Lagrange, la distancia mínima es `√3` y la energía `−√3/2` con tolerancia 1e-12.
-13. **Extremos de la trayectoria.** Dada Lagrange, `distanciaMinima` es `√3` y `velocidadMaxima` es `3^(−1/4)` con tolerancia 1e-12. Dadas las demás, difieren menos del 5 % de los obtenidos con una referencia muy fina (`integrarPeriodo` con tolerancia 1e-12 y `pasoMaximo = T/20000`).
+13. **Extremos de la trayectoria.** Dada Lagrange, `distanciaMinima` es `√3` y `velocidadMaxima` es `3^(−1/4)` con tolerancia 1e-9 (son valores integrados con tolerancia 1e-10 por paso, no analíticos; medido ≤ 2e-11). Dadas las demás, difieren menos del 5 % de los obtenidos con una referencia muy fina (`integrarPeriodo` con tolerancia 1e-12 y `pasoMaximo = T/20000`).
 14. **Contraste con la literatura.** Dado el estado de la figura de ocho de Chenciner y Montgomery (a partir de los cálculos de Simó) rotado a la convención del catálogo, cuando se compara con el catálogo, entonces coincide con tolerancia 5e-8; su energía coincide con la del catálogo con tolerancia 1e-6; y integrado un periodo vuelve al inicio con tolerancia 1e-6.
 15. **Entradas inválidas.** Cuando se integra con una tolerancia menor que 1e-14, un periodo ≤ 0 o no finito, un `pasoMaximo` ≤ 0 o no finito, un estado inicial que no tiene 12 valores o contiene `NaN`, o dos cuerpos en la misma posición, entonces se lanza un error cuyo mensaje explica la causa. Con `pasosMaximos` pequeño se lanza `La integración no converge`. Con dos cuerpos a 1e-9 de distancia no hay bucle infinito. `muestrear` con `n` no entero o menor que 1, y `estadoEn` con `u` no finito, también lanzan un error claro.
 16. **Protocolo del Worker.** Dada la función pura `manejarPeticion`, cuando recibe `{ tipo: 'calcular', id: 7, slug: 'figura-de-ocho' }`, entonces devuelve `resultado` con `id` 7 y una trayectoria igual a la de `integrarPeriodo` del catálogo, con buffers propios de tamaño exacto. Ante peticiones mal formadas (sin `id`, tipo desconocido, slug que no es una cadena o que no existe) devuelve `error` con mensaje claro, `id` si se conoce y `null` si no, y no lanza.
 17. **Cliente del Worker.** Dado `crearClienteFisica` con un Worker simulado, cuando se piden varias trayectorias a la vez, entonces cada promesa se resuelve con la suya (correlación por `id`); una respuesta de error rechaza la promesa con su mensaje; un evento `error` del Worker rechaza las pendientes; el Worker no se crea hasta la primera llamada; y una segunda petición del mismo slug reutiliza la promesa sin enviar otro mensaje.
-18. **Aislamiento.** Dado el lint del proyecto, cuando un archivo de `src/lib/` importa `react`, `next` o `three`, o usa los globales `window`, `document` o `Worker`, o el archivo del Worker importa algo distinto de `@/lib/fisica` y `./protocolo`, entonces ESLint da error. Se comprueba con la API de ESLint sobre código de ejemplo. *(las reglas `no-restricted-imports` y `no-restricted-globals` se añaden a `eslint.config.mjs`)*
-19. **Coste razonable.** Dadas las seis órbitas, cuando se integran en Node, entonces cada una usa menos de 20 000 nodos y el total tarda menos de 3 s. *(cota holgada para detectar regresiones, no una medida de rendimiento)*
+18. **Coste razonable.** Dadas las seis órbitas, cuando se integran en Node, entonces cada una usa menos de 20 000 nodos y el total tarda menos de 3 s. *(cota holgada para detectar regresiones, no una medida de rendimiento)*
 
 El Worker en un navegador real no se prueba de forma permanente en este ticket (no hay página que lo use). Al empezar la fase de código se prueba con una página desechable y Playwright que Next 16 lo empaqueta y responde, para detectar pronto un fallo de diseño. El resultado queda en el documento del ticket y la prueba permanente llega con la primera página que lo use (GRV-04).
 
 ## Orden de trabajo
 
 1. `docs`: la spec (hecho) y sus correcciones tras la revisión.
-2. `test`: criterios 1 a 19 en rojo. Este commit también marca la spec como aprobada.
+2. `test`: criterios 1 a 18 en rojo (el 18 de la numeración original, el aislamiento, se recortó después). Este commit también marca la spec como aprobada.
 3. `feat`: integrador, interpolación, métricas, catálogo, Worker y cliente hasta pasar todo, más el script `scripts/medir-fisica.mjs` y las reglas de ESLint. Antes de nada, la comprobación desechable del Worker.
 4. `docs`: ADR 0002 (integrador y representación) y 0003 (un periodo con envoltura), documento del ticket y estado.
 5. Revisión y enlace para abrir el PR.

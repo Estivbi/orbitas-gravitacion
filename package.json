@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "comprobar:commits": "node scripts/comprobar-commits.mjs"
+    "comprobar:commits": "node scripts/comprobar-commits.mjs",
+    "medir:fisica": "node scripts/medir-fisica.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

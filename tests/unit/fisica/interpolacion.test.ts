@@ -11,11 +11,24 @@ describe('GRV-02 · criterio 10: interpolación', () => {
   it.each(TODAS)('%s: en cada nodo, salvo el último, devuelve ese nodo', (slug) => {
     const t = trayectoriaDe(slug);
     const periodo = orbita(slug).periodo;
-    let peor = 0;
+    let peorPosicion = 0;
+    let peorVelocidad = 0;
     for (let i = 0; i < numeroDeNodos(t) - 1; i++) {
-      peor = Math.max(peor, diferenciaMaxima(estadoEn(t, en(t.tiempos, i) / periodo), nodo(t, i)));
+      const obtenido = estadoEn(t, en(t.tiempos, i) / periodo);
+      const esperado = nodo(t, i);
+      peorPosicion = Math.max(
+        peorPosicion,
+        diferenciaMaxima(obtenido.subarray(0, 6), esperado.subarray(0, 6)),
+      );
+      peorVelocidad = Math.max(
+        peorVelocidad,
+        diferenciaMaxima(obtenido.subarray(6), esperado.subarray(6)),
+      );
     }
-    expect(peor).toBeLessThanOrEqual(1e-12);
+    expect(peorPosicion).toBeLessThanOrEqual(1e-12);
+    // u · T no recupera tiempos[i] exactamente (error de ~1e-15) y en los encuentros la velocidad
+    // cambia hasta ~1e4 por unidad de tiempo: de ahí el margen en velocidad.
+    expect(peorVelocidad).toBeLessThanOrEqual(1e-9);
   });
 
   it('devuelve la instancia de salida cuando se le pasa una', () => {
