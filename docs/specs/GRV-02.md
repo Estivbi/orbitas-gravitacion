@@ -14,7 +14,7 @@ El núcleo del dominio: integrar las seis órbitas con precisión controlada y s
 4. **Métricas.** Energía, momento lineal y angular, distancia mínima y velocidad máxima de un estado, y distancia mínima y velocidad máxima de una trayectoria.
 5. **Catálogo** de las seis órbitas, con periodo, estado inicial, descripción y crédito.
 6. **Web Worker** que calcula una órbita bajo petición, con protocolo tipado y cliente.
-7. **Contraste con la literatura**, desviaciones y límites, recogidos en dos ADR (0002 y 0003) y en el documento del ticket.
+7. **Contraste con la literatura**, desviaciones y límites, recogidos en tres ADR (0002 a 0004) y en el documento del ticket.
 
 ## Fuera de alcance
 
@@ -185,7 +185,7 @@ El Worker en un navegador real no se prueba de forma permanente en este ticket (
 1. `docs`: la spec (hecho) y sus correcciones tras la revisión.
 2. `test`: criterios 1 a 18 en rojo (el 18 de la numeración original, el aislamiento, se recortó después). Este commit también marca la spec como aprobada.
 3. `feat`: integrador, interpolación, métricas, catálogo, Worker y cliente hasta pasar todo, más el script `scripts/medir-fisica.mjs` y las reglas de ESLint. Antes de nada, la comprobación desechable del Worker.
-4. `docs`: ADR 0002 (integrador y representación) y 0003 (un periodo con envoltura), documento del ticket y estado.
+4. `docs`: ADR 0002 (integrador y representación), 0003 (un periodo con envoltura) y 0004 (datos y fuentes), documento del ticket y estado.
 5. Revisión y enlace para abrir el PR.
 
 Cuatro commits más el de la spec, uno por paso.
