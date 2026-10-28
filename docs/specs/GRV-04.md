@@ -1,6 +1,6 @@
 # GRV-04 · Galería, detalle y rutas
 
-**Estado:** aprobada · **Tamaño:** L · **Rama:** `feature/galeria-y-detalle-de-orbitas` → `develop`
+**Estado:** implementada, pendiente de revisión · **Tamaño:** L · **Rama:** `feature/galeria-y-detalle-de-orbitas` → `develop`
 
 ## Contexto
 
