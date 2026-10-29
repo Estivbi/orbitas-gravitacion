@@ -71,3 +71,46 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: npm run comprobar:commits -- "origin/${{ github.base_ref }}..HEAD"
+
+  docker:
+    name: Imagen Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir la imagen
+        run: docker compose build
+      - name: Levantar el servicio
+        run: docker compose up -d
+      - name: Esperar a que la portada responda 200
+        run: |
+          for i in $(seq 1 60); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)" = "200" ]; then
+              echo "Portada lista tras ${i} s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "La portada no respondió 200 en 60 s"
+          exit 1
+      - name: Comprobar la ruta de detalle
+        run: |
+          codigo=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/orbitas/lagrange)
+          echo "/orbitas/lagrange -> ${codigo}"
+          test "${codigo}" = "200"
+      - name: Comprobar el tutor en modo reducido
+        run: |
+          cuerpo=$(curl -sf http://localhost:3000/api/tutor)
+          echo "/api/tutor -> ${cuerpo}"
+          echo "${cuerpo}" | grep -q '"modo":"reducido"'
+      - name: Comprobar que el proceso no corre como root
+        run: |
+          uid=$(docker compose exec -T web id -u)
+          echo "uid del proceso: ${uid}"
+          test "${uid}" != "0"
+      - name: Mostrar los registros si algo falló
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Detener el servicio
+        if: always()
+        run: docker compose down

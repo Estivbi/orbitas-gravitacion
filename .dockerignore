@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.github
+.claude
+.vitest
+docs/privado
+test-results
+playwright-report
+coverage
+.env*
+!.env.example
+*.tsbuildinfo
+Dockerfile
+docker-compose.yml
+.dockerignore
