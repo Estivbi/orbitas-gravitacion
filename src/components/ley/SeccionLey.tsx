@@ -3,6 +3,7 @@
 import { useAlmacen, useAlmacenApi } from '@/store/ProveedorAlmacen';
 import { selectores } from '@/store/almacenInterfaz';
 import { CLASES_ETIQUETA_SECCION, CLASES_PANEL } from '../comunes/clases';
+import { GuiaSeccion } from '../comunes/GuiaSeccion';
 import { EnlaceAccion } from '../comunes/EnlaceAccion';
 import { ControlesLey } from './ControlesLey';
 import { EsquemaLey } from './EsquemaLey';
@@ -15,14 +16,18 @@ export function SeccionLey() {
   const { fijarLey } = useAlmacenApi().getState();
   return (
     <section id="ley" aria-labelledby={ID_TITULO} className="mx-auto max-w-pagina px-4 py-16">
-      <p className={`${CLASES_ETIQUETA_SECCION} mb-4`}>02 · Experimento interactivo</p>
+      <p className={`${CLASES_ETIQUETA_SECCION} mb-4`}>03 · Experimento interactivo</p>
       <h2 id={ID_TITULO} className="text-titular-sm mb-4 text-balance">
         La ley de Newton en acción
       </h2>
-      <p className="text-silver-mist mb-10 max-w-90">
-        Cuanto más pesados son dos cuerpos, más se atraen; cuanto más lejos, menos. Muévelos y
-        míralo.
+      <p className="text-silver-mist mb-6 max-w-90">
+        Cuanto más pesados son dos cuerpos, más se atraen; cuanto más lejos, menos. Es lo que Newton
+        dedujo en 1687, y aquí puedes comprobarlo.
       </p>
+      <GuiaSeccion
+        hacer="Mueve los deslizadores de masa y de distancia, o arrastra la masa de la derecha."
+        observar="La fuerza crece cuando aumentan las masas y se hace mucho más pequeña cuando las separas: al doble de distancia, solo la cuarta parte."
+      />
       <div className="grid grid-cols-1 items-center gap-6 columnas:grid-cols-[1fr_1.1fr] columnas:gap-10">
         <div className="flex flex-col gap-4">
           <div className={`${CLASES_PANEL} p-4 columnas:p-6`}>

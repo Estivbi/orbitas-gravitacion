@@ -242,6 +242,7 @@ test('GRV-06 · navegación de la portada: enlaces de cabecera, sección activa 
   await esperarHidratacion(page);
   const cabecera = page.getByRole('banner');
   for (const [nombre, href] of [
+    ['Historia', '/#historia'],
     ['La ley', '/#ley'],
     ['Órbitas', '/#galeria'],
     ['Tutor', '/#tutor'],

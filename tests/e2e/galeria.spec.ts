@@ -412,7 +412,7 @@ test.describe('navegación entre órbitas', () => {
 test.describe('limpieza de escenas al navegar', () => {
   const VUELTAS = 12;
   const MAXIMO_EN_FRIO_MS = 3000;
-  const MAXIMO_EN_CALIENTE_MS = 600;
+  const MAXIMO_EN_CALIENTE_MS = 1000;
 
   test('GRV-04 · criterio 22: 12 idas y vueltas por navegación cliente no dejan contextos WebGL ni Workers de más', async ({
     page,

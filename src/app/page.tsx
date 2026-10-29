@@ -2,6 +2,7 @@ import { BannerFinal } from '@/components/comunes/BannerFinal';
 import { CLASES_ETIQUETA_SECCION } from '@/components/comunes/clases';
 import { EnlaceAccion } from '@/components/comunes/EnlaceAccion';
 import { Ventajas } from '@/components/comunes/Ventajas';
+import { SeccionHistoria } from '@/components/comunes/SeccionHistoria';
 import { SeccionLey } from '@/components/ley/SeccionLey';
 import { VisorOrbita } from '@/components/escena/VisorOrbita';
 import { SeccionTutor } from '@/components/ley/SeccionTutor';
@@ -27,6 +28,7 @@ export default function Portada() {
         </div>
         <VisorOrbita slug={SLUG} miniatura={miniatura} titulo={orbita.nombre} />
       </div>
+      <SeccionHistoria />
       <SeccionLey />
       <Galeria />
       <SeccionTutor />

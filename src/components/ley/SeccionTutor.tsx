@@ -18,7 +18,7 @@ export function SeccionTutor() {
     <section id="tutor" aria-labelledby={ID_TITULO} className="mx-auto max-w-pagina px-4 py-16">
       <div className="grid grid-cols-1 items-start gap-6 columnas:grid-cols-[1fr_1.1fr] columnas:gap-10">
         <div className="flex flex-col items-start gap-4">
-          <p className={CLASES_ETIQUETA_SECCION}>04 · Tutor</p>
+          <p className={CLASES_ETIQUETA_SECCION}>05 · Tutor</p>
           <h2 id={ID_TITULO} className="text-titular-sm text-balance">
             Tu guía en el aprendizaje
           </h2>
