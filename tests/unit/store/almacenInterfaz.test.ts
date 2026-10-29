@@ -29,12 +29,32 @@ const DATOS_INICIALES = {
   longitudEstela: 0.5,
   reanudacion: {},
   entradaPorHistorial: false,
+  ley: { m1: 4, m2: 2, r: 4 },
+  tutor: { nivel: 1, racha: 0 },
 };
 
 const vista = (): VistaCamara => ({ acimut: 1.2, polar: 0.8, distancia: 0.7 });
 
+describe('GRV-05 · ley y tutor en el almacén', () => {
+  it('fijarLey recorta y fusiona, y no notifica si no cambia nada', () => {
+    const almacen = crearAlmacenInterfaz();
+    const escucha = vigilar(almacen);
+    almacen.getState().fijarLey({ r: 99 });
+    expect(almacen.getState().ley).toEqual({ m1: 4, m2: 2, r: 10 });
+    almacen.getState().fijarLey({ r: 10 });
+    expect(escucha).toHaveBeenCalledTimes(1);
+  });
+
+  it('registrarResultado sube de nivel con dos aciertos seguidos', () => {
+    const almacen = crearAlmacenInterfaz();
+    almacen.getState().registrarResultado(true);
+    almacen.getState().registrarResultado(true);
+    expect(almacen.getState().tutor).toEqual({ nivel: 2, racha: 0 });
+  });
+});
+
 describe('GRV-04 · criterio 7: estado inicial', () => {
-  it('es el del contrato, y solo esos seis campos de datos', () => {
+  it('es el del contrato, y solo esos ocho campos de datos', () => {
     expect(datosDe(crearAlmacenInterfaz())).toEqual(DATOS_INICIALES);
   });
 

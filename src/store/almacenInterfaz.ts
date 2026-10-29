@@ -8,6 +8,8 @@ import {
   type Velocidad,
 } from '@/lib/galeria/controles';
 import { esOrden, ORDEN_INICIAL, type OrdenGaleria } from '@/lib/galeria/orden';
+import { LEY_INICIAL, limitarLey, type Ley } from '@/lib/ley/ley';
+import { ESTADO_NIVEL_INICIAL, siguienteNivel, type EstadoNivel } from '@/lib/tutor/nivel';
 
 export interface PuntoDeReanudacion {
   /** Fracción del periodo, en [0, 1). */
@@ -23,6 +25,10 @@ export interface EstadoInterfaz {
   reanudacion: Readonly<Partial<Record<Slug, PuntoDeReanudacion>>>;
   /** La marca el proveedor al recibir un popstate; el detalle la desmarca al montarse. */
   entradaPorHistorial: boolean;
+  /** Ley de gravitación que comparten los deslizadores, el SVG y la herramienta `ajustar_ley`. */
+  ley: Readonly<Ley>;
+  /** Nivel del tutor (1 a 3) y racha de aciertos (+) o fallos (−) seguidos. */
+  tutor: Readonly<EstadoNivel>;
 }
 
 export interface AccionesInterfaz {
@@ -33,6 +39,9 @@ export interface AccionesInterfaz {
   fijarLongitudEstela(longitud: number): void;
   guardarReanudacion(slug: Slug, punto: PuntoDeReanudacion): void;
   marcarEntradaPorHistorial(valor: boolean): void;
+  /** Fusiona los valores dados con la ley actual, recortados a los límites y al paso. */
+  fijarLey(parcial: Partial<Ley>): void;
+  registrarResultado(acierto: boolean): void;
 }
 
 export type AlmacenInterfaz = StoreApi<EstadoInterfaz & AccionesInterfaz>;
@@ -44,6 +53,8 @@ export const ESTADO_INICIAL: Readonly<EstadoInterfaz> = Object.freeze({
   longitudEstela: LONGITUD_ESTELA.inicial,
   reanudacion: Object.freeze({}),
   entradaPorHistorial: false,
+  ley: LEY_INICIAL,
+  tutor: Object.freeze({ ...ESTADO_NIVEL_INICIAL }),
 });
 
 /** A [0, 1) sin alterar los valores que ya están dentro (a diferencia de `((u % 1) + 1) % 1`). */
@@ -109,6 +120,15 @@ export function crearAlmacenInterfaz(inicial: Partial<EstadoInterfaz> = {}): Alm
       if (valor === get().entradaPorHistorial) return;
       set({ entradaPorHistorial: valor });
     },
+    fijarLey(parcial) {
+      const actual = get().ley;
+      const nueva = limitarLey({ ...actual, ...parcial });
+      if (nueva.m1 === actual.m1 && nueva.m2 === actual.m2 && nueva.r === actual.r) return;
+      set({ ley: nueva });
+    },
+    registrarResultado(acierto) {
+      set({ tutor: siguienteNivel(get().tutor, acierto) });
+    },
   }));
 }
 
@@ -122,4 +142,6 @@ export const selectores = {
   longitudEstela: (estado: Estado) => estado.longitudEstela,
   reanudacion: (estado: Estado) => estado.reanudacion,
   entradaPorHistorial: (estado: Estado) => estado.entradaPorHistorial,
+  ley: (estado: Estado) => estado.ley,
+  tutor: (estado: Estado) => estado.tutor,
 } as const;
