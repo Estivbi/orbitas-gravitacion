@@ -1,0 +1,49 @@
+{
+  "name": "orbitas-gravitacion",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --max-warnings 0 .",
+    "format": "prettier --write \"{src,tests,scripts}/**/*.{ts,tsx,mjs,css}\" \"*.{ts,mts,mjs,json}\" \".github/**/*.yml\"",
+    "format:check": "prettier --check \"{src,tests,scripts}/**/*.{ts,tsx,mjs,css}\" \"*.{ts,mts,mjs,json}\" \".github/**/*.yml\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "comprobar:commits": "node scripts/comprobar-commits.mjs",
+    "medir:fisica": "node scripts/medir-fisica.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/pngjs": "^6.0.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.3",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.9.10",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^4.0.107",
+    "@ai-sdk/react": "^4.0.160",
+    "@fontsource-variable/inter": "^5.3.0",
+    "ai": "^7.0.156",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.186.1",
+    "zod": "^4.6.7",
+    "zustand": "^5.0.16"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
