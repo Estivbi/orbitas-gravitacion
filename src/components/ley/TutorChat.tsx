@@ -10,14 +10,13 @@ import Link from 'next/link';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { rutaDeOrbita } from '@/lib/galeria/navegacion';
 import { MENSAJES, senalaModoReducido } from '@/lib/tutor/errores';
+import { COOLDOWN_MS, MAX_MENSAJES, puedeEnviar } from '@/lib/tutor/cliente';
 import { TOPES } from '@/lib/tutor/tipos';
 import { useAlmacenApi } from '@/store/ProveedorAlmacen';
 import { ejecutarHerramienta, orbitaDeEntrada } from './herramientas';
 import type { MotivoReducido } from './PanelTutor';
 import { CLASES_FANTASMA } from './TutorReducido';
 
-/** Pausa mínima entre dos envíos, en milisegundos. */
-const ESPERA_ENTRE_ENVIOS_MS = 2000;
 const MENSAJE_RED = 'No se pudo conectar con el tutor. Comprueba tu conexión e inténtalo de nuevo.';
 const MENSAJE_LIMITE =
   'La conversación llegó a su límite de 20 mensajes. Recarga la página para empezar otra.';
@@ -57,7 +56,7 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
   const almacen = useAlmacenApi();
   const idEntrada = useId();
   const [texto, setTexto] = useState('');
-  const [enfriando, setEnfriando] = useState(false);
+  const [ultimoEnvio, setUltimoEnvio] = useState<number | null>(null);
   const temporizador = useRef<ReturnType<typeof setTimeout>>(undefined);
   const salidaHerramienta = useRef<ReturnType<typeof useChat>['addToolOutput']>(undefined);
 
@@ -100,17 +99,24 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
   }, [error, alReducido]);
   useEffect(() => () => clearTimeout(temporizador.current), []);
 
-  const lleno = messages.length >= TOPES.mensajes;
+  const lleno = messages.length >= MAX_MENSAJES;
   const ocupado = status === 'submitted' || status === 'streaming';
-  const puedeEnviar = !ocupado && !enfriando && !lleno && texto.trim() !== '';
+  // Mientras hay `ultimoEnvio` se está enfriando: el temporizador lo borra pasado COOLDOWN_MS.
+  const habilitado =
+    puedeEnviar({ enviando: ocupado, ultimoEnvio, mensajes: messages.length }, ultimoEnvio ?? 0)
+      .ok && texto.trim() !== '';
 
   function enviar(evento: FormEvent) {
     evento.preventDefault();
-    if (!puedeEnviar) return;
+    const ahora = Date.now();
+    if (!puedeEnviar({ enviando: ocupado, ultimoEnvio, mensajes: messages.length }, ahora).ok) {
+      return;
+    }
+    if (texto.trim() === '') return;
     void sendMessage({ text: texto.trim() });
     setTexto('');
-    setEnfriando(true);
-    temporizador.current = setTimeout(() => setEnfriando(false), ESPERA_ENTRE_ENVIOS_MS);
+    setUltimoEnvio(ahora);
+    temporizador.current = setTimeout(() => setUltimoEnvio(null), COOLDOWN_MS);
   }
 
   // La última respuesta del tutor va en una región educada; el resto del historial, fuera.
@@ -151,7 +157,7 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
         />
         <button
           type="submit"
-          disabled={!puedeEnviar}
+          disabled={!habilitado}
           className={`${CLASES_FANTASMA} disabled:cursor-default`}
         >
           Enviar

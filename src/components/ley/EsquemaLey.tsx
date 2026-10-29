@@ -58,7 +58,7 @@ export function EsquemaLey({ ley, alCambiarDistancia }: Props) {
   return (
     <svg
       viewBox={`0 0 ${ANCHO} ${ALTO}`}
-      role="img"
+      role="group"
       aria-label={`Dos masas, m1 = ${formatearNumero(ley.m1, 1)} y m2 = ${formatearNumero(ley.m2, 1)}, separadas una distancia ${textoR}`}
       className="h-auto w-full"
     >

@@ -75,7 +75,7 @@ export function ControlesLey({ ley, alCambiar }: Props) {
         max={distancia.max}
         alCambiar={(r) => alCambiar({ r })}
       />
-      <div className="mt-2 flex flex-col">
+      <div className="mt-2 flex flex-col" aria-live="polite" aria-atomic="true">
         <span className={CLASES_ETIQUETA}>Fuerza</span>
         <p className="text-subtitulo font-light tabular-nums" data-testid="fuerza">
           {formatearNumero(f, 2)}
