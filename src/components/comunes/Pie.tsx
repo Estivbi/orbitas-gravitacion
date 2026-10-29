@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ENLACES_SECCIONES } from './enlaces';
 import { Logotipo } from './Logotipo';
 
 const CLASES_ENLACE =
@@ -15,16 +16,13 @@ export function Pie() {
         </p>
       </div>
       <ul className="flex gap-6">
-        <li>
-          <Link href="/#galeria" className={CLASES_ENLACE}>
-            Explora
-          </Link>
-        </li>
-        <li>
-          <Link href="/#ley" className={CLASES_ENLACE}>
-            Aprende
-          </Link>
-        </li>
+        {ENLACES_SECCIONES.map((e) => (
+          <li key={e.href}>
+            <Link href={e.href} className={CLASES_ENLACE}>
+              {e.texto}
+            </Link>
+          </li>
+        ))}
       </ul>
     </footer>
   );

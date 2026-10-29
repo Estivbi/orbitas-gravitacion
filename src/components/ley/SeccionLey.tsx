@@ -1,27 +1,21 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { useAlmacen, useAlmacenApi } from '@/store/ProveedorAlmacen';
 import { selectores } from '@/store/almacenInterfaz';
 import { CLASES_ETIQUETA_SECCION, CLASES_PANEL } from '../comunes/clases';
+import { EnlaceAccion } from '../comunes/EnlaceAccion';
 import { ControlesLey } from './ControlesLey';
 import { EsquemaLey } from './EsquemaLey';
 
-// El chat (y el SDK de IA) se carga en un chunk aparte, solo en cliente.
-const PanelTutor = dynamic(() => import('./PanelTutor').then((m) => m.PanelTutor), {
-  ssr: false,
-  loading: () => <p className="text-silver-mist">Cargando el tutor…</p>,
-});
-
 const ID_TITULO = 'titulo-ley';
 
-/** Entre el hero y la galería: la ley manipulable y el tutor que pregunta sobre ella. */
+/** Entre el hero y la galería: la ley manipulable. */
 export function SeccionLey() {
   const ley = useAlmacen(selectores.ley);
   const { fijarLey } = useAlmacenApi().getState();
   return (
     <section id="ley" aria-labelledby={ID_TITULO} className="mx-auto max-w-pagina px-4 py-16">
-      <p className={`${CLASES_ETIQUETA_SECCION} mb-4`}>Experimento interactivo</p>
+      <p className={`${CLASES_ETIQUETA_SECCION} mb-4`}>02 · Experimento interactivo</p>
       <h2 id={ID_TITULO} className="text-titular-sm mb-4 text-balance">
         La ley de Newton en acción
       </h2>
@@ -41,8 +35,8 @@ export function SeccionLey() {
         </div>
         <EsquemaLey ley={ley} alCambiarDistancia={(r) => fijarLey({ r })} />
       </div>
-      <div className="mt-16">
-        <PanelTutor />
+      <div className="mt-10">
+        <EnlaceAccion href="#galeria">Ver las órbitas</EnlaceAccion>
       </div>
     </section>
   );

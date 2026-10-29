@@ -2,6 +2,7 @@ import { SLUGS, type Slug } from '@/lib/fisica/tipos';
 import { fichaDeOrbita, resumirCatalogo } from '@/lib/galeria/fichas';
 import type { ReactNode } from 'react';
 import { CLASES_ETIQUETA_SECCION } from '../comunes/clases';
+import { EnlaceAccion } from '../comunes/EnlaceAccion';
 import { ElementoGaleria } from './ElementoGaleria';
 import { GaleriaOrdenable } from './GaleriaOrdenable';
 
@@ -16,7 +17,7 @@ export function Galeria() {
     <section id="galeria" aria-labelledby={ID_TITULO} className="mx-auto max-w-pagina px-4 py-16">
       <div className="mb-10 grid grid-cols-1 items-end gap-4 columnas:grid-cols-2 columnas:gap-10">
         <div className="flex flex-col gap-4">
-          <p className={CLASES_ETIQUETA_SECCION}>Galería de órbitas</p>
+          <p className={CLASES_ETIQUETA_SECCION}>03 · Galería de órbitas</p>
           <h2 id={ID_TITULO} className="text-titular-sm text-balance">
             Seis órbitas, una misma ley.
           </h2>
@@ -27,6 +28,9 @@ export function Galeria() {
         </p>
       </div>
       <GaleriaOrdenable resumenes={resumirCatalogo()} elementos={elementos} />
+      <div className="mt-10">
+        <EnlaceAccion href="#tutor">Hablar con el tutor</EnlaceAccion>
+      </div>
     </section>
   );
 }
