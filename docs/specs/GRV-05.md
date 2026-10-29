@@ -1,6 +1,6 @@
 # GRV-05 · Ley interactiva y tutor
 
-**Estado:** propuesta, pendiente de aprobación · **Tamaño:** L · **Rama:** `feature/ley-interactiva-y-tutor` → `develop`
+**Estado:** implementada, pendiente de revisión · **Tamaño:** L · **Rama:** `feature/ley-interactiva-y-tutor` → `develop`
 
 ## Contexto
 
@@ -92,7 +92,7 @@ export function siguientePregunta(nivel: 1 | 2 | 3, vistas: readonly string[]): 
 0. `docs`: esta spec. Antes de los tests, el arquitecto instala `ai`, `@ai-sdk/google` y `@ai-sdk/react` y corrige la sección «API del SDK» con lo que diga la documentación instalada, y confirma el modelo por defecto.
 1. `test`: criterios 1 a 12 en rojo. Los de la ruta usan el modelo simulado. Este commit marca la spec como aprobada.
 2. `feat` (`backend`): `src/lib/ley/`, `src/lib/tutor/`, ruta, dependencias y `.env.example`. `devops`: segundo servidor en `playwright.config.ts` (criterio 11, tras el primero) y regla de ESLint para que `ai` solo se importe desde `src/lib/tutor/` y `@ai-sdk/react` desde `src/components/tutor/`.
-3. `feat` (`frontend`): extensión del almacén, `src/components/ley/`, `src/components/tutor/` y la sección en `page.tsx`. Después `docs` (`documentacion`: ticket y estado; `arquitecto`: fila del deslizador/aviso en `DESIGN.md` si cambia) y revisión.
+3. `feat` (`frontend`): extensión del almacén, `src/components/ley/` (con el chat del tutor) y la sección en `page.tsx`. Después `docs` (`documentacion`: ticket y estado; `arquitecto`: fila del deslizador/aviso en `DESIGN.md` si cambia) y revisión.
 
 ## Riesgos y límites
 
