@@ -1,0 +1,26 @@
+# `docker compose up --build` sirve la app en http://localhost:3000.
+# Sin clave el tutor funciona en modo de práctica. Las variables se toman del
+# entorno o de un .env opcional (nunca se versiona).
+services:
+  web:
+    build:
+      context: .
+      args:
+        URL_SITIO: ${URL_SITIO:-http://localhost:3000}
+    ports:
+      - '3000:3000'
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      GOOGLE_GENERATIVE_AI_API_KEY: ${GOOGLE_GENERATIVE_AI_API_KEY:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      URL_SITIO: ${URL_SITIO:-http://localhost:3000}
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped

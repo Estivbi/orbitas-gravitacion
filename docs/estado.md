@@ -10,9 +10,9 @@ Actualizado el 29 de octubre de 2026.
 | GRV-02 | Motor de física y catálogo | Hecho y fusionado |
 | GRV-03 | Sistema de diseño y escena 3D | Hecho y fusionado |
 | GRV-04 | Galería, detalle y rutas | Hecho y fusionado |
-| GRV-05 | Ley interactiva y tutor | En la rama `feature/ley-interactiva-y-tutor`, pendiente de PR |
-| GRV-06 | Rendimiento y accesibilidad | Pendiente (siguiente) |
-| GRV-07 | Entrega | Pendiente |
+| GRV-05 | Ley interactiva y tutor | Hecho y fusionado |
+| GRV-06 | Rendimiento y accesibilidad | Pendiente (mínimo: Lighthouse y robots.txt) |
+| GRV-07 | Entrega | En la rama `feature/entrega-docker-y-readme` |
 
 ## Qué hay en `develop`
 
@@ -27,9 +27,9 @@ Actualizado el 29 de octubre de 2026.
 - CI en GitHub Actions: lint, tipos, formato, tests, compilación, E2E y formato de commits. Reglas de ESLint que confinan `three` a `src/components/escena/` y `zustand` a `src/store/`.
 - Documentación de los tickets en `docs/tickets/` y decisiones en `docs/adr/` (0001 a 0006).
 
-## Qué cambia en la rama de GRV-05
+## Lo incorporado con GRV-05
 
-Aún sin fusionar. Cuando se fusione, `develop` incorporará:
+Ya en `develop`:
 
 - **Ley interactiva** (`#ley`, entre el hero y la galería): dos masas en SVG, deslizadores de m₁, m₂ y r, masa derecha arrastrable (también con flechas), `F = G·m₁·m₂/r²` con G = 1 y la frase «a doble distancia la fuerza sería…», calculada con la fórmula. Núcleo puro en `src/lib/ley/`; componentes en `src/components/ley/`.
 - **Tutor de lenguaje** con la ruta `src/app/api/tutor/route.ts` (Vercel AI SDK y Gemini) sobre `src/lib/tutor/`: manejador inyectable que se prueba sin red ni clave, prompt acotado a la gravitación, topes de entrada y de salida, y tres herramientas que ejecuta el cliente (`ajustar_ley`, `mostrar_orbita`, `registrar_respuesta`).
@@ -40,13 +40,22 @@ Aún sin fusionar. Cuando se fusione, `develop` incorporará:
 - **Dependencias nuevas:** `ai`, `@ai-sdk/google`, `@ai-sdk/react` y `zod`.
 - **Documentación:** ticket `docs/tickets/GRV-05-ley-interactiva-y-tutor.md`.
 
+## Qué cambia en la rama de GRV-07
+
+Aún sin fusionar. Cuando se fusione, `develop` incorporará:
+
+- **README** reescrito para quien llega al repositorio: qué es, cómo ejecutarlo (Node 22 o `docker compose up --build`, en <http://localhost:3000>), variables de entorno, cómo probar el tutor con clave propia, pruebas, arquitectura, decisiones con su coste, mediciones, límites, seguridad y créditos de las fuentes físicas.
+- **Entrega con Docker:** `Dockerfile` y `docker-compose.yml` (los crea `devops` en la misma rama; el README describe el comando).
+- **Marcadores que quedan por rellenar:** `URL_DESPLEGADA_PENDIENTE` en el README (la pone la persona responsable tras desplegar) y la sección «Mediciones», sin cifras de Lighthouse hasta GRV-06.
+- **Documentación:** ticket `docs/tickets/GRV-07-entrega.md`.
+
 ## Pendientes conocidos
 
 De GRV-04:
 
 - Sin buscador de órbitas propias, sin estado en la URL, sin imágenes Open Graph y sin persistencia tras recargar.
 - `/orbitas` da 404 y `/favicon.ico` sigue dando 404 en navegadores sin soporte de icono SVG.
-- `URL_SITIO` se lee al compilar. El `ARG` correspondiente en el Dockerfile queda para GRV-07.
+- `URL_SITIO` se lee al compilar; en Docker va como `ARG` de la etapa de build (GRV-07).
 - El HTML de la portada pesa 135 KB por las miniaturas de la galería; GRV-06 puede revisarlo.
 - La restauración del foco depende del orden de efectos de Next. El peso de three se sigue vigilando en GRV-06.
 
@@ -65,8 +74,8 @@ De GRV-05:
 
 ## Siguiente
 
-GRV-06: rendimiento y accesibilidad (presupuestos de peso y de fps, y revisión de accesibilidad de la portada y el detalle).
+Fusionar GRV-07. Después, un GRV-06 mínimo: medir Lighthouse (aún no se ha medido) y añadir `robots.txt`; con esas cifras se rellena la sección «Mediciones» del README.
 
 ## Qué falta
 
-Rendimiento y accesibilidad (GRV-06) y entrega (GRV-07).
+GRV-06 (mínimo: Lighthouse y `robots.txt`), la URL desplegada en el README (`URL_DESPLEGADA_PENDIENTE`) y la fusión de GRV-07.
