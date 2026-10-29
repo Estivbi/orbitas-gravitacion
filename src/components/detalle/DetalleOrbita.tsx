@@ -6,6 +6,7 @@ import type { Velocidad } from '@/lib/galeria/controles';
 import type { LecturaTelemetria } from '@/lib/galeria/telemetria';
 import type { PuntoDeReanudacion } from '@/store/almacenInterfaz';
 import type { ApiEscena } from '../escena/tipos';
+import { CLASES_PANEL } from '../comunes/clases';
 import { useReproduccion } from '../escena/useReproduccion';
 import { VisorOrbita, type EstadoEscena } from '../escena/VisorOrbita';
 import { ControlesReproduccion, type ApiControles } from './ControlesReproduccion';
@@ -126,7 +127,7 @@ export function DetalleOrbita({
           alRestablecerVista={() => escena.current?.restablecerVista()}
         />
       </div>
-      <div className="max-columnas:order-2">
+      <div className={`${CLASES_PANEL} p-4 columnas:p-6 max-columnas:order-2`}>
         <Telemetria
           ref={telemetria}
           periodo={periodo}

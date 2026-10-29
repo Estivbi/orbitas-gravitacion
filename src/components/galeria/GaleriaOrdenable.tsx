@@ -41,7 +41,7 @@ export function GaleriaOrdenable({ resumenes, elementos }: PropsGaleriaOrdenable
   };
 
   return (
-    <div ref={contenedor} className="flex flex-col gap-10">
+    <div ref={contenedor} className="flex flex-col gap-6">
       <SelectorTexto
         etiqueta="Ordenar por"
         nombre="orden-galeria"
@@ -52,10 +52,7 @@ export function GaleriaOrdenable({ resumenes, elementos }: PropsGaleriaOrdenable
       <p role="status" className="sr-only">
         {elegido ? avisoDeOrden(orden) : ''}
       </p>
-      <ul
-        role="list"
-        className="grid grid-cols-1 gap-x-10 gap-y-16 min-[640px]:grid-cols-2 columnas:grid-cols-3"
-      >
+      <ul role="list" className="grid grid-cols-2 gap-3 columnas:grid-cols-3 columnas:gap-6">
         {ordenados.map(({ slug }) => (
           <Fragment key={slug}>{elementos[slug]}</Fragment>
         ))}

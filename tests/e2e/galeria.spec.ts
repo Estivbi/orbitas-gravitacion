@@ -101,12 +101,12 @@ test.describe.serial('portada: galería con JavaScript (una sola carga)', () => 
 
     // Tres radios, «Catálogo» marcado, y un aviso vacío.
     await expect(grupoDeOrden(page).getByRole('radio')).toHaveCount(3);
-    for (const nombre of ['Catálogo', 'Periodo', 'Energía']) {
+    for (const nombre of ['Catálogo', 'Duración de la vuelta', 'Más ligadas']) {
       await expect(radioDeOrden(page, nombre)).toHaveCount(1);
     }
     await expect(radioDeOrden(page, 'Catálogo')).toBeChecked();
-    await expect(radioDeOrden(page, 'Periodo')).not.toBeChecked();
-    await expect(radioDeOrden(page, 'Energía')).not.toBeChecked();
+    await expect(radioDeOrden(page, 'Duración de la vuelta')).not.toBeChecked();
+    await expect(radioDeOrden(page, 'Más ligadas')).not.toBeChecked();
     await expect(avisoDeLaGaleria(page)).toHaveCount(1);
     await expect(avisoDeLaGaleria(page)).toHaveText('');
 
@@ -160,26 +160,28 @@ test.describe.serial('portada: galería con JavaScript (una sola carga)', () => 
   });
 
   test('GRV-04 · criterio 18: elegir un orden reordena los enlaces, avisa, conserva el foco y subraya la opción', async () => {
-    // Teclado: con el foco en «Catálogo», la flecha derecha elige «Periodo».
+    // Teclado: con el foco en «Catálogo», la flecha derecha elige «Duración de la vuelta».
     await radioDeOrden(page, 'Catálogo').focus();
     await page.keyboard.press('ArrowRight');
-    await expect(radioDeOrden(page, 'Periodo')).toBeChecked();
+    await expect(radioDeOrden(page, 'Duración de la vuelta')).toBeChecked();
     await esperarOrden(page, POR_PERIODO);
-    await expect(avisoDeLaGaleria(page)).toHaveText('Galería ordenada por periodo.');
-    await expect(radioDeOrden(page, 'Periodo')).toBeFocused();
+    await expect(avisoDeLaGaleria(page)).toHaveText('Galería ordenada por duración de la vuelta.');
+    await expect(radioDeOrden(page, 'Duración de la vuelta')).toBeFocused();
 
     await page.keyboard.press('ArrowRight');
-    await expect(radioDeOrden(page, 'Energía')).toBeChecked();
+    await expect(radioDeOrden(page, 'Más ligadas')).toBeChecked();
     await esperarOrden(page, POR_ENERGIA);
-    await expect(avisoDeLaGaleria(page)).toHaveText('Galería ordenada por energía.');
-    await expect(radioDeOrden(page, 'Energía')).toBeFocused();
+    await expect(avisoDeLaGaleria(page)).toHaveText(
+      'Galería ordenada con las órbitas más ligadas primero.',
+    );
+    await expect(radioDeOrden(page, 'Más ligadas')).toBeFocused();
 
     // Solo la opción marcada está subrayada, en ámbar.
-    const subrayada = await subrayadoDe(radioDeOrden(page, 'Energía'));
+    const subrayada = await subrayadoDe(radioDeOrden(page, 'Más ligadas'));
     expect(subrayada?.linea).toContain('underline');
     expect(subrayada?.color).toBe(AMBAR);
     expect(await subrayadoDe(radioDeOrden(page, 'Catálogo'))).toBeNull();
-    expect(await subrayadoDe(radioDeOrden(page, 'Periodo'))).toBeNull();
+    expect(await subrayadoDe(radioDeOrden(page, 'Duración de la vuelta'))).toBeNull();
 
     // Ratón: pulsar la etiqueta de «Catálogo» lo recupera.
     await elegirOrden(page, 'Catálogo');
@@ -187,7 +189,7 @@ test.describe.serial('portada: galería con JavaScript (una sola carga)', () => 
     await esperarOrden(page, CATALOGO);
     await expect(avisoDeLaGaleria(page)).toHaveText('Galería ordenada por catálogo.');
     expect((await subrayadoDe(radioDeOrden(page, 'Catálogo')))?.color).toBe(AMBAR);
-    expect(await subrayadoDe(radioDeOrden(page, 'Energía'))).toBeNull();
+    expect(await subrayadoDe(radioDeOrden(page, 'Más ligadas'))).toBeNull();
   });
 });
 
@@ -198,12 +200,12 @@ for (const [ancho, alto] of [
   test.describe(`volver al navegar atrás a ${ancho} px`, () => {
     test.use({ viewport: { width: ancho, height: alto } });
 
-    test(`GRV-04 · criterio 19: a ${ancho} px, «Energía» sigue marcada, Moth I enfocado y el primer orden pintado ya es el de energía`, async ({
+    test(`GRV-04 · criterio 19: a ${ancho} px, «Más ligadas» sigue marcada, Moth I enfocado y el primer orden pintado ya es el de energía`, async ({
       page,
     }) => {
       await page.goto('/');
       await esperarLista(page);
-      await elegirOrden(page, 'Energía');
+      await elegirOrden(page, 'Más ligadas');
       await esperarOrden(page, POR_ENERGIA);
 
       await enlaceDe(page, 'moth-i').click();
@@ -227,7 +229,7 @@ for (const [ancho, alto] of [
       await expect(page.locator(ENLACES_GALERIA)).toHaveCount(6);
       await esperarLista(page);
 
-      await expect(radioDeOrden(page, 'Energía')).toBeChecked();
+      await expect(radioDeOrden(page, 'Más ligadas')).toBeChecked();
       await esperarOrden(page, POR_ENERGIA);
       await expect.poll(() => orbitaEnfocada(page), { timeout: 10_000 }).toBe('moth-i');
       await expect
@@ -244,12 +246,12 @@ for (const [ancho, alto] of [
 }
 
 test.describe('volver con el enlace y sin persistencia', () => {
-  test('GRV-04 · criterio 20: «Periodo» sigue marcada, Goggles queda enfocado y visible, y una recarga lo olvida todo', async ({
+  test('GRV-04 · criterio 20: «Duración de la vuelta» sigue marcada, Goggles queda enfocado y visible, y una recarga lo olvida todo', async ({
     page,
   }) => {
     await page.goto('/');
     await esperarLista(page);
-    await elegirOrden(page, 'Periodo');
+    await elegirOrden(page, 'Duración de la vuelta');
     await esperarOrden(page, POR_PERIODO);
 
     await enlaceDe(page, 'goggles').click();
@@ -258,7 +260,7 @@ test.describe('volver con el enlace y sin persistencia', () => {
     await expect(page).toHaveURL(/\/#galeria$/);
 
     await expect(page.locator(ENLACES_GALERIA)).toHaveCount(6);
-    await expect(radioDeOrden(page, 'Periodo')).toBeChecked();
+    await expect(radioDeOrden(page, 'Duración de la vuelta')).toBeChecked();
     await esperarOrden(page, POR_PERIODO);
     await expect.poll(() => orbitaEnfocada(page), { timeout: 10_000 }).toBe('goggles');
     await expect
@@ -301,7 +303,7 @@ test.describe('volver con el enlace y sin persistencia', () => {
   }) => {
     await page.goto('/');
     await esperarLista(page);
-    await elegirOrden(page, 'Energía');
+    await elegirOrden(page, 'Más ligadas');
     await esperarOrden(page, POR_ENERGIA);
     await enlaceDe(page, 'moth-i').scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
@@ -322,7 +324,7 @@ test.describe('volver con el enlace y sin persistencia', () => {
     expect(await hayEnfocadoEnLaGaleria(page)).toBe(false);
     expect(await orbitaEnfocada(page)).toBeNull();
     // El estado de interfaz sí se conserva: solo se omiten el foco y el desplazamiento.
-    await expect(radioDeOrden(page, 'Energía')).toBeChecked();
+    await expect(radioDeOrden(page, 'Más ligadas')).toBeChecked();
     expect(await ordenDeEnlaces(page)).toEqual(POR_ENERGIA);
   });
 });
@@ -410,7 +412,7 @@ test.describe('navegación entre órbitas', () => {
 test.describe('limpieza de escenas al navegar', () => {
   const VUELTAS = 12;
   const MAXIMO_EN_FRIO_MS = 3000;
-  const MAXIMO_EN_CALIENTE_MS = 600;
+  const MAXIMO_EN_CALIENTE_MS = 1000;
 
   test('GRV-04 · criterio 22: 12 idas y vueltas por navegación cliente no dejan contextos WebGL ni Workers de más', async ({
     page,

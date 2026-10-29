@@ -2,14 +2,13 @@ import { existsSync, readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { ORBITAS, SLUGS } from '../../src/lib/fisica';
 import { trazarMiniatura } from '../../src/lib/escena/miniatura';
-import { ETIQUETA_SOLUCION, rutaDeOrbita, vecinas } from '../../src/lib/galeria/navegacion';
+import { FRASE_ORBITA, rutaDeOrbita, vecinas } from '../../src/lib/galeria/navegacion';
 import {
   CONTENEDOR,
   CONTROLES,
   GALERIA,
   TELEMETRIA,
   botonAnimacion,
-  cifra,
   esperarLista,
   normalizar,
   orbitaDe,
@@ -317,13 +316,13 @@ test.describe('metadatos, sitemap e icono', () => {
 test.describe('galería en el HTML del servidor', () => {
   test.use({ javaScriptEnabled: false });
 
-  test('GRV-04 · criterio 16: seis enlaces con su miniatura, cifras y etiqueta, sin escena', async ({
+  test('GRV-04 · criterio 16: seis tarjetas enlace con su miniatura, nombre y frase, sin escena', async ({
     page,
   }) => {
     await page.goto('/');
     const galeria = page.locator(GALERIA);
     await expect(galeria.getByRole('heading', { level: 2 })).toHaveText(
-      'Seis soluciones periódicas',
+      'Seis órbitas, una misma ley.',
     );
 
     const enlaces = galeria.locator('a[href^="/orbitas/"]');
@@ -331,15 +330,6 @@ test.describe('galería en el HTML del servidor', () => {
     expect(await enlaces.evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual(
       SLUGS.map(rutaDeOrbita),
     );
-
-    const CIFRAS_DE_LA_GALERIA = {
-      lagrange: ['8,27', '−0,866'],
-      'figura-de-ocho': ['6,33', '−1,287'],
-      'butterfly-i': ['6,24', '−2,170'],
-      goggles: ['10,47', '−2,430'],
-      'moth-i': ['14,89', '−1,382'],
-      'yin-yang-i': ['17,33', '−1,429'],
-    } as const;
 
     for (const [i, slug] of SLUGS.entries()) {
       const enlace = enlaces.nth(i);
@@ -352,14 +342,11 @@ test.describe('galería en el HTML del servidor', () => {
       await expect(enlace).toHaveAttribute('data-orbita', slug);
 
       const texto = normalizar(await enlace.textContent());
-      const [periodo, energia] = CIFRAS_DE_LA_GALERIA[slug];
       expect(texto, slug).toContain(orbita.nombre);
-      expect(texto, slug).toContain(`Periodo ${periodo}`);
-      expect(texto, slug).toContain(`Energía ${energia}`);
-      expect(texto, slug).toContain(ETIQUETA_SOLUCION[slug]);
-      // Las mismas cifras, por la fórmula de las pruebas.
-      expect(periodo).toBe(cifra(orbita.periodo, 2));
-      expect(energia).toBe(textosIniciales(slug).resumenes.energia);
+      expect(texto, slug).toContain(FRASE_ORBITA[slug]);
+      expect(texto, slug).toContain('→');
+      // El periodo y la energía ya no van en la tarjeta: viven en la telemetría del detalle.
+      expect(texto, slug).not.toMatch(/Periodo|Energía/);
     }
 
     // Sin escena ni lienzo en la galería; en la página, solo el visor del hero y un h1.
@@ -369,13 +356,14 @@ test.describe('galería en el HTML del servidor', () => {
     await expect(page.locator('canvas')).toHaveCount(0);
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
 
-    // Sin tarjetas: ni borde, ni sombra, ni fondo en los enlaces ni en sus elementos de lista.
+    // Tarjetas con borde fino de 1 px y radio de 24 px (DESIGN.md), sin sombra ni fondo; el `li` va limpio.
     const estilos = await enlaces.evaluateAll((as) =>
       as.flatMap((a) =>
         [a, a.closest('li')].map((el) => {
           const e = getComputedStyle(el!);
           return {
             bordes: [e.borderTopWidth, e.borderRightWidth, e.borderBottomWidth, e.borderLeftWidth],
+            radio: e.borderTopLeftRadius,
             sombra: e.boxShadow,
             fondo: e.backgroundColor,
           };
@@ -383,8 +371,10 @@ test.describe('galería en el HTML del servidor', () => {
       ),
     );
     expect(estilos).toHaveLength(12);
-    for (const estilo of estilos) {
-      expect(estilo.bordes).toEqual(['0px', '0px', '0px', '0px']);
+    for (const [i, estilo] of estilos.entries()) {
+      const esTarjeta = i % 2 === 0;
+      expect(estilo.bordes).toEqual(esTarjeta ? Array(4).fill('1px') : Array(4).fill('0px'));
+      expect(estilo.radio).toBe(esTarjeta ? '24px' : '0px');
       expect(estilo.sombra).toBe('none');
       expect(estilo.fondo).toBe('rgba(0, 0, 0, 0)');
     }

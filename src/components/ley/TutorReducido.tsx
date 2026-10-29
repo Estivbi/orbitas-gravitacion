@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { PREGUNTAS_FIJAS, siguientePregunta, type PreguntaFija } from '@/lib/tutor/reducido';
 import { useAlmacen, useAlmacenApi } from '@/store/ProveedorAlmacen';
 import { selectores } from '@/store/almacenInterfaz';
+import Link from 'next/link';
+import { CLASES_ENLACE_FANTASMA } from '../comunes/clases';
 
 export const CLASES_FANTASMA =
   'text-ash-gray hover:text-bone-white text-etiqueta min-h-8 cursor-pointer text-left font-semibold uppercase';
@@ -52,6 +54,11 @@ export function TutorReducido() {
         <span data-testid="etiqueta-pregunta">{etiquetaDe(pregunta)}</span>
       </p>
       <p data-testid="pregunta">{pregunta.pregunta}</p>
+      {pregunta.ley && (
+        <Link href="#ley" className={`${CLASES_ENLACE_FANTASMA} self-start`}>
+          Ver en la ley
+        </Link>
+      )}
       <ul className="flex flex-col">
         {pregunta.opciones.map((o, i) => (
           <li key={o.texto}>

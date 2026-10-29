@@ -77,19 +77,20 @@ Escala de texto. Cada tamaño tiene tres tokens, que `globals.css` declara junto
 
 ## Componentes base
 
-- **Botón principal:** relleno `electric-iris`, texto blanco en mayúsculas de 14 px, peso 600, radio 24 px. Uno solo por vista (en el detalle, «Reproducir/Pausar»).
+- **Botón principal:** relleno `electric-iris`, texto blanco en mayúsculas de 14 px, peso 600, radio 24 px. Pastilla con flecha «→» en las llamadas a la acción principales: como mucho uno por sección (en el detalle, «Reproducir/Pausar»).
 - **Enlace fantasma:** sin contenedor, `ash-gray`, blanco al pasar el ratón o al enfocar.
 - **Deslizador:** `accent-color` violeta (`--color-electric-iris`), con etiqueta ámbar y valor encima. Área táctil de al menos 44 px de alto y de ancho; el foco es el contorno blanco global.
 - **Selector de texto:** grupo de radios (`role="radiogroup"`) con aspecto de texto, sin segmentos con borde, y subrayado ámbar en la opción activa. Una sola parada de tabulación y flechas nativas. El nombre accesible del grupo es su etiqueta visible (ámbar, mayúsculas) y el foco se dibuja sobre la etiqueta de la opción. Lo usan «Velocidad de reproducción» (`0,25×` a `4×`) y «Ordenar por» (Catálogo, Periodo, Energía).
 - **Telemetría:** columnas de cifras tabulares, grandes y ligeras (27 px en móvil y 42 px desde 900 px), con etiqueta ámbar en mayúsculas y sin recuadros, bordes ni fondos. Las cifras en vivo llevan `aria-hidden="true"` y cada columna añade un texto estático legible (valor inicial o extremo del periodo) para los lectores de pantalla; sin regiones `aria-live` ni `<output>`. Por debajo de 900 px va justo bajo el visor.
 - **Navegación entre órbitas:** enlaces fantasma «Volver a la galería», «Anterior: X» y «Siguiente: Y», sin contenedor.
+- **Tarjetas:** se admite un contenedor con borde fino (1 px, color gris oscuro del tema: `ash-gray` al 30 %, sin token nuevo) y radio 24 px solo donde ayuden a orientar (galería y paneles de controles); sin sombras ni fondos de color.
 - **Miniatura de órbita:** SVG suelto con su nombre debajo, sin tarjeta.
 - **Escena:** estelas hechas de triángulos pequeños (contorno fino, opacidad por vértice) y un campo ambiental de unos 300 triángulos a baja opacidad.
 - **Foco:** contorno blanco de 2 px con 3 px de separación, nunca violeta (regla global `:focus-visible`). En el lienzo de la escena el contorno se dibuja hacia dentro.
 
 ## Hacer / No hacer
 
-- Hacer: titulares en peso 400 y a gran escala; fondo `#000000` en todas las secciones; el violeta solo en el botón principal y los deslizadores; dos columnas asimétricas, con el texto y la escena en zigzag.
+- Hacer: titulares en peso 400 y a gran escala; fondo `#000000` en todas las secciones; el violeta solo en los botones principales (uno por sección) y los deslizadores; dos columnas asimétricas, con el texto y la escena en zigzag.
 - No hacer: tarjetas, paneles, bordes o sombras; degradados en componentes; varios botones rellenos juntos; cuerpo en peso 200 por debajo de 18 px; valores sueltos tipo `bg-[#8052ff]` fuera de los tokens.
 
 ## Responsive y accesibilidad
