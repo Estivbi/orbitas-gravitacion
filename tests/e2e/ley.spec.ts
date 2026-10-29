@@ -26,7 +26,7 @@ async function esperarFuerzaDe(page: Page) {
   await expect(page.getByTestId('fuerza')).toHaveText(formatearNumero(fuerza(m1, m2, r), 2));
 }
 
-test('GRV-05 · criterio 7: deslizadores y teclado mueven la ley y la sección está entre hero y galería', async ({
+test('GRV-05 · criterio 7: deslizadores y teclado mueven la ley y la ley va entre el hero y la galería, y el tutor después', async ({
   page,
 }) => {
   await page.goto('/');
@@ -37,6 +37,7 @@ test('GRV-05 · criterio 7: deslizadores y teclado mueven la ley y la sección e
   const y = async (selector: string) => (await page.locator(selector).boundingBox())!.y;
   expect(await y('h1')).toBeLessThan(await y('#ley'));
   expect(await y('#ley')).toBeLessThan(await y('#galeria'));
+  expect(await y('#galeria')).toBeLessThan(await y('#tutor'));
 
   for (const nombre of ['Masa 1', 'Masa 2', 'Distancia']) {
     expect((await deslizador(page, nombre).boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -102,7 +103,7 @@ test('GRV-05 · criterio 9: sin clave el chat avisa, propone una pregunta y sube
       'El chat con inteligencia artificial no está activo ahora. Mientras tanto, practica con estas preguntas.',
     ),
   ).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Ponte a prueba' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Comprueba lo que has aprendido' })).toBeVisible();
   await expect(page.getByTestId('etiqueta-pregunta')).toHaveText(
     /^Pregunta 1 de \d+ · Dificultad: básica$/,
   );
@@ -231,4 +232,52 @@ test('GRV-05 · criterio 12: la portada no desborda a 375, 768 y 1440 px y conse
     );
     expect(desborda, `${ancho} px`).toBe(false);
   }
+});
+
+test('GRV-06 · navegación de la portada: enlaces de cabecera, sección activa y llamadas a la acción', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  await esperarHidratacion(page);
+  const cabecera = page.getByRole('banner');
+  for (const [nombre, href] of [
+    ['Historia', '/#historia'],
+    ['La ley', '/#ley'],
+    ['Órbitas', '/#galeria'],
+    ['Tutor', '/#tutor'],
+  ] as const) {
+    await expect(cabecera.getByRole('link', { name: nombre, exact: true })).toHaveAttribute(
+      'href',
+      href,
+    );
+  }
+  await expect(cabecera.getByRole('link', { name: 'Comenzar' })).toHaveAttribute('href', '/#ley');
+  await expect(cabecera.locator('[aria-current="true"]')).toHaveCount(0);
+
+  await page.evaluate(() => document.querySelector('#galeria')!.scrollIntoView());
+  await expect(cabecera.locator('[aria-current="true"]')).toHaveText('Órbitas');
+
+  const enlaceA = (nombre: string, href: string) =>
+    expect(page.getByRole('link', { name: nombre, exact: true })).toHaveAttribute('href', href);
+  await enlaceA('Explorar ahora', '#galeria');
+  await enlaceA('Ver las órbitas', '#galeria');
+  await enlaceA('Hablar con el tutor', '#tutor');
+  await enlaceA('Volver a la ley', '#ley');
+  await enlaceA('Comenzar ahora', '#ley');
+  await expect(page.getByRole('heading', { name: 'El universo te está esperando.' })).toBeVisible();
+});
+
+test('GRV-06 · la historia se despliega hito a hito: el primero abierto y al abrir otro se cierra el anterior', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const hitos = page.locator('#historia details');
+  await expect(hitos).toHaveCount(6);
+  await expect(hitos.nth(0)).toHaveAttribute('open', '');
+  await hitos.nth(1).locator('summary').click();
+  await expect(hitos.nth(1)).toHaveAttribute('open', '');
+  await expect(hitos.nth(0)).not.toHaveAttribute('open', '');
+  await hitos.nth(1).locator('summary').click();
+  await expect(hitos.nth(1)).not.toHaveAttribute('open', '');
 });

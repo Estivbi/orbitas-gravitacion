@@ -72,7 +72,7 @@ npx playwright test tests/e2e/ley.spec.ts         # servidor sin clave
 ```
 
 - **Sin clave** (lo normal en las pruebas): `npm run dev`, abrir `/` y mirar `#ley`. Se ve «Modo reducido: sin modelo de lenguaje», una predicción con opciones, la corrección fija al elegir y el nivel subiendo tras dos aciertos.
-- **Con clave:** copiar `.env.example` a `.env.local` y rellenar `GOOGLE_GENERATIVE_AI_API_KEY` (Google AI Studio tiene plan gratuito). `LLM_PROVIDER` se queda en `google` y `LLM_MODEL` es `gemini-flash-latest` por defecto; es un alias que puede cambiar de modelo, y quien quiera fijarlo pone un identificador concreto. `GET /api/tutor` pasa a `{ "modo": "modelo" }` y el chat sustituye al panel de preguntas fijas.
+- **Con clave:** copiar `.env.example` a `.env.local` y rellenar `GOOGLE_GENERATIVE_AI_API_KEY` (Google AI Studio tiene plan gratuito). `LLM_PROVIDER` se queda en `google` y `LLM_MODEL` es `gemini-2.5-flash-lite` por defecto; es un alias que puede cambiar de modelo, y quien quiera fijarlo pone un identificador concreto. `GET /api/tutor` pasa a `{ "modo": "modelo" }` y el chat sustituye al panel de preguntas fijas.
 - La clave nunca se commitea: `.env.example` solo lleva los nombres.
 
 ## Verificación
@@ -108,6 +108,6 @@ npx playwright test tests/e2e/ley.spec.ts         # servidor sin clave
 ## Límites y pendientes conocidos
 
 - Límite de uso en memoria de la instancia (no escala) y un solo proveedor.
-- El alias `gemini-flash-latest` puede cambiar de modelo sin avisar.
+- El alias `gemini-2.5-flash-lite` puede cambiar de modelo sin avisar.
 - La obediencia al tema depende del prompt; no hay filtro adicional de salida.
 - El criterio 11 se resolvió sin segundo servidor de Playwright: se prueba con la clave de prueba en Vitest y con el servidor sin clave en el navegador.

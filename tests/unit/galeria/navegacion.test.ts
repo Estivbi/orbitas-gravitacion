@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { SLUGS, type Slug } from '@/lib/fisica';
-import { ETIQUETA_SOLUCION, RUTA_GALERIA, rutaDeOrbita, vecinas } from '@/lib/galeria/navegacion';
+import {
+  ETIQUETA_SOLUCION,
+  FRASE_ORBITA,
+  RUTA_GALERIA,
+  rutaDeOrbita,
+  vecinas,
+} from '@/lib/galeria/navegacion';
 
 describe('GRV-04 · criterio 2: navegación y etiquetas', () => {
   it('vecinas de Lagrange, Goggles y Yin-Yang I (los extremos son cíclicos)', () => {
@@ -52,5 +58,14 @@ describe('GRV-04 · criterio 2: navegación y etiquetas', () => {
       expect(ETIQUETA_SOLUCION[slug]).toBe('Hallada en 2013');
     }
     expect(Object.keys(ETIQUETA_SOLUCION).sort()).toEqual([...SLUGS].sort());
+  });
+
+  it('cada órbita tiene una frase llana para su tarjeta', () => {
+    expect(Object.keys(FRASE_ORBITA).sort()).toEqual([...SLUGS].sort());
+    expect(FRASE_ORBITA.lagrange).toBe('Tres cuerpos en un triángulo que gira.');
+    expect(FRASE_ORBITA['figura-de-ocho']).toBe('Se persiguen formando un 8.');
+    for (const slug of SLUGS) {
+      expect(FRASE_ORBITA[slug]).toMatch(/\.$/);
+    }
   });
 });

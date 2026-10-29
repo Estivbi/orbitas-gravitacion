@@ -24,3 +24,13 @@ export const ETIQUETA_SOLUCION: Readonly<Record<Slug, string>> = {
   'moth-i': 'Hallada en 2013',
   'yin-yang-i': 'Hallada en 2013',
 };
+
+/** Frase corta y llana que acompaña a cada órbita en las tarjetas de la galería. */
+export const FRASE_ORBITA: Readonly<Record<Slug, string>> = {
+  lagrange: 'Tres cuerpos en un triángulo que gira.',
+  'figura-de-ocho': 'Se persiguen formando un 8.',
+  'butterfly-i': 'Lazos como alas de mariposa.',
+  goggles: 'Dos lóbulos, como unas gafas.',
+  'moth-i': 'Un recorrido largo, como una polilla.',
+  'yin-yang-i': 'Se cruzan como el yin y el yang.',
+};
