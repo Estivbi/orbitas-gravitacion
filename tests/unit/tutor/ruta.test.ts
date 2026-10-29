@@ -134,6 +134,17 @@ describe('POST /api/tutor con modelo simulado', () => {
 });
 
 describe('POST /api/tutor ante fallos', () => {
+  it('rechaza con 413 por content-length antes de leer el cuerpo', async () => {
+    const peticion = new Request('http://localhost/api/tutor', {
+      method: 'POST',
+      headers: { 'content-length': String(32 * 1024 + 1) },
+      body: JSON.stringify(cuerpo()),
+    });
+    const res = await manejador(modeloCon(texto('x'))).POST(peticion);
+    expect(res.status).toBe(413);
+    expect(peticion.bodyUsed).toBe(false);
+  });
+
   it('sin modelo responde 503 modo_reducido', async () => {
     const res = await manejador(null).POST(post(cuerpo()));
     expect(res.status).toBe(503);

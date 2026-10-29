@@ -21,8 +21,10 @@ export const TOPES = {
   bytes: 32 * 1024,
   mensajes: 20,
   caracteres: 1000,
+  caracteresAsistente: 2000,
   salidaTokens: 400,
   peticionesPorMinuto: 10,
+  peticionesGlobalesPorMinuto: 60,
 } as const;
 
 const valor = z.number().finite().min(RANGO.min).max(RANGO.max);
@@ -44,7 +46,8 @@ export const esquemaRegistrarRespuesta = z.object({
 export const HERRAMIENTAS = ['ajustar_ley', 'mostrar_orbita', 'registrar_respuesta'] as const;
 export type NombreHerramienta = (typeof HERRAMIENTAS)[number];
 
-const parteTexto = z.object({ type: z.literal('text'), text: z.string().max(TOPES.caracteres) });
+const parteTexto = (max: number) =>
+  z.object({ type: z.literal('text'), text: z.string().max(max) });
 const parteInicioPaso = z.object({ type: z.literal('step-start') });
 const parteHerramienta = z.looseObject({
   type: z.enum(HERRAMIENTAS.map((h) => `tool-${h}`) as [string, ...string[]]),
@@ -52,11 +55,22 @@ const parteHerramienta = z.looseObject({
   state: z.string().max(50),
 });
 
-const esquemaMensaje = z.object({
-  id: z.string().max(200).optional(),
-  role: z.enum(['user', 'assistant']),
-  parts: z.array(z.union([parteTexto, parteInicioPaso, parteHerramienta])).max(20),
-});
+const partes = (max: number) =>
+  z.array(z.union([parteTexto(max), parteInicioPaso, parteHerramienta])).max(20);
+
+// El asistente admite más texto: maxOutputTokens puede producir más de 1000 caracteres.
+const esquemaMensaje = z.discriminatedUnion('role', [
+  z.object({
+    id: z.string().max(200).optional(),
+    role: z.literal('user'),
+    parts: partes(TOPES.caracteres),
+  }),
+  z.object({
+    id: z.string().max(200).optional(),
+    role: z.literal('assistant'),
+    parts: partes(TOPES.caracteresAsistente),
+  }),
+]);
 
 export const esquemaPeticion = z.object({
   mensajes: z.array(esquemaMensaje).min(1).max(TOPES.mensajes),

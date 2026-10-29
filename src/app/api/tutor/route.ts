@@ -8,7 +8,7 @@ export const maxDuration = 30;
 
 const { POST, GET } = crearManejador({
   obtenerModelo: () => modeloDeEntorno(),
-  limitador: crearLimitador(TOPES.peticionesPorMinuto, 60_000),
+  limitador: crearLimitador(TOPES.peticionesPorMinuto, 60_000, TOPES.peticionesGlobalesPorMinuto),
   ahora: () => Date.now(),
 });
 

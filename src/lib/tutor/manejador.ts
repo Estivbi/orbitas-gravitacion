@@ -35,6 +35,8 @@ const herramientas = {
   }),
 };
 
+const MENSAJE_GRANDE = 'La petición es demasiado grande.';
+
 function json(cuerpo: unknown, status: number, cabeceras?: Record<string, string>): Response {
   return Response.json(cuerpo, { status, headers: cabeceras });
 }
@@ -48,6 +50,10 @@ function errorJson(
   return json({ codigo, mensaje }, status, cabeceras);
 }
 
+/**
+ * El primer valor de x-forwarded-for solo es fiable detrás del proxy de Vercel, que lo
+ * fija; fuera de él lo controla quien llama. Por eso el limitador tiene también un tope global.
+ */
 function ipDe(peticion: Request): string {
   return peticion.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'desconocida';
 }
@@ -64,9 +70,12 @@ export function crearManejador({ obtenerModelo, limitador, ahora }: Dependencias
       });
     }
 
+    const declarado = Number(peticion.headers.get('content-length'));
+    if (declarado > TOPES.bytes) return errorJson('cuerpo_grande', MENSAJE_GRANDE, 413);
+
     const texto = await peticion.text();
     if (new TextEncoder().encode(texto).length > TOPES.bytes) {
-      return errorJson('cuerpo_grande', 'La petición es demasiado grande.', 413);
+      return errorJson('cuerpo_grande', MENSAJE_GRANDE, 413);
     }
 
     let datos: unknown;

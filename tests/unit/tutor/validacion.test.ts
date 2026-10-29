@@ -38,6 +38,12 @@ describe('esquemaPeticion', () => {
     expect(peticion([texto('a'.repeat(1000))]).success).toBe(true);
   });
 
+  it('admite 1500 caracteres en el asistente pero no más de 2000', () => {
+    const asistente = (t: string) => ({ role: 'assistant', parts: [{ type: 'text', text: t }] });
+    expect(peticion([texto('hola'), asistente('a'.repeat(1500))]).success).toBe(true);
+    expect(peticion([texto('hola'), asistente('a'.repeat(2001))]).success).toBe(false);
+  });
+
   it('rechaza roles ajenos, niveles fuera de 1 a 3 y partes desconocidas', () => {
     expect(peticion([{ role: 'system', parts: [{ type: 'text', text: 'x' }] }]).success).toBe(
       false,

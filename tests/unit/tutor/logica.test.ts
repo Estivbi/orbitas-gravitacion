@@ -94,6 +94,23 @@ describe('limitador', () => {
     expect(limitar('2.2.2.2', 10_000).permitido).toBe(true);
     expect(limitar('1.1.1.1', 60_001).permitido).toBe(true);
   });
+
+  it('aplica un tope global sumando todas las IP', () => {
+    const limitar = crearLimitador(10, 60_000, 60);
+    for (let i = 0; i < 60; i++) expect(limitar(`10.0.0.${i}`, i).permitido).toBe(true);
+    const bloqueada = limitar('10.0.1.1', 100);
+    expect(bloqueada.permitido).toBe(false);
+    expect(bloqueada.reintentarEnS).toBe(60);
+    expect(limitar('10.0.1.1', 60_001).permitido).toBe(true);
+  });
+
+  it('sigue limitando tras barrer más de 1000 entradas caducadas', () => {
+    const limitar = crearLimitador(2, 1000);
+    for (let i = 0; i < 1100; i++) limitar(`ip-${i}`, 0);
+    expect(limitar('ip-nueva', 5000).permitido).toBe(true);
+    expect(limitar('ip-nueva', 5001).permitido).toBe(true);
+    expect(limitar('ip-nueva', 5002).permitido).toBe(false);
+  });
 });
 
 describe('elegirModo', () => {
