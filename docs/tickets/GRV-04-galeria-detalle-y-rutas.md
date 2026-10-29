@@ -28,26 +28,26 @@ Además cierra lo que GRV-03 dejó anotado para este ticket: la conexión de `po
 
 Rama: `feature/galeria-y-detalle-de-orbitas` → `develop`. Commits del rango `develop..HEAD`, del más antiguo al más reciente, sin contar el que añade este documento.
 
-| Hash | Commit |
-|---|---|
-| `fe10f2f` | `docs(GRV-04): redactar la spec de la galería, el detalle y las rutas` |
-| `cdb9d84` | `docs(GRV-04): incorporar la revisión independiente en la spec` |
-| `e317192` | `docs(GRV-04): sustituir la prueba de riesgo en el CI por una medición local` |
-| `ee99e72` | `docs(GRV-04): aprobar la spec y fijar la propiedad de src/lib/galeria` |
-| `e65fd07` | `docs(GRV-04): documentar en DESIGN.md el selector, la telemetría y los deslizadores` |
-| `86b984b` | `chore(GRV-04): ignorar la carpeta .vercel` |
-| `2686cfb` | `docs(GRV-04): alinear las tolerancias de la spec con las mediciones` |
-| `ba1dcad` | `test(GRV-04): escribir los tests de la galería, el detalle y las rutas` |
-| `00b2eee` | `docs(GRV-04): fijar en la spec lo que la auditoría de los tests señaló` |
-| `cf72541` | `test(GRV-04): corregir los tests tras la auditoría independiente (parcial)` |
-| `96aff60` | `test(GRV-04): completar las correcciones de los tests tras la auditoría` |
-| `f8127d2` | `build(GRV-04): confinar zustand y el barril de física con ESLint y declarar URL_SITIO` |
-| `aa8bdee` | `feat(GRV-04): preparar el visor para reproducción controlada, tamaño grande y vista restablecida` |
+| Hash      | Commit                                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| `fe10f2f` | `docs(GRV-04): redactar la spec de la galería, el detalle y las rutas`                                  |
+| `cdb9d84` | `docs(GRV-04): incorporar la revisión independiente en la spec`                                         |
+| `e317192` | `docs(GRV-04): sustituir la prueba de riesgo en el CI por una medición local`                           |
+| `ee99e72` | `docs(GRV-04): aprobar la spec y fijar la propiedad de src/lib/galeria`                                 |
+| `e65fd07` | `docs(GRV-04): documentar en DESIGN.md el selector, la telemetría y los deslizadores`                   |
+| `86b984b` | `chore(GRV-04): ignorar la carpeta .vercel`                                                             |
+| `2686cfb` | `docs(GRV-04): alinear las tolerancias de la spec con las mediciones`                                   |
+| `ba1dcad` | `test(GRV-04): escribir los tests de la galería, el detalle y las rutas`                                |
+| `00b2eee` | `docs(GRV-04): fijar en la spec lo que la auditoría de los tests señaló`                                |
+| `cf72541` | `test(GRV-04): corregir los tests tras la auditoría independiente (parcial)`                            |
+| `96aff60` | `test(GRV-04): completar las correcciones de los tests tras la auditoría`                               |
+| `f8127d2` | `build(GRV-04): confinar zustand y el barril de física con ESLint y declarar URL_SITIO`                 |
+| `aa8bdee` | `feat(GRV-04): preparar el visor para reproducción controlada, tamaño grande y vista restablecida`      |
 | `2b37706` | `feat(GRV-04): añadir el núcleo de formato y telemetría y parte de los controles del detalle (parcial)` |
-| `a3b8d38` | `feat(GRV-04): añadir la galería, el almacén de interfaz y la restauración del foco al volver` |
-| `b6996e5` | `feat(GRV-04): añadir las rutas de detalle, la página 404, los metadatos, el sitemap y el icono` |
-| `fbaa25d` | `docs(GRV-04): documentar la decisión del estado de interfaz, las rutas y los metadatos` |
-| `ab673e7` | `fix(GRV-04): cerrar los huecos de test de la revisión y simplificar el detalle (en curso)` |
+| `a3b8d38` | `feat(GRV-04): añadir la galería, el almacén de interfaz y la restauración del foco al volver`          |
+| `b6996e5` | `feat(GRV-04): añadir las rutas de detalle, la página 404, los metadatos, el sitemap y el icono`        |
+| `fbaa25d` | `docs(GRV-04): documentar la decisión del estado de interfaz, las rutas y los metadatos`                |
+| `ab673e7` | `fix(GRV-04): cerrar los huecos de test de la revisión y simplificar el detalle (en curso)`             |
 
 Los cuatro `feat` son los cuatro bloques por riesgo del orden de trabajo de la spec: (a) el visor, (b) controles y telemetría, (c) galería, almacén y foco, (d) rutas y metadatos. El `(parcial)` del segundo significa que ese commit deja a medias los controles del detalle, que se cierran en los dos siguientes.
 
@@ -174,43 +174,43 @@ Un test solo se corrige con justificación y por escrito. Aquí, las correccione
 
 ## Verificación
 
-| Criterio | Prueba |
-|---|---|
-| 1 Orden de la galería | `tests/unit/galeria/orden.test.ts` |
-| 2 Navegación y etiquetas | `tests/unit/galeria/navegacion.test.ts` |
-| 3 Formato de cifras | `tests/unit/galeria/formato.test.ts` |
-| 4 Mapeo de controles | `tests/unit/galeria/controles.test.ts` |
-| 5 y 6 Telemetría y su ritmo | `tests/unit/galeria/telemetria.test.ts` |
-| 7 Almacén | `tests/unit/store/almacenInterfaz.test.ts` |
-| 8 Sitio, sitemap y metadatos | `tests/unit/galeria/sitio.test.ts` |
-| 9 Datos de servidor | `tests/unit/galeria/fichas.test.ts` |
-| 10 Invariantes del repositorio y reglas de ESLint | `tests/repo/galeria.test.ts` |
-| 11 Rutas estáticas | `tests/e2e/rutas.spec.ts` (lee `.next/prerender-manifest.json`) |
-| 12 Detalle sin JavaScript | `tests/e2e/rutas.spec.ts` |
-| 13 404 | `tests/e2e/rutas.spec.ts` |
-| 14 Metadatos y sitemap | `tests/e2e/rutas.spec.ts` |
-| 15 Icono | `tests/e2e/rutas.spec.ts` |
-| 16 Galería en el HTML del servidor | `tests/e2e/rutas.spec.ts` (sin JavaScript) |
-| 17 Presupuesto de JavaScript y three fuera | `tests/e2e/rutas.spec.ts` |
-| 18 Orden e hidratación | `tests/e2e/galeria.spec.ts` |
-| 19 Volver con el botón del navegador | `tests/e2e/galeria.spec.ts` (375 y 1440 px) |
-| 20 Volver con el enlace y sin persistencia | `tests/e2e/galeria.spec.ts` |
-| 21 Anterior y siguiente | `tests/e2e/galeria.spec.ts` |
-| 22 Limpieza al desmontar | `tests/e2e/galeria.spec.ts` (12 idas y vueltas) |
-| 23 Controles presentes | `tests/e2e/detalle.spec.ts` |
-| 24 Velocidad | `tests/e2e/detalle.spec.ts` |
-| 25 Deslizador de posición | `tests/e2e/detalle.spec.ts` |
-| 26 Longitud de la estela | `tests/e2e/detalle.spec.ts` |
-| 27 Reproducir, pausar y restablecer | `tests/e2e/detalle.spec.ts` |
-| 28 Preferencias compartidas | `tests/e2e/detalle.spec.ts` |
-| 29 Reanudación por órbita | `tests/e2e/detalle.spec.ts` y `tests/e2e/detalle-alternativas.spec.ts` |
-| 30 Telemetría en vivo | `tests/e2e/detalle.spec.ts` |
-| 31 Accesibilidad de controles y telemetría | `tests/e2e/detalle.spec.ts` y `tests/e2e/galeria.spec.ts` («Ordenar por») |
-| 32 Responsive y estabilidad | `tests/e2e/detalle.spec.ts` (incluye la pausa por `IntersectionObserver`) |
-| 33 Movimiento reducido y galería sin animación | `tests/e2e/detalle-alternativas.spec.ts` y `tests/e2e/galeria.spec.ts` |
-| 34 Estados alternativos en el detalle | `tests/e2e/detalle-alternativas.spec.ts` |
-| 35 Sin regresiones de GRV-03 | `tests/unit/galeria/layoutRaiz.test.ts` y las pruebas de GRV-01 a GRV-03, sin cambios |
-| 36 El logotipo no restaura la galería | `tests/e2e/galeria.spec.ts` |
+| Criterio                                          | Prueba                                                                                |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 1 Orden de la galería                             | `tests/unit/galeria/orden.test.ts`                                                    |
+| 2 Navegación y etiquetas                          | `tests/unit/galeria/navegacion.test.ts`                                               |
+| 3 Formato de cifras                               | `tests/unit/galeria/formato.test.ts`                                                  |
+| 4 Mapeo de controles                              | `tests/unit/galeria/controles.test.ts`                                                |
+| 5 y 6 Telemetría y su ritmo                       | `tests/unit/galeria/telemetria.test.ts`                                               |
+| 7 Almacén                                         | `tests/unit/store/almacenInterfaz.test.ts`                                            |
+| 8 Sitio, sitemap y metadatos                      | `tests/unit/galeria/sitio.test.ts`                                                    |
+| 9 Datos de servidor                               | `tests/unit/galeria/fichas.test.ts`                                                   |
+| 10 Invariantes del repositorio y reglas de ESLint | `tests/repo/galeria.test.ts`                                                          |
+| 11 Rutas estáticas                                | `tests/e2e/rutas.spec.ts` (lee `.next/prerender-manifest.json`)                       |
+| 12 Detalle sin JavaScript                         | `tests/e2e/rutas.spec.ts`                                                             |
+| 13 404                                            | `tests/e2e/rutas.spec.ts`                                                             |
+| 14 Metadatos y sitemap                            | `tests/e2e/rutas.spec.ts`                                                             |
+| 15 Icono                                          | `tests/e2e/rutas.spec.ts`                                                             |
+| 16 Galería en el HTML del servidor                | `tests/e2e/rutas.spec.ts` (sin JavaScript)                                            |
+| 17 Presupuesto de JavaScript y three fuera        | `tests/e2e/rutas.spec.ts`                                                             |
+| 18 Orden e hidratación                            | `tests/e2e/galeria.spec.ts`                                                           |
+| 19 Volver con el botón del navegador              | `tests/e2e/galeria.spec.ts` (375 y 1440 px)                                           |
+| 20 Volver con el enlace y sin persistencia        | `tests/e2e/galeria.spec.ts`                                                           |
+| 21 Anterior y siguiente                           | `tests/e2e/galeria.spec.ts`                                                           |
+| 22 Limpieza al desmontar                          | `tests/e2e/galeria.spec.ts` (12 idas y vueltas)                                       |
+| 23 Controles presentes                            | `tests/e2e/detalle.spec.ts`                                                           |
+| 24 Velocidad                                      | `tests/e2e/detalle.spec.ts`                                                           |
+| 25 Deslizador de posición                         | `tests/e2e/detalle.spec.ts`                                                           |
+| 26 Longitud de la estela                          | `tests/e2e/detalle.spec.ts`                                                           |
+| 27 Reproducir, pausar y restablecer               | `tests/e2e/detalle.spec.ts`                                                           |
+| 28 Preferencias compartidas                       | `tests/e2e/detalle.spec.ts`                                                           |
+| 29 Reanudación por órbita                         | `tests/e2e/detalle.spec.ts` y `tests/e2e/detalle-alternativas.spec.ts`                |
+| 30 Telemetría en vivo                             | `tests/e2e/detalle.spec.ts`                                                           |
+| 31 Accesibilidad de controles y telemetría        | `tests/e2e/detalle.spec.ts` y `tests/e2e/galeria.spec.ts` («Ordenar por»)             |
+| 32 Responsive y estabilidad                       | `tests/e2e/detalle.spec.ts` (incluye la pausa por `IntersectionObserver`)             |
+| 33 Movimiento reducido y galería sin animación    | `tests/e2e/detalle-alternativas.spec.ts` y `tests/e2e/galeria.spec.ts`                |
+| 34 Estados alternativos en el detalle             | `tests/e2e/detalle-alternativas.spec.ts`                                              |
+| 35 Sin regresiones de GRV-03                      | `tests/unit/galeria/layoutRaiz.test.ts` y las pruebas de GRV-01 a GRV-03, sin cambios |
+| 36 El logotipo no restaura la galería             | `tests/e2e/galeria.spec.ts`                                                           |
 
 Las ayudas nuevas de las pruebas de navegador están en `tests/e2e/ayudas.ts`: instrumentación de contextos WebGL, de construcciones de `Worker` y de mensajes `calcular`; cronómetros hasta `lista`; muestreo de `data-posicion` con su hora y ajuste de una recta a la posición desenvuelta; muestreo de la telemetría; paradas de tabulación; contorno de foco y subrayado de las etiquetas de los radios; orden de los enlaces de la galería; y el peso gzip de los scripts iniciales.
 
@@ -232,14 +232,14 @@ El E2E lanza Chromium con WebGL por software. La prueba de las 12 idas y vueltas
 
 Medidas sobre este ticket, con el mismo método de la línea base (gzip nivel 9, scripts que referencia el HTML de `/`):
 
-| Magnitud | Antes (`develop`) | Con GRV-04 | Tope de la spec |
-|---|---|---|---|
-| JS inicial de `/`, gzip | 181 502 B | 183 932 B (+2 430 B) | +8 192 B |
-| HTML de `/`, sin comprimir | 21 330 B | 135 695 B | 200 000 B |
-| HTML de cada detalle, sin comprimir | — | de 33,9 a 44,4 KB (Yin-Yang I el mayor, 44 386 B) | 80 000 B |
-| Build en frío | — | ≈ 12 s | — |
-| Telemetría | — | ≈ 9–10 Hz | 2–12 escrituras por segundo |
-| Contextos WebGL tras 12 idas y vueltas | — | 1 vivo | como mucho 1 |
+| Magnitud                               | Antes (`develop`) | Con GRV-04                                        | Tope de la spec             |
+| -------------------------------------- | ----------------- | ------------------------------------------------- | --------------------------- |
+| JS inicial de `/`, gzip                | 181 502 B         | 183 932 B (+2 430 B)                              | +8 192 B                    |
+| HTML de `/`, sin comprimir             | 21 330 B          | 135 695 B                                         | 200 000 B                   |
+| HTML de cada detalle, sin comprimir    | —                 | de 33,9 a 44,4 KB (Yin-Yang I el mayor, 44 386 B) | 80 000 B                    |
+| Build en frío                          | —                 | ≈ 12 s                                            | —                           |
+| Telemetría                             | —                 | ≈ 9–10 Hz                                         | 2–12 escrituras por segundo |
+| Contextos WebGL tras 12 idas y vueltas | —                 | 1 vivo                                            | como mucho 1                |
 
 La spec estimaba 24–34 KB para los detalles, así que la estimación se quedó corta en unos 10 KB: la medición, no el cálculo previo, es la que vale. El tope de 80 000 B sigue detectando lo que debe (una `Trayectoria` serializada), no regresiones finas.
 

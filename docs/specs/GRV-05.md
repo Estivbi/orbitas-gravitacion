@@ -35,32 +35,60 @@ Persistencia de conversaciones, autenticación, límite de uso distribuido, adap
 
 ```ts
 // src/lib/ley/ley.ts  (puro)
-export const LIMITES = { masa: { min: 1, max: 10 }, distancia: { min: 1, max: 10 }, paso: 0.5 } as const;
-export interface Ley { m1: number; m2: number; r: number }
+export const LIMITES = {
+  masa: { min: 1, max: 10 },
+  distancia: { min: 1, max: 10 },
+  paso: 0.5,
+} as const;
+export interface Ley {
+  m1: number;
+  m2: number;
+  r: number;
+}
 export const LEY_INICIAL: Ley; // m1 4, m2 2, r 4
 export function fuerza(m1: number, m2: number, r: number): number; // m1·m2/r²; RangeError si r ≤ 0 o no finito
 export function limitarLey(l: Ley): Ley; // recorta a LIMITES y redondea al paso; NaN → valor inicial
 export function razonAlDuplicarDistancia(l: Ley): number; // fuerza(m1,m2,2r) / fuerza(m1,m2,r), calculada
 export function describirRazon(razon: number): string; // 0,5 → «la mitad»; 0,25 → «la cuarta parte»; otro → «0,13 veces»
 export function fraseDuplicar(l: Ley): string; // «A doble distancia la fuerza sería la cuarta parte.»
-export function xARadio(x: number, g: Geometria): number; export function radioAX(r: number, g: Geometria): number; // inversas, recortadas
+export function xARadio(x: number, g: Geometria): number;
+export function radioAX(r: number, g: Geometria): number; // inversas, recortadas
 
 // src/lib/tutor/herramientas.ts  (zod compartido por servidor y cliente)
-export const CONCEPTOS = ['masa', 'distancia', 'inverso-cuadrado', 'atraccion-mutua', 'tres-cuerpos'] as const;
-export const esquemaAjustarLey: z.ZodType<{ m1: number; m2: number; r: number }>;   // rangos de LIMITES, finitos
-export const esquemaMostrarOrbita: z.ZodType<{ slug: Slug }>;                         // z.enum(SLUGS)
+export const CONCEPTOS = [
+  'masa',
+  'distancia',
+  'inverso-cuadrado',
+  'atraccion-mutua',
+  'tres-cuerpos',
+] as const;
+export const esquemaAjustarLey: z.ZodType<{ m1: number; m2: number; r: number }>; // rangos de LIMITES, finitos
+export const esquemaMostrarOrbita: z.ZodType<{ slug: Slug }>; // z.enum(SLUGS)
 export const esquemaRegistrarRespuesta: z.ZodType<{ concepto: Concepto; acierto: boolean }>;
 export const esquemaPeticion: z.ZodType<{ mensajes: UIMessage[]; nivel: 1 | 2 | 3 }>; // límites del servidor
 
 // src/lib/tutor/nivel.ts
-export interface EstadoNivel { nivel: 1 | 2 | 3; racha: number }
+export interface EstadoNivel {
+  nivel: 1 | 2 | 3;
+  racha: number;
+}
 export function siguienteNivel(e: EstadoNivel, acierto: boolean): EstadoNivel; // 2 aciertos seguidos suben, 2 fallos seguidos bajan, tope 1 a 3, la racha se pone a 0 al cambiar
 
 // src/lib/tutor/{limitador,modo,errores,reducido,prompt,manejador}.ts
-export function crearLimitador(max: number, ventanaMs: number): (ip: string, ahora: number) => { permitido: boolean; reintentarEnS: number };
+export function crearLimitador(
+  max: number,
+  ventanaMs: number,
+): (ip: string, ahora: number) => { permitido: boolean; reintentarEnS: number };
 export function elegirModo(env: { clave?: string; proveedor?: string }): 'modelo' | 'reducido'; // clave vacía o proveedor ≠ google → 'reducido'
 export function mensajeDeError(causa: unknown): string; // clave inválida | cuota | red | otro, en castellano
-export interface PreguntaFija { id: string; nivel: 1 | 2 | 3; concepto: Concepto; pregunta: string; ley?: Ley; opciones: { texto: string; correccion: string; acierto: boolean }[] }
+export interface PreguntaFija {
+  id: string;
+  nivel: 1 | 2 | 3;
+  concepto: Concepto;
+  pregunta: string;
+  ley?: Ley;
+  opciones: { texto: string; correccion: string; acierto: boolean }[];
+}
 export const PREGUNTAS_FIJAS: readonly PreguntaFija[]; // al menos 2 por nivel
 export function siguientePregunta(nivel: 1 | 2 | 3, vistas: readonly string[]): PreguntaFija; // del nivel y no vista; si se agotan, reinicia
 // GET /api/tutor → 200 { modo }. POST → flujo de mensajes de la UI; 400 entrada inválida, 413 cuerpo grande,

@@ -6,14 +6,14 @@
 
 Las seis órbitas son periódicas, pero los datos de las cuatro halladas numéricamente tienen cinco cifras, así que tras un periodo el estado no vuelve exactamente al inicial. Medido con `npm run medir:fisica`, el mayor desacuerdo entre el estado inicial y el estado tras `T` (posiciones y velocidades) es:
 
-| Órbita | Cierre |
-|---|---|
-| Lagrange | 5,4e-11 |
-| Figura de ocho | 1,1e-7 |
-| Moth I | 2,3e-4 |
-| Yin-Yang I | 8,6e-4 |
-| Butterfly I | 1,2e-3 |
-| Goggles | 2,4e-3 |
+| Órbita         | Cierre  |
+| -------------- | ------- |
+| Lagrange       | 5,4e-11 |
+| Figura de ocho | 1,1e-7  |
+| Moth I         | 2,3e-4  |
+| Yin-Yang I     | 8,6e-4  |
+| Butterfly I    | 1,2e-3  |
+| Goggles        | 2,4e-3  |
 
 Sobre la estabilidad:
 
@@ -23,11 +23,11 @@ Sobre la estabilidad:
 
 ## Opciones
 
-| Opción | Valoración |
-|---|---|
-| **Integrar un periodo y reproducirlo en bucle** | Elegida. Es lo que muestra la órbita tal como la define su periodo |
-| Integrar varios periodos | Las órbitas inestables se desviarían y la animación dejaría de parecerse a la figura |
-| Corregir el cierre para que el bucle no salte | Maquilla un límite real de los datos |
+| Opción                                          | Valoración                                                                           |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Integrar un periodo y reproducirlo en bucle** | Elegida. Es lo que muestra la órbita tal como la define su periodo                   |
+| Integrar varios periodos                        | Las órbitas inestables se desviarían y la animación dejaría de parecerse a la figura |
+| Corregir el cierre para que el bucle no salte   | Maquilla un límite real de los datos                                                 |
 
 ## Decisión
 

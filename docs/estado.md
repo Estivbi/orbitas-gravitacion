@@ -4,15 +4,15 @@ Actualizado el 29 de octubre de 2026.
 
 ## Tickets
 
-| ID | Ticket | Estado |
-|---|---|---|
-| GRV-01 | Base del repositorio | Hecho y fusionado |
-| GRV-02 | Motor de física y catálogo | Hecho y fusionado |
-| GRV-03 | Sistema de diseño y escena 3D | Hecho y fusionado |
-| GRV-04 | Galería, detalle y rutas | Hecho y fusionado |
-| GRV-05 | Ley interactiva y tutor | Hecho y fusionado |
-| GRV-06 | Rendimiento y accesibilidad | Pendiente (mínimo: Lighthouse y robots.txt) |
-| GRV-07 | Entrega | En la rama `feature/entrega-docker-y-readme` |
+| ID     | Ticket                        | Estado                                           |
+| ------ | ----------------------------- | ------------------------------------------------ |
+| GRV-01 | Base del repositorio          | Hecho y fusionado                                |
+| GRV-02 | Motor de física y catálogo    | Hecho y fusionado                                |
+| GRV-03 | Sistema de diseño y escena 3D | Hecho y fusionado                                |
+| GRV-04 | Galería, detalle y rutas      | Hecho y fusionado                                |
+| GRV-05 | Ley interactiva y tutor       | Hecho y fusionado                                |
+| GRV-06 | Rendimiento y accesibilidad   | En la rama `feature/rendimiento-y-accesibilidad` |
+| GRV-07 | Entrega                       | Hecho y fusionado                                |
 
 ## Qué hay en `develop`
 
@@ -74,8 +74,8 @@ De GRV-05:
 
 ## Siguiente
 
-Fusionar GRV-07. Después, un GRV-06 mínimo: medir Lighthouse (aún no se ha medido) y añadir `robots.txt`; con esas cifras se rellena la sección «Mediciones» del README.
+Fusionar GRV-06 y poner la URL desplegada en el README. Mejora futura: bajar el bloqueo del hilo principal que causa la escena 3D.
 
 ## Qué falta
 
-GRV-06 (mínimo: Lighthouse y `robots.txt`), la URL desplegada en el README (`URL_DESPLEGADA_PENDIENTE`) y la fusión de GRV-07.
+La URL desplegada en el README (`URL_DESPLEGADA_PENDIENTE`) y la fusión de GRV-06.

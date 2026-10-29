@@ -31,21 +31,21 @@ Qué se construyó, cómo replicarlo y qué se aprendió. Spec: `docs/specs/GRV-
 
 ## Verificación
 
-| Criterio | Prueba |
-|---|---|
-| 1 Compila | `npm run build` y el job `compilacion` |
-| 2 Tipado estricto | `tests/repo/tipado.test.ts` |
-| 3 Solo npm | `tests/repo/gestor-y-scripts.test.ts` |
-| 4 Calidad | Contrato de scripts y jobs de CI |
-| 5 Humo unitario | `tests/unit/layout.test.ts` |
-| 6 Humo E2E | `tests/e2e/humo.spec.ts` |
-| 7 CI en cada PR | `tests/repo/ci.test.ts` y el propio PR |
-| 8 Formato de commits | `tests/repo/commits.test.ts` |
-| 9 Privado fuera del repo | `tests/repo/higiene.test.ts` |
+| Criterio                                | Prueba                                                           |
+| --------------------------------------- | ---------------------------------------------------------------- |
+| 1 Compila                               | `npm run build` y el job `compilacion`                           |
+| 2 Tipado estricto                       | `tests/repo/tipado.test.ts`                                      |
+| 3 Solo npm                              | `tests/repo/gestor-y-scripts.test.ts`                            |
+| 4 Calidad                               | Contrato de scripts y jobs de CI                                 |
+| 5 Humo unitario                         | `tests/unit/layout.test.ts`                                      |
+| 6 Humo E2E                              | `tests/e2e/humo.spec.ts`                                         |
+| 7 CI en cada PR                         | `tests/repo/ci.test.ts` y el propio PR                           |
+| 8 Formato de commits                    | `tests/repo/commits.test.ts`                                     |
+| 9 Privado fuera del repo                | `tests/repo/higiene.test.ts`                                     |
 | 10 Sin placeholders y tokens coherentes | `tests/repo/documentacion.test.ts` y `tests/repo/tokens.test.ts` |
-| 11 Entorno documentado | `tests/repo/documentacion.test.ts` |
-| 12 Documentación mínima | `tests/repo/documentacion.test.ts` |
-| 13 Neutralidad | `tests/repo/higiene.test.ts` en local y revisión con `git grep` |
+| 11 Entorno documentado                  | `tests/repo/documentacion.test.ts`                               |
+| 12 Documentación mínima                 | `tests/repo/documentacion.test.ts`                               |
+| 13 Neutralidad                          | `tests/repo/higiene.test.ts` en local y revisión con `git grep`  |
 
 **Excepción conocida.** El test del criterio 13 se salta en CI, porque la lista de términos vive en un archivo privado que no se versiona. Se ejecuta en local y lo repasa la revisión del PR.
 
@@ -53,11 +53,11 @@ Qué se construyó, cómo replicarlo y qué se aprendió. Spec: `docs/specs/GRV-
 
 Medido sobre la compilación de producción, en tres anchos. Las capturas se adjuntan al PR.
 
-| Ancho | Desborde horizontal | Titular | Fondo |
-|---|---|---|---|
-| Móvil, 375 px | No | 48 px, peso 400 | `rgb(0, 0, 0)` |
-| Tablet, 768 px | No | 72 px, peso 400 | `rgb(0, 0, 0)` |
-| Escritorio, 1440 px | No | 72 px, peso 400 | `rgb(0, 0, 0)` |
+| Ancho               | Desborde horizontal | Titular         | Fondo          |
+| ------------------- | ------------------- | --------------- | -------------- |
+| Móvil, 375 px       | No                  | 48 px, peso 400 | `rgb(0, 0, 0)` |
+| Tablet, 768 px      | No                  | 72 px, peso 400 | `rgb(0, 0, 0)` |
+| Escritorio, 1440 px | No                  | 72 px, peso 400 | `rgb(0, 0, 0)` |
 
 - **Contraste:** texto blanco sobre negro 21:1; etiqueta ámbar `#ffb829` sobre negro ≈12:1. Ambos superan el 4,5:1 exigido.
 - **Estructura:** `<html lang="es">` y un único `h1`.
