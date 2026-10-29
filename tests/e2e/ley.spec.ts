@@ -31,6 +31,8 @@ test('GRV-05 · criterio 7: deslizadores y teclado mueven la ley y la sección e
 }) => {
   await page.goto('/');
   await esperarHidratacion(page);
+  // El tutor se carga aparte y, al montarse, pone la ley de su primera pregunta: hay que esperarlo.
+  await expect(page.getByTestId('etiqueta-pregunta')).toBeVisible();
   await expect(page.locator('#ley')).toBeVisible();
   const y = async (selector: string) => (await page.locator(selector).boundingBox())!.y;
   expect(await y('h1')).toBeLessThan(await y('#ley'));
@@ -61,6 +63,8 @@ test('GRV-05 · criterio 8: la masa derecha se arrastra y se opera con flechas, 
 }) => {
   await page.goto('/');
   await esperarHidratacion(page);
+  // El tutor se carga aparte y, al montarse, pone la ley de su primera pregunta: hay que esperarlo.
+  await expect(page.getByTestId('etiqueta-pregunta')).toBeVisible();
   const masa = masaDerecha(page);
   await masa.scrollIntoViewIfNeeded();
   const caja = (await masa.boundingBox())!;
