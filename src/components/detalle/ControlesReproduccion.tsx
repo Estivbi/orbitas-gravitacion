@@ -18,6 +18,7 @@ import {
   type Velocidad,
 } from '@/lib/galeria/controles';
 import { textoEstela, textoPosicion, textoVelocidad } from '@/lib/galeria/formato';
+import { CLASES_PANEL } from '../comunes/clases';
 import { BotonAnimacion } from '../comunes/BotonAnimacion';
 import { SelectorTexto } from '../comunes/SelectorTexto';
 import type { EstadoEscena } from '../escena/VisorOrbita';
@@ -52,7 +53,7 @@ const CLASES_VALOR = 'text-bone-white text-etiqueta font-light tabular-nums';
 const CLASES_DESLIZADOR = 'accent-electric-iris min-h-8 w-full cursor-pointer';
 
 function clasesDeRegion(estado: EstadoEscena): string {
-  const base = 'flex flex-wrap items-end gap-x-6 gap-y-4';
+  const base = `${CLASES_PANEL} flex flex-wrap items-end gap-x-6 gap-y-4 p-4 columnas:p-6`;
   if (estado === 'sin-webgl' || estado === 'error') return `${base} hidden`;
   return estado === 'lista' ? base : `${base} invisible`;
 }

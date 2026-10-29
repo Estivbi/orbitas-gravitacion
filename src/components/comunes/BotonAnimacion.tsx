@@ -1,15 +1,23 @@
+import { CLASES_BOTON_CONTORNO, CLASES_BOTON_PRINCIPAL } from './clases';
+
 interface PropsBotonAnimacion {
   reproduciendo: boolean;
   alAlternar: () => void;
+  /** En la portada el botón va con contorno: el violeta queda para la acción principal. */
+  discreto?: boolean;
 }
 
-/** El único botón relleno de la vista: pausa o reanuda la animación. */
-export function BotonAnimacion({ reproduciendo, alAlternar }: PropsBotonAnimacion) {
+/** Pausa o reanuda la animación. En el detalle es el único botón relleno de la vista. */
+export function BotonAnimacion({
+  reproduciendo,
+  alAlternar,
+  discreto = false,
+}: PropsBotonAnimacion) {
   return (
     <button
       type="button"
       onClick={alAlternar}
-      className="bg-electric-iris text-bone-white text-etiqueta min-h-8 min-w-8 cursor-pointer rounded-boton px-6 font-semibold uppercase"
+      className={discreto ? CLASES_BOTON_CONTORNO : CLASES_BOTON_PRINCIPAL}
     >
       {reproduciendo ? 'Pausar animación' : 'Reproducir animación'}
     </button>

@@ -162,7 +162,11 @@ describe('GRV-04 · criterio 1: orden de la galería', () => {
 
   it('ORDENES tiene exactamente los tres órdenes, con sus etiquetas', () => {
     expect(ORDENES.map((o) => o.id)).toEqual(['catalogo', 'periodo', 'energia']);
-    expect(ORDENES.map((o) => o.etiqueta)).toEqual(['Catálogo', 'Periodo', 'Energía']);
+    expect(ORDENES.map((o) => o.etiqueta)).toEqual([
+      'Catálogo',
+      'Duración de la vuelta',
+      'Más ligadas',
+    ]);
     expect(ORDENES).toHaveLength(3);
   });
 
@@ -170,9 +174,9 @@ describe('GRV-04 · criterio 1: orden de la galería', () => {
     expect(ORDEN_INICIAL).toBe('catalogo');
   });
 
-  it('avisoDeOrden nombra el orden con la etiqueta en minúsculas', () => {
-    expect(avisoDeOrden('energia')).toBe('Galería ordenada por energía.');
-    expect(avisoDeOrden('periodo')).toBe('Galería ordenada por periodo.');
+  it('avisoDeOrden anuncia el orden elegido con el texto llano del selector', () => {
+    expect(avisoDeOrden('energia')).toBe('Galería ordenada con las órbitas más ligadas primero.');
+    expect(avisoDeOrden('periodo')).toBe('Galería ordenada por duración de la vuelta.');
     expect(avisoDeOrden('catalogo')).toBe('Galería ordenada por catálogo.');
   });
 

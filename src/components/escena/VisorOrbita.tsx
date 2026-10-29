@@ -206,17 +206,31 @@ export function VisorOrbita({
         )}
       </div>
       {!fallo && (
-        <p id={descripcionId} className="text-ash-gray text-etiqueta mt-3 font-light">
+        <p
+          id={descripcionId}
+          className={
+            tamano === 'compacto' ? 'sr-only' : 'text-ash-gray text-etiqueta mt-3 font-light'
+          }
+        >
           {INSTRUCCIONES}
+        </p>
+      )}
+      {!fallo && tamano === 'compacto' && (
+        <p aria-hidden="true" className="text-ash-gray text-etiqueta mt-3 text-center font-light">
+          Arrastra para girar
         </p>
       )}
       <div role="status" className={fallo ? 'text-saffron-spark mt-3' : undefined}>
         {AVISOS[estado]}
       </div>
       {!fallo && controlAnimacion && (
-        <div className="mt-3 min-h-9">
+        <div className="mt-3 flex min-h-9 justify-center">
           {estado === 'lista' && (
-            <BotonAnimacion reproduciendo={reproduciendo} alAlternar={alternar} />
+            <BotonAnimacion
+              reproduciendo={reproduciendo}
+              alAlternar={alternar}
+              discreto={tamano === 'compacto'}
+            />
           )}
         </div>
       )}

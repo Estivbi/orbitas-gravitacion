@@ -1,9 +1,18 @@
 import { SLUGS, type Slug } from '@/lib/fisica/tipos';
 
+/** `etiqueta` es el texto llano del selector; `aviso` lo anuncia a los lectores de pantalla. */
 export const ORDENES = [
-  { id: 'catalogo', etiqueta: 'Catálogo' },
-  { id: 'periodo', etiqueta: 'Periodo' },
-  { id: 'energia', etiqueta: 'Energía' },
+  { id: 'catalogo', etiqueta: 'Catálogo', aviso: 'Galería ordenada por catálogo.' },
+  {
+    id: 'periodo',
+    etiqueta: 'Duración de la vuelta',
+    aviso: 'Galería ordenada por duración de la vuelta.',
+  },
+  {
+    id: 'energia',
+    etiqueta: 'Más ligadas',
+    aviso: 'Galería ordenada con las órbitas más ligadas primero.',
+  },
 ] as const;
 
 export type OrdenGaleria = (typeof ORDENES)[number]['id'];
@@ -41,8 +50,7 @@ export function ordenarGaleria<T extends ClaveDeOrden>(
   return [...items].sort(comparar);
 }
 
-/** «Galería ordenada por periodo.» */
+/** «Galería ordenada por duración de la vuelta.» */
 export function avisoDeOrden(orden: OrdenGaleria): string {
-  const etiqueta = ORDENES.find((o) => o.id === orden)?.etiqueta ?? orden;
-  return `Galería ordenada por ${etiqueta.toLowerCase()}.`;
+  return ORDENES.find((o) => o.id === orden)?.aviso ?? '';
 }

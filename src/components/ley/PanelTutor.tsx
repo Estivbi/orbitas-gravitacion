@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Modo } from '@/lib/tutor/tipos';
+import { CLASES_ETIQUETA_SECCION, CLASES_PANEL } from '../comunes/clases';
 import { obtenerModo } from './modo';
 import { TutorChat } from './TutorChat';
 import { TutorReducido } from './TutorReducido';
@@ -34,11 +35,14 @@ export function PanelTutor() {
 
   return (
     <div className="flex flex-col gap-4" data-modo-tutor={modo}>
-      <h3 className="text-titular-xs">Ponte a prueba</h3>
-      {modo === 'reducido' && <p className="text-saffron-spark">{AVISOS[motivo]}</p>}
-      {modo === 'cargando' && <p className="text-silver-mist">Comprobando el tutor…</p>}
-      {modo === 'modelo' && <TutorChat alReducido={pasarAReducido} />}
-      {modo === 'reducido' && <TutorReducido />}
+      <p className={CLASES_ETIQUETA_SECCION}>A tu ritmo</p>
+      <h3 className="text-titular-xs">Comprueba lo que has aprendido</h3>
+      <div className={`${CLASES_PANEL} flex flex-col gap-4 p-4 columnas:p-6`}>
+        {modo === 'reducido' && <p className="text-saffron-spark">{AVISOS[motivo]}</p>}
+        {modo === 'cargando' && <p className="text-silver-mist">Comprobando el tutor…</p>}
+        {modo === 'modelo' && <TutorChat alReducido={pasarAReducido} />}
+        {modo === 'reducido' && <TutorReducido />}
+      </div>
     </div>
   );
 }

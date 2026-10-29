@@ -15,7 +15,7 @@ test.describe('GRV-01 · criterio 6: prueba de humo E2E', () => {
   test('las clases utilitarias de Tailwind se aplican con los tokens', async ({ page }) => {
     await page.goto('/');
 
-    const etiqueta = page.getByText('Gravitación universal');
+    const etiqueta = page.getByText('Explora el universo', { exact: true });
     const color = await etiqueta.evaluate((el) => getComputedStyle(el).color);
     expect(color).toBe('rgb(255, 184, 41)');
 

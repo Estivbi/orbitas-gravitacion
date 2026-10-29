@@ -102,7 +102,7 @@ test('GRV-05 · criterio 9: sin clave el chat avisa, propone una pregunta y sube
       'El chat con inteligencia artificial no está activo ahora. Mientras tanto, practica con estas preguntas.',
     ),
   ).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Ponte a prueba' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Comprueba lo que has aprendido' })).toBeVisible();
   await expect(page.getByTestId('etiqueta-pregunta')).toHaveText(
     /^Pregunta 1 de \d+ · Dificultad: básica$/,
   );

@@ -19,15 +19,10 @@ function Deslizador({ etiqueta, valor, min, max, alCambiar }: PropsDeslizador) {
   const id = useId();
   const texto = formatearNumero(valor, 1);
   return (
-    <div className="flex min-w-0 flex-col">
-      <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className={CLASES_ETIQUETA}>
-          {etiqueta}
-        </label>
-        <span aria-hidden="true" className={CLASES_VALOR}>
-          {texto}
-        </span>
-      </div>
+    <div className="col-span-3 grid min-w-0 grid-cols-subgrid items-center">
+      <label htmlFor={id} className={CLASES_ETIQUETA}>
+        {etiqueta}
+      </label>
       <input
         id={id}
         type="range"
@@ -39,6 +34,9 @@ function Deslizador({ etiqueta, valor, min, max, alCambiar }: PropsDeslizador) {
         onChange={(evento) => alCambiar(Number(evento.currentTarget.value))}
         className={CLASES_DESLIZADOR}
       />
+      <span aria-hidden="true" className={`${CLASES_VALOR} text-right`}>
+        {texto}
+      </span>
     </div>
   );
 }
@@ -54,32 +52,41 @@ export function ControlesLey({ ley, alCambiar }: Props) {
   const f = fuerza(ley.m1, ley.m2, ley.r);
   return (
     <div className="flex flex-col gap-4">
-      <Deslizador
-        etiqueta="Masa 1"
-        valor={ley.m1}
-        min={masa.min}
-        max={masa.max}
-        alCambiar={(m1) => alCambiar({ m1 })}
-      />
-      <Deslizador
-        etiqueta="Masa 2"
-        valor={ley.m2}
-        min={masa.min}
-        max={masa.max}
-        alCambiar={(m2) => alCambiar({ m2 })}
-      />
-      <Deslizador
-        etiqueta="Distancia"
-        valor={ley.r}
-        min={distancia.min}
-        max={distancia.max}
-        alCambiar={(r) => alCambiar({ r })}
-      />
-      <div className="mt-2 flex flex-col" aria-live="polite" aria-atomic="true">
-        <span className={CLASES_ETIQUETA}>Fuerza</span>
-        <p className="text-subtitulo font-light tabular-nums" data-testid="fuerza">
-          {formatearNumero(f, 2)}
-        </p>
+      <div className="grid grid-cols-[auto_1fr_auto] gap-x-4 gap-y-1">
+        <Deslizador
+          etiqueta="Masa 1"
+          valor={ley.m1}
+          min={masa.min}
+          max={masa.max}
+          alCambiar={(m1) => alCambiar({ m1 })}
+        />
+        <Deslizador
+          etiqueta="Masa 2"
+          valor={ley.m2}
+          min={masa.min}
+          max={masa.max}
+          alCambiar={(m2) => alCambiar({ m2 })}
+        />
+        <Deslizador
+          etiqueta="Distancia"
+          valor={ley.r}
+          min={distancia.min}
+          max={distancia.max}
+          alCambiar={(r) => alCambiar({ r })}
+        />
+      </div>
+      <div
+        className="flex flex-col border-t border-ash-gray/30 pt-4"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <span className={CLASES_ETIQUETA}>Fuerza entre las dos masas</span>
+        <div className="flex items-baseline gap-3">
+          <p className="text-subtitulo font-light tabular-nums" data-testid="fuerza">
+            {formatearNumero(f, 2)}
+          </p>
+          <span className="text-ash-gray text-etiqueta font-light">unidades arbitrarias</span>
+        </div>
         <p className="text-silver-mist" data-testid="frase">
           {fraseDuplicar(ley)}
         </p>
