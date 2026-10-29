@@ -1,3 +1,4 @@
+import { SeccionLey } from '@/components/ley/SeccionLey';
 import { VisorOrbita } from '@/components/escena/VisorOrbita';
 import { Galeria } from '@/components/galeria/Galeria';
 import { fichaDeOrbita } from '@/lib/galeria/fichas';
@@ -22,6 +23,7 @@ export default function Portada() {
         </div>
         <VisorOrbita slug={SLUG} miniatura={miniatura} titulo={orbita.nombre} />
       </div>
+      <SeccionLey />
       <Galeria />
     </>
   );
