@@ -2,7 +2,7 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import type { LanguageModel } from 'ai';
 import type { Modo } from './tipos';
 
-export const MODELO_POR_DEFECTO = 'gemini-flash-latest';
+export const MODELO_POR_DEFECTO = 'gemini-2.5-flash-lite';
 
 export function elegirModo(env: { clave?: string; proveedor?: string }): Modo {
   const proveedor = (env.proveedor ?? 'google').trim().toLowerCase() || 'google';
