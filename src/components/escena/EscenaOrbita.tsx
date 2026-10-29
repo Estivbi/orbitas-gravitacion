@@ -39,5 +39,12 @@ export function EscenaOrbita(props: PropsEscenaOrbita) {
     }
   }, [trayectoria, etiqueta, descripcionId, particulas]);
 
+  // Se ejecuta tras el montaje, que es quien crea el lienzo.
+  const { giroLibre = false } = props;
+  useEffect(() => {
+    const lienzo = anfitrion.current?.querySelector('canvas');
+    if (lienzo) lienzo.style.touchAction = giroLibre ? 'none' : 'pan-y';
+  }, [giroLibre, trayectoria, etiqueta, descripcionId, particulas]);
+
   return <div ref={anfitrion} className="absolute inset-0" />;
 }

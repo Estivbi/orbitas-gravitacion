@@ -49,7 +49,7 @@ test('GRV-05 · criterio 7: deslizadores y teclado mueven la ley y la ley va ent
   expect(await leyActual(page)).toEqual({ m1: 8, m2: 2, r: 2 });
   await expect(page.getByTestId('fuerza')).toHaveText('4,00');
   await expect(page.getByTestId('frase')).toHaveText(
-    'A doble distancia la fuerza sería la cuarta parte.',
+    'A doble distancia (4,0) la fuerza sería 1,00, la cuarta parte. Con el doble de masa en un cuerpo sería 8,00, el doble.',
   );
 
   await deslizador(page, 'Masa 2').focus();

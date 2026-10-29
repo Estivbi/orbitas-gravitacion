@@ -63,6 +63,26 @@ export function fraseDuplicar(l: Ley): string {
   return `A doble distancia la fuerza sería ${describirRazon(razonAlDuplicarDistancia(l))}.`;
 }
 
+/** Frase con los valores al doblar la distancia y al doblar una masa. */
+export function fraseComparativa(l: Ley): string {
+  const f = fuerza(l.m1, l.m2, l.r);
+  const alDoblarR = fuerza(l.m1, l.m2, 2 * l.r);
+  const alDoblarMasa = fuerza(2 * l.m1, l.m2, l.r);
+  return (
+    `A doble distancia (${formatearNumero(2 * l.r, 1)}) la fuerza sería ${formatearNumero(alDoblarR, 2)}, ` +
+    `${describirRazon(alDoblarR / f)}. Con el doble de masa en un cuerpo sería ${formatearNumero(alDoblarMasa, 2)}, ` +
+    `${alDoblarMasa / f === 2 ? 'el doble' : describirRazon(alDoblarMasa / f)}.`
+  );
+}
+
+const LONGITUD_MINIMA_FLECHA = 8;
+
+/** Longitud en píxeles de la flecha de fuerza: crece con el logaritmo de F, entre un mínimo y `maximo`. */
+export function longitudFlecha(f: number, maximo: number): number {
+  const deseada = 14 + 20 * Math.log2(1 + f);
+  return Math.max(LONGITUD_MINIMA_FLECHA, Math.min(maximo, deseada));
+}
+
 export function xARadio(x: number, g: Geometria): number {
   const r = (x - g.x0) / g.pxPorUnidad;
   return Math.min(LIMITES.distancia.max, Math.max(LIMITES.distancia.min, r));
