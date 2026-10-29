@@ -101,7 +101,10 @@ export function crearManejador({ obtenerModelo, limitador, ahora }: Dependencias
       maxRetries: 0,
       onError: () => undefined,
     });
-    return resultado.toUIMessageStreamResponse({ onError: mensajeDeError });
+    return resultado.toUIMessageStreamResponse({
+      originalMessages: mensajes as unknown as UIMessage[],
+      onError: mensajeDeError,
+    });
   }
 
   function GET(): Response {

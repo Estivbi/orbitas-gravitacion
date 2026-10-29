@@ -104,6 +104,28 @@ describe('POST /api/tutor con modelo simulado', () => {
     expect(flujo).toContain('"m1":8');
   });
 
+  it('continúa el mensaje del asistente al reenviar tras una herramienta', async () => {
+    const asistente = {
+      id: 'asistente-1',
+      role: 'assistant',
+      parts: [
+        {
+          type: 'tool-ajustar_ley',
+          toolCallId: 'c1',
+          state: 'output-available',
+          input: { m1: 8, m2: 2, r: 2 },
+          output: 'ok',
+        },
+      ],
+    };
+    const datos = {
+      mensajes: [{ id: 'u1', role: 'user', parts: [{ type: 'text', text: 'Ajusta' }] }, asistente],
+      nivel: 1,
+    };
+    const flujo = await (await manejador(modeloCon(texto('Listo.'))).POST(post(datos))).text();
+    expect(flujo).toContain('"messageId":"asistente-1"');
+  });
+
   it('GET devuelve el modo según haya modelo o no', async () => {
     const con = await manejador(modeloCon(texto('x'))).GET();
     expect(await con.json()).toEqual({ modo: 'modelo' });
