@@ -7,7 +7,7 @@ import { ControlesLey } from './ControlesLey';
 import { EsquemaLey } from './EsquemaLey';
 
 // El chat (y el SDK de IA) se carga en un chunk aparte, solo en cliente.
-const PanelTutor = dynamic(() => import('@/components/tutor/PanelTutor').then((m) => m.PanelTutor), {
+const PanelTutor = dynamic(() => import('./PanelTutor').then((m) => m.PanelTutor), {
   ssr: false,
   loading: () => <p className="text-silver-mist">Cargando el tutor…</p>,
 });

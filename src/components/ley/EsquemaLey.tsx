@@ -1,7 +1,14 @@
 'use client';
 
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
-import { LIMITES, formatearNumero, radioAX, xARadio, type Geometria, type Ley } from '@/lib/ley/ley';
+import {
+  LIMITES,
+  formatearNumero,
+  radioAX,
+  xARadio,
+  type Geometria,
+  type Ley,
+} from '@/lib/ley/ley';
 
 const ANCHO = 660;
 const ALTO = 240;
@@ -65,10 +72,20 @@ export function EsquemaLey({ ley, alCambiarDistancia }: Props) {
       />
       <circle cx={GEOMETRIA.x0} cy={CENTRO_Y} r={radioDeMasa(ley.m1)} className="fill-bone-white" />
       <circle cx={xDerecha} cy={CENTRO_Y} r={radioDeMasa(ley.m2)} className="fill-saffron-spark" />
-      <text x={GEOMETRIA.x0} y={CENTRO_Y + 56} textAnchor="middle" className="fill-ash-gray text-etiqueta">
+      <text
+        x={GEOMETRIA.x0}
+        y={CENTRO_Y + 56}
+        textAnchor="middle"
+        className="fill-ash-gray text-etiqueta"
+      >
         m₁
       </text>
-      <text x={xDerecha} y={CENTRO_Y + 56} textAnchor="middle" className="fill-ash-gray text-etiqueta">
+      <text
+        x={xDerecha}
+        y={CENTRO_Y + 56}
+        textAnchor="middle"
+        className="fill-ash-gray text-etiqueta"
+      >
         m₂
       </text>
       <text

@@ -54,8 +54,20 @@ export function ControlesLey({ ley, alCambiar }: Props) {
   const f = fuerza(ley.m1, ley.m2, ley.r);
   return (
     <div className="flex flex-col gap-4">
-      <Deslizador etiqueta="Masa 1" valor={ley.m1} min={masa.min} max={masa.max} alCambiar={(m1) => alCambiar({ m1 })} />
-      <Deslizador etiqueta="Masa 2" valor={ley.m2} min={masa.min} max={masa.max} alCambiar={(m2) => alCambiar({ m2 })} />
+      <Deslizador
+        etiqueta="Masa 1"
+        valor={ley.m1}
+        min={masa.min}
+        max={masa.max}
+        alCambiar={(m1) => alCambiar({ m1 })}
+      />
+      <Deslizador
+        etiqueta="Masa 2"
+        valor={ley.m2}
+        min={masa.min}
+        max={masa.max}
+        alCambiar={(m2) => alCambiar({ m2 })}
+      />
       <Deslizador
         etiqueta="Distancia"
         valor={ley.r}
