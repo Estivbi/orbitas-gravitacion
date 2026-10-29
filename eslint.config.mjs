@@ -35,10 +35,22 @@ const patronZustand = {
   message: 'zustand solo puede importarse desde src/store/.',
 };
 
-/** Cubre import('three') e import('zustand'), que no pasan por no-restricted-imports. */
+const patronAi = {
+  regex: '^(ai|@ai-sdk)(/|$)',
+  message:
+    'ai y @ai-sdk/* solo pueden importarse desde src/lib/tutor/ y src/components/ley/ (hook de chat).',
+};
+
+const destinos = {
+  three: { regex: 'three', lugar: 'src/components/escena/' },
+  zustand: { regex: 'zustand', lugar: 'src/store/' },
+  ai: { regex: '(ai|@ai-sdk)', lugar: 'src/lib/tutor/ y src/components/ley/' },
+};
+
+/** Cubre import('three'), import('zustand') e import('ai'), que no pasan por no-restricted-imports. */
 const importacionDinamica = (modulo) => ({
-  selector: `ImportExpression[source.type='Literal'][source.value=/^${modulo}(\\/|$)/]`,
-  message: `${modulo} solo puede importarse desde ${modulo === 'three' ? 'src/components/escena/' : 'src/store/'}.`,
+  selector: `ImportExpression[source.type='Literal'][source.value=/^${destinos[modulo].regex}(\\/|$)/]`,
+  message: `${modulo === 'ai' ? 'ai y @ai-sdk/*' : modulo} solo puede importarse desde ${destinos[modulo].lugar}.`,
 });
 
 const patronesDeLib = [
@@ -77,39 +89,41 @@ export default defineConfig([
   ...nextVitals,
   ...nextTs,
   {
-    // three solo se importa desde la escena (src/components/escena/) y zustand solo desde el almacén (src/store/).
+    // three solo se importa desde la escena (src/components/escena/), zustand solo desde el almacén (src/store/)
+    // y ai / @ai-sdk/* solo desde el tutor (src/lib/tutor/) y el hook de chat (src/components/ley/).
     files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
     ignores: ['src/components/escena/**', 'src/store/**'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [patronThree, patronZustand] }],
+      'no-restricted-imports': ['error', { patterns: [patronThree, patronZustand, patronAi] }],
       'no-restricted-syntax': [
         'error',
         importacionDinamica('three'),
         importacionDinamica('zustand'),
+        importacionDinamica('ai'),
       ],
     },
   },
   {
-    // La escena puede importar three, pero no zustand.
+    // La escena puede importar three, pero no zustand ni ai.
     files: ['src/components/escena/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [patronZustand] }],
-      'no-restricted-syntax': ['error', importacionDinamica('zustand')],
+      'no-restricted-imports': ['error', { patterns: [patronZustand, patronAi] }],
+      'no-restricted-syntax': ['error', importacionDinamica('zustand'), importacionDinamica('ai')],
     },
   },
   {
-    // El almacén puede importar zustand, pero no three.
+    // El almacén puede importar zustand, pero no three ni ai.
     files: ['src/store/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [patronThree] }],
-      'no-restricted-syntax': ['error', importacionDinamica('three')],
+      'no-restricted-imports': ['error', { patterns: [patronThree, patronAi] }],
+      'no-restricted-syntax': ['error', importacionDinamica('three'), importacionDinamica('ai')],
     },
   },
   {
     // src/lib es TypeScript puro: se prueba en Node y se ejecuta también dentro de un Worker.
     files: ['src/lib/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: patronesDeLib }],
+      'no-restricted-imports': ['error', { patterns: [...patronesDeLib, patronAi] }],
       'no-restricted-globals': [
         'error',
         ...globalesDelNavegador.map((name) => ({
@@ -127,20 +141,45 @@ export default defineConfig([
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: [barrilSoloTipos], patterns: [patronThree, patronZustand] },
+        { paths: [barrilSoloTipos], patterns: [patronThree, patronZustand, patronAi] },
       ],
     },
   },
   {
     files: ['src/store/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': ['error', { paths: [barrilSoloTipos], patterns: [patronThree] }],
+      'no-restricted-imports': [
+        'error',
+        { paths: [barrilSoloTipos], patterns: [patronThree, patronAi] },
+      ],
     },
   },
   {
     files: ['src/lib/galeria/{orden,formato,controles,navegacion,telemetria}.ts'],
     rules: {
-      'no-restricted-imports': ['error', { paths: [barrilSoloTipos], patterns: patronesDeLib }],
+      'no-restricted-imports': [
+        'error',
+        { paths: [barrilSoloTipos], patterns: [...patronesDeLib, patronAi] },
+      ],
+    },
+  },
+  // Zonas que sí pueden importar ai y @ai-sdk/*: el tutor (servidor) y el hook de chat (src/components/ley/).
+  // Cada bloque repite lo que le corresponde del bloque general, porque sustituye la regla entera.
+  {
+    files: ['src/lib/tutor/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: patronesDeLib }],
+    },
+  },
+  {
+    files: ['src/components/ley/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: [patronThree, patronZustand] }],
+      'no-restricted-syntax': [
+        'error',
+        importacionDinamica('three'),
+        importacionDinamica('zustand'),
+      ],
     },
   },
   {
