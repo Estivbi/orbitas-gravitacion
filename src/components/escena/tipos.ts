@@ -24,6 +24,8 @@ export interface PropsEscenaOrbita {
   /** Destino de la orden «restablecer» (Inicio y `restablecerVista`). Por defecto, `vistaInicial ?? VISTA_INICIAL`. */
   vistaRestablecida?: VistaCamara;
   giroAutomatico?: boolean;
+  /** Con tacto, un dedo gira en los dos ejes y el gesto no desplaza la página. Por defecto `false`. */
+  giroLibre?: boolean;
   /** Se lee al montar. */
   ruedaActiva?: boolean;
   /** Por defecto 300. */
