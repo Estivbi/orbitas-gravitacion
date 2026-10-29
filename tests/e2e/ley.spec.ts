@@ -267,3 +267,17 @@ test('GRV-06 · navegación de la portada: enlaces de cabecera, sección activa 
   await enlaceA('Comenzar ahora', '#ley');
   await expect(page.getByRole('heading', { name: 'El universo te está esperando.' })).toBeVisible();
 });
+
+test('GRV-06 · la historia se despliega hito a hito: el primero abierto y al abrir otro se cierra el anterior', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const hitos = page.locator('#historia details');
+  await expect(hitos).toHaveCount(6);
+  await expect(hitos.nth(0)).toHaveAttribute('open', '');
+  await hitos.nth(1).locator('summary').click();
+  await expect(hitos.nth(1)).toHaveAttribute('open', '');
+  await expect(hitos.nth(0)).not.toHaveAttribute('open', '');
+  await hitos.nth(1).locator('summary').click();
+  await expect(hitos.nth(1)).not.toHaveAttribute('open', '');
+});

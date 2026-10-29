@@ -63,12 +63,23 @@ export function SeccionHistoria() {
             siendo excelente.
           </p>
         </div>
-        <ol className="flex flex-col gap-8">
-          {HITOS.map((hito) => (
-            <li key={hito.cuando} className="flex flex-col gap-1">
-              <span className={CLASES_ETIQUETA_SECCION}>{hito.cuando}</span>
-              <h3 className="text-titular-xs">{hito.titulo}</h3>
-              <p className="text-silver-mist">{hito.texto}</p>
+        <ol className="flex flex-col">
+          {HITOS.map((hito, i) => (
+            <li key={hito.cuando} className="border-ash-gray/30 border-b first:border-t">
+              {/* Con el mismo `name`, el navegador cierra el hito abierto al abrir otro. */}
+              <details name="historia" open={i === 0} className="group">
+                <summary className="flex min-h-8 cursor-pointer list-none items-center justify-between gap-4 py-4 [&::-webkit-details-marker]:hidden">
+                  <span className="flex flex-col gap-1">
+                    <span className={CLASES_ETIQUETA_SECCION}>{hito.cuando}</span>
+                    <h3 className="text-titular-xs">{hito.titulo}</h3>
+                  </span>
+                  <span aria-hidden="true" className="text-subtitulo text-ash-gray font-light">
+                    <span className="group-open:hidden">+</span>
+                    <span className="hidden group-open:inline">−</span>
+                  </span>
+                </summary>
+                <p className="text-silver-mist pb-6">{hito.texto}</p>
+              </details>
             </li>
           ))}
         </ol>
