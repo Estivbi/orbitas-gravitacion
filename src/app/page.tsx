@@ -15,10 +15,12 @@ export default function Portada() {
           <p className="text-saffron-spark text-etiqueta font-semibold uppercase">
             Gravitación universal
           </p>
-          <h1 className="text-titular-lg text-balance">Tres cuerpos, una sola curva.</h1>
+          <h1 className="text-titular-lg text-balance">
+            La ley que mueve el universo, a tu alcance.
+          </h1>
           <p className="max-w-90">
-            Newton resolvió el movimiento de dos masas que se atraen. Con tres no hay fórmula
-            general, pero unas pocas condiciones iniciales dibujan órbitas que se repiten sin fin.
+            Mueve dos masas y mira cómo cambia la fuerza, ponte a prueba con un tutor y explora seis
+            órbitas donde tres cuerpos se persiguen para siempre.
           </p>
         </div>
         <VisorOrbita slug={SLUG} miniatura={miniatura} titulo={orbita.nombre} />
