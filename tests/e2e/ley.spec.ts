@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { formatearNumero, fuerza } from '../../src/lib/ley/ley';
 import { PREGUNTAS_FIJAS } from '../../src/lib/tutor/reducido';
+import { esperarHidratacion } from './ayudas';
 
 test.use({ actionTimeout: 20_000 });
 
@@ -29,6 +30,7 @@ test('GRV-05 · criterio 7: deslizadores y teclado mueven la ley y la sección e
   page,
 }) => {
   await page.goto('/');
+  await esperarHidratacion(page);
   await expect(page.locator('#ley')).toBeVisible();
   const y = async (selector: string) => (await page.locator(selector).boundingBox())!.y;
   expect(await y('h1')).toBeLessThan(await y('#ley'));
@@ -58,6 +60,7 @@ test('GRV-05 · criterio 8: la masa derecha se arrastra y se opera con flechas, 
   page,
 }) => {
   await page.goto('/');
+  await esperarHidratacion(page);
   const masa = masaDerecha(page);
   await masa.scrollIntoViewIfNeeded();
   const caja = (await masa.boundingBox())!;
@@ -85,12 +88,20 @@ test('GRV-05 · criterio 8: la masa derecha se arrastra y se opera con flechas, 
   expect(await valorDe(page, 'Distancia')).toBe(10);
 });
 
-test('GRV-05 · criterio 9: sin clave el chat avisa, propone una predicción y sube de nivel tras dos aciertos', async ({
+test('GRV-05 · criterio 9: sin clave el chat avisa, propone una pregunta y sube de dificultad tras dos aciertos', async ({
   page,
 }) => {
   await page.goto('/');
-  await expect(page.getByText('Modo reducido: sin modelo de lenguaje')).toBeVisible();
-  await expect(page.getByTestId('nivel')).toHaveText('1');
+  await esperarHidratacion(page);
+  await expect(
+    page.getByText(
+      'El chat con inteligencia artificial no está activo ahora. Mientras tanto, practica con estas preguntas.',
+    ),
+  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ponte a prueba' })).toBeVisible();
+  await expect(page.getByTestId('etiqueta-pregunta')).toHaveText(
+    /^Pregunta 1 de \d+ · Dificultad: básica$/,
+  );
 
   for (let i = 0; i < 2; i++) {
     const texto = await page.getByTestId('pregunta').innerText();
@@ -98,9 +109,9 @@ test('GRV-05 · criterio 9: sin clave el chat avisa, propone una predicción y s
     const correcta = pregunta.opciones.find((o) => o.acierto)!;
     await page.getByRole('button', { name: correcta.texto, exact: true }).click();
     await expect(page.getByTestId('correccion')).toHaveText(correcta.correccion);
-    if (i === 0) await page.getByRole('button', { name: 'Otra pregunta' }).click();
+    await page.getByRole('button', { name: 'Otra pregunta' }).click();
   }
-  await expect(page.getByTestId('nivel')).toHaveText('2');
+  await expect(page.getByTestId('etiqueta-pregunta')).toContainText('Dificultad: media');
 });
 
 /** Respuesta en el protocolo de flujo de mensajes de la interfaz del SDK. */
@@ -155,6 +166,7 @@ test('GRV-05 · criterio 10: ajustar_ley y mostrar_orbita simuladas mueven la le
     return ruta.fulfill(conHerramientas(guion[siguiente++]!));
   });
   await page.goto('/');
+  await esperarHidratacion(page);
 
   const entrada = page.getByLabel('Pregunta al tutor');
   const enviar = page.getByRole('button', { name: 'Enviar' });
@@ -206,6 +218,7 @@ test('GRV-05 · criterio 12: la portada no desborda a 375, 768 y 1440 px y conse
   ] as const) {
     await page.setViewportSize({ width: ancho, height: alto });
     await page.goto('/');
+    await esperarHidratacion(page);
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('#ley')).toBeAttached();
     await expect(page.locator('#galeria')).toBeAttached();

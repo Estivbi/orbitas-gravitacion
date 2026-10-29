@@ -9,8 +9,9 @@ import { TutorReducido } from './TutorReducido';
 export type MotivoReducido = 'sin-modelo' | 'cuota';
 
 const AVISOS: Record<MotivoReducido, string> = {
-  'sin-modelo': 'Modo reducido: sin modelo de lenguaje',
-  cuota: 'Límite de uso del modelo alcanzado: modo reducido',
+  'sin-modelo':
+    'El chat con inteligencia artificial no está activo ahora. Mientras tanto, practica con estas preguntas.',
+  cuota: 'Se ha alcanzado el límite de uso del tutor con IA. Seguimos con preguntas de práctica.',
 };
 
 /** Decide entre el chat con modelo y el modo reducido, y avisa de por qué se degradó. */
@@ -33,7 +34,7 @@ export function PanelTutor() {
 
   return (
     <div className="flex flex-col gap-4" data-modo-tutor={modo}>
-      <h3 className="text-titular-xs">Tutor</h3>
+      <h3 className="text-titular-xs">Ponte a prueba</h3>
       {modo === 'reducido' && <p className="text-saffron-spark">{AVISOS[motivo]}</p>}
       {modo === 'cargando' && <p className="text-silver-mist">Comprobando el tutor…</p>}
       {modo === 'modelo' && <TutorChat alReducido={pasarAReducido} />}

@@ -36,6 +36,14 @@ export async function esperarEstado(page: Page, estado: string, timeout = 45_000
   });
 }
 
+/** Espera a que React haya hidratado la sección `#ley`: antes, un `fill` se pierde al hidratar. */
+export async function esperarHidratacion(page: Page): Promise<void> {
+  await page.waitForFunction(() => {
+    const ley = document.querySelector('#ley');
+    return ley !== null && Object.keys(ley).some((clave) => clave.startsWith('__reactProps'));
+  });
+}
+
 export function esperarLista(page: Page): Promise<void> {
   return esperarEstado(page, 'lista');
 }

@@ -138,6 +138,7 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
         {lleno && <p className="text-silver-mist">{MENSAJE_LIMITE}</p>}
       </div>
       <form onSubmit={enviar} className="flex flex-col gap-2">
+        <p className="text-silver-mist">Pregúntame sobre la ley de gravitación y las órbitas</p>
         <label
           htmlFor={idEntrada}
           className="text-saffron-spark text-etiqueta font-semibold uppercase"

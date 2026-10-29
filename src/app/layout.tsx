@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import Link from 'next/link';
+import { Cabecera } from '@/components/comunes/Cabecera';
+import { Pie } from '@/components/comunes/Pie';
 import { resolverUrlSitio } from '@/lib/galeria/sitio';
 import { ProveedorAlmacen } from '@/store/ProveedorAlmacen';
 import './globals.css';
@@ -30,20 +31,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           Saltar al contenido
         </a>
-        <header className="mx-auto flex min-h-14 max-w-pagina items-center px-4">
-          <Link href="/" aria-label="Órbitas, inicio" className="flex min-h-8 items-center gap-2">
-            <svg width="20" height="19" viewBox="0 0 20 19" aria-hidden="true" focusable="false">
-              <polygon points="10,1 19,18 1,18" className="fill-electric-iris" />
-            </svg>
-            <span className="text-etiqueta font-semibold uppercase">Órbitas</span>
-          </Link>
-        </header>
+        <Cabecera />
         <main id="contenido" tabIndex={-1} className="outline-none">
           <ProveedorAlmacen>{children}</ProveedorAlmacen>
         </main>
-        <footer className="text-ash-gray text-etiqueta mx-auto max-w-pagina px-4 py-10 font-light">
-          Órbitas · la ley de Newton y el problema de los tres cuerpos, para ver y tocar.
-        </footer>
+        <Pie />
       </body>
     </html>
   );

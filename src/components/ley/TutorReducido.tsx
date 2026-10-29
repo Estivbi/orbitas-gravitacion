@@ -1,12 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { siguientePregunta, type PreguntaFija } from '@/lib/tutor/reducido';
+import { PREGUNTAS_FIJAS, siguientePregunta, type PreguntaFija } from '@/lib/tutor/reducido';
 import { useAlmacen, useAlmacenApi } from '@/store/ProveedorAlmacen';
 import { selectores } from '@/store/almacenInterfaz';
 
 export const CLASES_FANTASMA =
   'text-ash-gray hover:text-bone-white text-etiqueta min-h-8 cursor-pointer text-left font-semibold uppercase';
+
+const DIFICULTADES = { 1: 'básica', 2: 'media', 3: 'alta' } as const;
+
+/** «Pregunta 2 de 2 · Dificultad: media»; sin numeración si el nivel solo tiene una pregunta. */
+function etiquetaDe(pregunta: PreguntaFija): string {
+  const delNivel = PREGUNTAS_FIJAS.filter((p) => p.nivel === pregunta.nivel);
+  const dificultad = DIFICULTADES[pregunta.nivel];
+  if (delNivel.length < 2) return `Pregunta · Dificultad ${dificultad}`;
+  const posicion = delNivel.findIndex((p) => p.id === pregunta.id) + 1;
+  return `Pregunta ${posicion} de ${delNivel.length} · Dificultad: ${dificultad}`;
+}
 
 /** Preguntas y correcciones fijas, sin modelo: mismo almacén (ley y nivel) que el chat. */
 export function TutorReducido() {
@@ -38,7 +49,7 @@ export function TutorReducido() {
   return (
     <div className="flex max-w-90 flex-col gap-3">
       <p className="text-saffron-spark text-etiqueta font-semibold uppercase">
-        Predicción · Nivel <span data-testid="nivel">{nivel}</span>
+        <span data-testid="etiqueta-pregunta">{etiquetaDe(pregunta)}</span>
       </p>
       <p data-testid="pregunta">{pregunta.pregunta}</p>
       <ul className="flex flex-col">
