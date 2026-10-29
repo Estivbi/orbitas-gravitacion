@@ -21,15 +21,15 @@ Es también la primera página que usa el Worker de GRV-02 en un navegador, así
 
 Ramas: `feature/sistema-de-diseno-y-escena-3d` → `develop`. Salida de `git log --oneline develop..HEAD` (del más antiguo al más reciente), sin contar el commit que añade este documento.
 
-| Hash      | Commit                                                                                     |
-| --------- | ------------------------------------------------------------------------------------------ |
-| `a45f832` | `docs(GRV-03): redactar la spec del sistema de diseño y la escena 3D`                      |
-| `f91c38f` | `docs(GRV-03): corregir la spec tras la revisión y recortar el alcance`                    |
-| `1bc248e` | `docs(GRV-03): reponer en la spec el giro automático, el pellizco y la posición`           |
-| `fff0fcc` | `test(GRV-03): escribir los tests del sistema de diseño y la escena 3D`                    |
-| `622b666` | `test(GRV-03): reforzar los tests tras la revisión independiente`                          |
-| `377a619` | `feat(GRV-03): añadir el sistema de diseño y la escena 3D`                                 |
-| `2e20c15` | `build(GRV-03): prohibir también import() dinámico de three fuera de la escena`            |
+| Hash | Commit |
+|---|---|
+| `a45f832` | `docs(GRV-03): redactar la spec del sistema de diseño y la escena 3D` |
+| `f91c38f` | `docs(GRV-03): corregir la spec tras la revisión y recortar el alcance` |
+| `1bc248e` | `docs(GRV-03): reponer en la spec el giro automático, el pellizco y la posición` |
+| `fff0fcc` | `test(GRV-03): escribir los tests del sistema de diseño y la escena 3D` |
+| `622b666` | `test(GRV-03): reforzar los tests tras la revisión independiente` |
+| `377a619` | `feat(GRV-03): añadir el sistema de diseño y la escena 3D` |
+| `2e20c15` | `build(GRV-03): prohibir también import() dinámico de three fuera de la escena` |
 | `d333147` | `docs(GRV-03): documentar los tokens, la decisión de la escena y la propiedad de carpetas` |
 
 ## Qué se construyó
@@ -106,13 +106,13 @@ El orden fue spec → tests en rojo → revisión independiente de los tests →
 
 ### Qué se comprobó y qué huecos se cerraron
 
-- **El umbral de la miniatura.** `tests/unit/escena/miniatura.test.ts` reconstruye el diezmado por su cuenta (primer nodo, cada nodo que dista más de `radioMaximo / 25` del _último conservado_, y siempre el último nodo) y compara punto a punto con `trazarMiniatura`, con una tolerancia de redondeo de 0,0005. Así se distinguen un umbral distinto, medir contra el vecino original en lugar del último conservado y olvidar el último nodo. Además, las órbitas del catálogo son simétricas respecto al eje x, de modo que un `viewBox` calculado con la y sin invertir daría la misma caja y pasaría inadvertido: se añadió una trayectoria sintética asimétrica en y (`trayectoriaAsimetrica`) para comprobar la inversión y el `viewBox`. El test comprueba también el formato exacto del `d` con una expresión regular (comandos absolutos, como mucho tres decimales).
+- **El umbral de la miniatura.** `tests/unit/escena/miniatura.test.ts` reconstruye el diezmado por su cuenta (primer nodo, cada nodo que dista más de `radioMaximo / 25` del *último conservado*, y siempre el último nodo) y compara punto a punto con `trazarMiniatura`, con una tolerancia de redondeo de 0,0005. Así se distinguen un umbral distinto, medir contra el vecino original en lugar del último conservado y olvidar el último nodo. Además, las órbitas del catálogo son simétricas respecto al eje x, de modo que un `viewBox` calculado con la y sin invertir daría la misma caja y pasaría inadvertido: se añadió una trayectoria sintética asimétrica en y (`trayectoriaAsimetrica`) para comprobar la inversión y el `viewBox`. El test comprueba también el formato exacto del `d` con una expresión regular (comandos absolutos, como mucho tres decimales).
 - **Los sentidos de la cámara.** `tests/unit/escena/camara.test.ts` fija el signo de cada tecla (`ArrowLeft` −0,14 al acimut, `ArrowUp` −0,1 al polar, `+` y `=` con 0,88, `-` con 1,14) y el del arrastre (`dAcimut = −dx · 0,008`, `dPolar = −dy · 0,008`, un dx positivo resta). El E2E repite los mismos sentidos sobre el atributo `data-vista` con la escena real: flechas, `+`, `=`, `-`, arrastre del ratón y gestos táctiles. Con Ctrl, Alt o Meta pulsados no hay orden, y una flecha enviada después demuestra que las pulsaciones anteriores ya se procesaron.
 - **Las fronteras de la rejilla de estelas.** `tests/unit/escena/estela.test.ts` cubre los bordes con una trayectoria sintética de nodos en octavos, todos exactos en binario, para que la igualdad entre un nodo y `u` sea fiable. Comprueba que con `longitud = 1` hay `n` vértices si `u` cae en un nodo (también `u = 0`) y `n + 1` si no (también `1 − 1e-9`); que la ventana de marcas es `(inicio, fin]`, de modo que con `u = 0,5` y `longitud = 0,5` hay 120 marcas y la marca 0 no entra; que con `u = 0` y `longitud = 1` hay 240 y la última es el estado en 0; que las marcas no se mueven entre fotogramas mientras no salgan de la ventana; y que, al avanzar una celda (`1/240`), la ventana se desplaza exactamente una marca. Otras pruebas del mismo archivo fijan la envoltura sin repetir el último nodo ni dos vértices seguidos iguales, que un `u` fuera de `[0, 1)` equivale a su valor envuelto, el `RangeError` con longitudes y `u` inválidos, y que reutilizar el destino no cambia el resultado, tampoco al pasar de una ventana pequeña a una grande.
 - **Las envolturas de ángulos y fracciones.** Un incremento de −1e-17 desde 0 en el acimut (`camara.test.ts`) y `envolverPosicion(-1e-17)` (`reloj.test.ts`) no pueden dar nunca `2π` ni `1`.
 - **El reloj.** El recorte actúa sobre `dt`, no sobre el incremento: con velocidad 100 y periodo 10, el avance máximo sigue siendo el de 0,25 s.
 - **El campo ambiental.** Determinismo, cantidad exacta, rango de radios y de alfa, y dispersión (percentiles, ambos lados de cada eje, posiciones distintas y las cuatro entradas de la paleta), para que un generador que devolviera siempre lo mismo no pasara.
-- **Las comprobaciones negativas.** Cuando una prueba afirma que algo _no_ cambia («la posición no varía durante un segundo»), el propio test demuestra después, con un cambio que sí ocurre, que la página procesó lo anterior (`esperarAsentado` y las pulsaciones de comprobación de `escena.spec.ts`).
+- **Las comprobaciones negativas.** Cuando una prueba afirma que algo *no* cambia («la posición no varía durante un segundo»), el propio test demuestra después, con un cambio que sí ocurre, que la página procesó lo anterior (`esperarAsentado` y las pulsaciones de comprobación de `escena.spec.ts`).
 
 ### Cuándo se corrige un test
 
@@ -120,28 +120,28 @@ Un test solo se corrige con justificación y por escrito. El caso de este ticket
 
 ## Verificación
 
-| Criterio                          | Prueba                                                       |
-| --------------------------------- | ------------------------------------------------------------ |
-| 1 Tokens completos                | `tests/repo/sistemaDeDiseno.test.ts`                         |
-| 2 Fuente local                    | `tests/repo/sistemaDeDiseno.test.ts`                         |
-| 3 Texto en pantalla               | `tests/e2e/diseno.spec.ts`                                   |
-| 4 Estructura accesible            | `tests/e2e/diseno.spec.ts`                                   |
-| 5 Cámara                          | `tests/unit/escena/camara.test.ts`                           |
-| 6 Estelas                         | `tests/unit/escena/estela.test.ts`                           |
-| 7 Miniatura                       | `tests/unit/escena/miniatura.test.ts`                        |
-| 8 Campo ambiental                 | `tests/unit/escena/ambiente.test.ts`                         |
-| 9 Reloj de la órbita              | `tests/unit/escena/reloj.test.ts`                            |
-| 10 Miniatura desde el servidor    | `tests/e2e/diseno.spec.ts` (sin JavaScript)                  |
-| 11 three fuera del código inicial | `tests/e2e/diseno.spec.ts`                                   |
-| 12 La escena se dibuja            | `tests/e2e/escena.spec.ts` (también con movimiento reducido) |
-| 13 Control de la cámara           | `tests/e2e/escena.spec.ts`                                   |
-| 14 Animación                      | `tests/e2e/escena.spec.ts`                                   |
-| 15 Movimiento reducido            | `tests/e2e/escena.spec.ts`                                   |
-| 16 Pausa cuando no se ve          | `tests/e2e/escena.spec.ts` (pestaña oculta)                  |
-| 17 Estados alternativos           | `tests/e2e/escena-alternativas.spec.ts`                      |
-| 18 Lienzo estable                 | `tests/e2e/escena.spec.ts`                                   |
-| 19 Responsive                     | `tests/e2e/diseno.spec.ts` y `tests/e2e/escena.spec.ts`      |
-| 20 Giro automático                | `tests/e2e/escena.spec.ts`                                   |
+| Criterio | Prueba |
+|---|---|
+| 1 Tokens completos | `tests/repo/sistemaDeDiseno.test.ts` |
+| 2 Fuente local | `tests/repo/sistemaDeDiseno.test.ts` |
+| 3 Texto en pantalla | `tests/e2e/diseno.spec.ts` |
+| 4 Estructura accesible | `tests/e2e/diseno.spec.ts` |
+| 5 Cámara | `tests/unit/escena/camara.test.ts` |
+| 6 Estelas | `tests/unit/escena/estela.test.ts` |
+| 7 Miniatura | `tests/unit/escena/miniatura.test.ts` |
+| 8 Campo ambiental | `tests/unit/escena/ambiente.test.ts` |
+| 9 Reloj de la órbita | `tests/unit/escena/reloj.test.ts` |
+| 10 Miniatura desde el servidor | `tests/e2e/diseno.spec.ts` (sin JavaScript) |
+| 11 three fuera del código inicial | `tests/e2e/diseno.spec.ts` |
+| 12 La escena se dibuja | `tests/e2e/escena.spec.ts` (también con movimiento reducido) |
+| 13 Control de la cámara | `tests/e2e/escena.spec.ts` |
+| 14 Animación | `tests/e2e/escena.spec.ts` |
+| 15 Movimiento reducido | `tests/e2e/escena.spec.ts` |
+| 16 Pausa cuando no se ve | `tests/e2e/escena.spec.ts` (pestaña oculta) |
+| 17 Estados alternativos | `tests/e2e/escena-alternativas.spec.ts` |
+| 18 Lienzo estable | `tests/e2e/escena.spec.ts` |
+| 19 Responsive | `tests/e2e/diseno.spec.ts` y `tests/e2e/escena.spec.ts` |
+| 20 Giro automático | `tests/e2e/escena.spec.ts` |
 
 Las ayudas comunes de las pruebas de navegador (lectura de `data-*`, captura del lienzo con `pngjs`, cómputo de píxeles, simulación de un navegador sin WebGL2 y de un Worker mudo) están en `tests/e2e/ayudas.ts`. Los colores esperados se leen de `src/app/globals.css`, no se repiten en las pruebas.
 

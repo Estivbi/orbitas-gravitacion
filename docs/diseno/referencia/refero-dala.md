@@ -1,5 +1,4 @@
 # Your workplace has the answer. Just ask Dala for it. — Style Reference
-
 > constellation floating on black velvet
 
 **Theme:** dark
@@ -10,20 +9,19 @@ Dala operates as a dark-stage environment where black voids meet a single vivid 
 
 ## Tokens — Colors
 
-| Name          | Value     | Token                   | Role                                                                                                                                                      |
-| ------------- | --------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Void          | `#000000` | `--color-void`          | Page canvas, section backgrounds, negative space — pure black is the dominant surface, not dark gray, creating the void that lets chromatic accents float |
-| Bone White    | `#ffffff` | `--color-bone-white`    | Headlines, body text, icon fills, nav active state — the only typographic color, carrying maximum hierarchy on black                                      |
-| Ash Gray      | `#9a9a9a` | `--color-ash-gray`      | Muted nav text, ghost link color, secondary labels — recedes behind primary text without going invisible                                                  |
-| Silver Mist   | `#bdbdbd` | `--color-silver-mist`   | Tertiary body text, caption-level information — the quietest readable gray, for supporting context                                                        |
-| Electric Iris | `#8052ff` | `--color-electric-iris` | Primary action buttons, logo mark, brand accents — the single saturated violet that signals interactivity and brand identity against the black void       |
-| Saffron Spark | `#ffb829` | `--color-saffron-spark` | Highlight emphasis text, accent links, attention punctuation — warm yellow against violet creates the brand's chromatic tension                           |
-| Deep Verdant  | `#15846e` | `--color-deep-verdant`  | Secondary surface tint, logo gradient stop — appears as the deeper end of the brand gradient and in subtle accent washes                                  |
+| Name | Value | Token | Role |
+|------|-------|-------|------|
+| Void | `#000000` | `--color-void` | Page canvas, section backgrounds, negative space — pure black is the dominant surface, not dark gray, creating the void that lets chromatic accents float |
+| Bone White | `#ffffff` | `--color-bone-white` | Headlines, body text, icon fills, nav active state — the only typographic color, carrying maximum hierarchy on black |
+| Ash Gray | `#9a9a9a` | `--color-ash-gray` | Muted nav text, ghost link color, secondary labels — recedes behind primary text without going invisible |
+| Silver Mist | `#bdbdbd` | `--color-silver-mist` | Tertiary body text, caption-level information — the quietest readable gray, for supporting context |
+| Electric Iris | `#8052ff` | `--color-electric-iris` | Primary action buttons, logo mark, brand accents — the single saturated violet that signals interactivity and brand identity against the black void |
+| Saffron Spark | `#ffb829` | `--color-saffron-spark` | Highlight emphasis text, accent links, attention punctuation — warm yellow against violet creates the brand's chromatic tension |
+| Deep Verdant | `#15846e` | `--color-deep-verdant` | Secondary surface tint, logo gradient stop — appears as the deeper end of the brand gradient and in subtle accent washes |
 
 ## Tokens — Typography
 
 ### PPNeueMontreal — Single typeface across all UI contexts. Display sizes (78–113px) carry headlines at weight 400 with -0.04em tracking — the same weight as body text but massive scale creates hierarchy. Weight 200 (ultra-light) is reserved for 18px body copy, a signature choice: most AI/SaaS sites use 400 for body, but Dala strips weight to make paragraphs feel airy and non-aggressive. Weight 600 at 14px with 0.025em tracking and uppercase serves nav and small labels. The number 400 doing both 113px display and 15px body is unusual — it means the brand trusts scale, not weight, for hierarchy. · `--font-ppneuemontreal`
-
 - **Substitute:** Inter
 - **Weights:** 200, 400, 600, 700
 - **Sizes:** 12, 14, 15, 18, 24, 27, 36, 42, 48, 78, 113px
@@ -34,18 +32,18 @@ Dala operates as a dark-stage environment where black voids meet a single vivid 
 
 ### Type Scale
 
-| Role        | Family | Weight | Size  | Line Height | Letter Spacing | Token                |
-| ----------- | ------ | ------ | ----- | ----------- | -------------- | -------------------- |
-| caption     | —      | —      | 12px  | 1.5         | —              | `--text-caption`     |
-| nav-label   | —      | —      | 14px  | 1.2         | 0.35px         | `--text-nav-label`   |
-| body        | —      | —      | 18px  | 1.5         | —              | `--text-body`        |
-| heading-2xs | —      | —      | 24px  | 1.25        | -0.48px        | `--text-heading-2xs` |
-| heading-xs  | —      | —      | 27px  | 1           | —              | `--text-heading-xs`  |
-| subheading  | —      | —      | 36px  | 1.2         | —              | `--text-subheading`  |
-| heading-sm  | —      | —      | 42px  | 1.2         | -1.68px        | `--text-heading-sm`  |
-| heading     | —      | —      | 48px  | 1.1         | -1.68px        | `--text-heading`     |
-| heading-lg  | —      | —      | 78px  | 1.1         | -3.12px        | `--text-heading-lg`  |
-| display     | —      | —      | 113px | 1.1         | -4.52px        | `--text-display`     |
+| Role | Family | Weight | Size | Line Height | Letter Spacing | Token |
+|------|--------|--------|------|-------------|----------------|-------|
+| caption | — | — | 12px | 1.5 | — | `--text-caption` |
+| nav-label | — | — | 14px | 1.2 | 0.35px | `--text-nav-label` |
+| body | — | — | 18px | 1.5 | — | `--text-body` |
+| heading-2xs | — | — | 24px | 1.25 | -0.48px | `--text-heading-2xs` |
+| heading-xs | — | — | 27px | 1 | — | `--text-heading-xs` |
+| subheading | — | — | 36px | 1.2 | — | `--text-subheading` |
+| heading-sm | — | — | 42px | 1.2 | -1.68px | `--text-heading-sm` |
+| heading | — | — | 48px | 1.1 | -1.68px | `--text-heading` |
+| heading-lg | — | — | 78px | 1.1 | -3.12px | `--text-heading-lg` |
+| display | — | — | 113px | 1.1 | -4.52px | `--text-display` |
 
 ## Tokens — Spacing & Shapes
 
@@ -55,26 +53,26 @@ Dala operates as a dark-stage environment where black voids meet a single vivid 
 
 ### Spacing Scale
 
-| Name | Value | Token           |
-| ---- | ----- | --------------- |
-| 6    | 6px   | `--spacing-6`   |
-| 12   | 12px  | `--spacing-12`  |
-| 18   | 18px  | `--spacing-18`  |
-| 24   | 24px  | `--spacing-24`  |
-| 30   | 30px  | `--spacing-30`  |
-| 36   | 36px  | `--spacing-36`  |
-| 60   | 60px  | `--spacing-60`  |
-| 96   | 96px  | `--spacing-96`  |
-| 120  | 120px | `--spacing-120` |
+| Name | Value | Token |
+|------|-------|-------|
+| 6 | 6px | `--spacing-6` |
+| 12 | 12px | `--spacing-12` |
+| 18 | 18px | `--spacing-18` |
+| 24 | 24px | `--spacing-24` |
+| 30 | 30px | `--spacing-30` |
+| 36 | 36px | `--spacing-36` |
+| 60 | 60px | `--spacing-60` |
+| 96 | 96px | `--spacing-96` |
+| 120 | 120px | `--spacing-120` |
 
 ### Border Radius
 
-| Element | Value  |
-| ------- | ------ |
-| nav     | 24px   |
-| tags    | 9999px |
-| cards   | 24px   |
-| buttons | 24px   |
+| Element | Value |
+|---------|-------|
+| nav | 24px |
+| tags | 9999px |
+| cards | 24px |
+| buttons | 24px |
 
 ### Layout
 
@@ -86,55 +84,46 @@ Dala operates as a dark-stage environment where black voids meet a single vivid 
 ## Components
 
 ### Primary Action Button
-
 **Role:** Filled violet pill, the sole interactive CTA
 
 Background #8052ff (Electric Iris), white text, 22.5px border-radius (pill), 14.4px vertical padding × 15.96px horizontal padding. PPNeueMontreal 14px weight 400 or 600, uppercase with 0.025em tracking. The high radius (22.5px on ~45px height) creates a full pill shape — soft, friendly, unmistakable as the primary action.
 
 ### Ghost Text Button
-
 **Role:** Underlined or bare text link, secondary action
 
 No background, no border, color #ffffff or #9a9a9a. PPNeueMontreal 14px weight 400. Used for nav items and inline links. The absence of any container means visual hierarchy comes entirely from type weight and tracking.
 
 ### Logo Lockup
-
 **Role:** Brand mark + wordmark in header
 
 Small triangular icon in #8052ff (violet) with a gradient fade through #15846 (teal), paired with 'Dala' wordmark in white. The icon is a stylized angular fragment — geometric, sharp-edged, echoing the triangular particles in the hero visualization.
 
 ### Team Member Card
-
 **Role:** Portrait + name + role display
 
 No background, no border, no shadow. Large rounded-rectangle portrait photo (~24px corner radius) with role label in 12px uppercase #8052ff and name in large white display type below. Social icons (Twitter, LinkedIn) appear as small inline glyphs. Cards float on the black canvas with only whitespace separation.
 
 ### Carousel Navigation Dot
-
 **Role:** Indicator for slide position in team/investor carousels
 
 Small filled circle ~8px diameter, #8052ff violet for active state. Inactive dots are dimmer or omitted. Padding is minimal — sits directly in the content flow without a container.
 
 ### Hero Constellation Visualization
-
 **Role:** Signature brand imagery — brain-shape particle cloud
 
 Thousands of tiny triangular glyphs (outlined, 1-2px) in a full spectrum of vivid colors (violet, amber, teal, magenta, blue) forming an organic brain or cloud shape against pure black. Individual particles are scattered/ambient across the surrounding space as well. This is the site's defining visual — not a static image but an animated field of point-lights.
 
 ### Section Headline Block
-
 **Role:** Oversized left-aligned headline + supporting copy
 
 Two-column asymmetric layout: headline at 78–113px weight 400 PPNeueMontreal in white with -0.04em tracking, occupying left half. Body copy at 18px weight 200 (ultra-light) in white or silver, with a small uppercase label (#ffb829 amber) above the body. No boxes, no borders — pure typographic composition on black.
 
 ### Navigation Bar
-
 **Role:** Top-aligned site navigation
 
 Transparent background sitting directly on black canvas. Logo left, nav links center/right (Manifesto, Team, Blog) in 14px uppercase PPNeueMontreal with 0.025em tracking. Active or hover state: white. Inactive: #9a9a9a. Request Access button (filled violet pill) anchors the right edge. No border, no backdrop blur on the nav itself.
 
 ### Ambient Particle Field
-
 **Role:** Decorative scattered triangle glyphs
 
 Small outlined triangles in various chromatic colors (#8052ff violet, #ffb829 amber, #15846 teal, plus assorted purples and blues) scattered at low opacity across the background outside the main constellation. Creates atmospheric depth without competing with the central visualization.
@@ -142,7 +131,6 @@ Small outlined triangles in various chromatic colors (#8052ff violet, #ffb829 am
 ## Do's and Don'ts
 
 ### Do
-
 - Use #8052ff (Electric Iris) exclusively for filled action buttons — no other saturated color should appear as a button background
 - Set every headline at weight 400, never bold — Dala achieves hierarchy through scale (78–113px) and tracking (-0.04em), not font weight
 - Use PPNeueMontreal weight 200 for 18px body text — the ultra-light weight is a signature, do not substitute weight 400
@@ -152,7 +140,6 @@ Small outlined triangles in various chromatic colors (#8052ff violet, #ffb829 am
 - Let the particle constellation be the only hero imagery — do not introduce photography, illustrations, or product screenshots into the hero region
 
 ### Don't
-
 - Do not use filled violet (#8052ff) for large background blocks or full sections — it is a button and accent color, not a surface
 - Do not set body text at weight 400 — Dala's signature ultra-light (200) body copy is what distinguishes the reading experience
 - Do not introduce card containers with borders, shadows, or background fills — elements float on black with whitespace alone
@@ -163,11 +150,11 @@ Small outlined triangles in various chromatic colors (#8052ff violet, #ffb829 am
 
 ## Surfaces
 
-| Level | Name              | Value     | Purpose                                                            |
-| ----- | ----------------- | --------- | ------------------------------------------------------------------ |
-| 0     | Void Canvas       | `#000000` | Full-page background, all section backgrounds, the base void       |
-| 1     | Deep Verdant Tint | `#15846`  | Subtle accent surface for brand gradient and logo depth            |
-| 2     | Electric Iris     | `#8052ff` | Highest surface — filled buttons, active interactive elements only |
+| Level | Name | Value | Purpose |
+|-------|------|-------|---------|
+| 0 | Void Canvas | `#000000` | Full-page background, all section backgrounds, the base void |
+| 1 | Deep Verdant Tint | `#15846` | Subtle accent surface for brand gradient and logo depth |
+| 2 | Electric Iris | `#8052ff` | Highest surface — filled buttons, active interactive elements only |
 
 ## Elevation
 
@@ -184,7 +171,6 @@ Full-bleed sections on pure black canvas, max content width ~1280px centered. He
 ## Agent Prompt Guide
 
 ## Quick Color Reference
-
 - Text: #ffffff (primary), #9a9a9a (secondary), #bdbdbd (tertiary)
 - Background: #000000 (canvas only)
 - Border: none — Dala uses no visible borders or dividers
@@ -226,9 +212,7 @@ Full-bleed sections on pure black canvas, max content width ~1280px centered. He
   --color-deep-verdant: #15846e;
 
   /* Typography — Font Families */
-  --font-ppneuemontreal:
-    'PPNeueMontreal', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, sans-serif;
+  --font-ppneuemontreal: 'PPNeueMontreal', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
   --text-caption: 12px;
@@ -313,9 +297,7 @@ Full-bleed sections on pure black canvas, max content width ~1280px centered. He
   --color-deep-verdant: #15846e;
 
   /* Typography */
-  --font-ppneuemontreal:
-    'PPNeueMontreal', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, sans-serif;
+  --font-ppneuemontreal: 'PPNeueMontreal', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
   --text-caption: 12px;

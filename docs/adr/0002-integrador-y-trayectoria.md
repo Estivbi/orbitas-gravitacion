@@ -8,14 +8,14 @@ El motor tiene que calcular las seis órbitas con precisión controlada y servir
 
 ## Opciones
 
-| Opción                                                      | Valoración                                                                                                                                                                                                                                                             |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 720 muestras uniformes por periodo e interpolación lineal   | Es lo que proponía el planteamiento inicial. Error de posición entre muestras de hasta 4,2e-2, del orden de la propia distancia mínima. La «distancia mínima» de la telemetría saldría hasta siete veces mayor que la real                                             |
-| 2880 muestras uniformes e interpolación de Hermite          | Mejora, pero no basta: hasta 2,5e-3 en Yin-Yang I. El error se concentra en los encuentros y una rejilla uniforme no puede adaptarse                                                                                                                                   |
-| **Pasos adaptativos como nodos e interpolación de Hermite** | Elegida. Los nodos son densos justo donde hace falta. Error ≤ 2,2e-7 en las seis                                                                                                                                                                                       |
-| Dormand–Prince 5(4) con salida densa                        | Más eficiente (unas 6 evaluaciones de fuerza por paso frente a 12 de la duplicación: 4 por cada una de las 3 integraciones de RK4) y trae interpolación de cuarto orden. Más código, y con menos de 10 000 nodos y pocos milisegundos por órbita el ahorro no compensa |
-| Integrador simpléctico de paso fijo                         | Conserva bien la energía a largo plazo, pero un paso fijo no resuelve los encuentros cercanos                                                                                                                                                                          |
-| Regularización de Kustaanheimo–Stiefel                      | Pensada para colisiones. Innecesaria con distancias de al menos 0,011                                                                                                                                                                                                  |
+| Opción | Valoración |
+|---|---|
+| 720 muestras uniformes por periodo e interpolación lineal | Es lo que proponía el planteamiento inicial. Error de posición entre muestras de hasta 4,2e-2, del orden de la propia distancia mínima. La «distancia mínima» de la telemetría saldría hasta siete veces mayor que la real |
+| 2880 muestras uniformes e interpolación de Hermite | Mejora, pero no basta: hasta 2,5e-3 en Yin-Yang I. El error se concentra en los encuentros y una rejilla uniforme no puede adaptarse |
+| **Pasos adaptativos como nodos e interpolación de Hermite** | Elegida. Los nodos son densos justo donde hace falta. Error ≤ 2,2e-7 en las seis |
+| Dormand–Prince 5(4) con salida densa | Más eficiente (unas 6 evaluaciones de fuerza por paso frente a 12 de la duplicación: 4 por cada una de las 3 integraciones de RK4) y trae interpolación de cuarto orden. Más código, y con menos de 10 000 nodos y pocos milisegundos por órbita el ahorro no compensa |
+| Integrador simpléctico de paso fijo | Conserva bien la energía a largo plazo, pero un paso fijo no resuelve los encuentros cercanos |
+| Regularización de Kustaanheimo–Stiefel | Pensada para colisiones. Innecesaria con distancias de al menos 0,011 |
 
 ## Decisión
 
@@ -28,14 +28,14 @@ El motor tiene que calcular las seis órbitas con precisión controlada y servir
 
 `npm run medir:fisica` reproduce estas cifras con una reimplementación separada de `src/lib/fisica`: comparte el algoritmo pero no el código, así que detecta errores de implementación, no de diseño. El error de interpolación de las velocidades (≤ 1,1e-4) no lo mide el script, sino el criterio 10 de la spec.
 
-| Órbita         | 720 uniformes + lineal | 2880 uniformes + Hermite | Pasos adaptativos + Hermite |
-| -------------- | ---------------------- | ------------------------ | --------------------------- |
-| Lagrange       | 9,5e-6                 | 9,7e-13                  | 5,6e-11                     |
-| Figura de ocho | 2,1e-5                 | 2,6e-12                  | 2,2e-9                      |
-| Butterfly I    | 1,6e-2                 | 8,1e-4                   | 7,3e-8                      |
-| Goggles        | 2,2e-2                 | 7,0e-4                   | 2,2e-7                      |
-| Moth I         | 6,9e-3                 | 4,2e-6                   | 2,3e-8                      |
-| Yin-Yang I     | 4,2e-2                 | 2,5e-3                   | 2,2e-7                      |
+| Órbita | 720 uniformes + lineal | 2880 uniformes + Hermite | Pasos adaptativos + Hermite |
+|---|---|---|---|
+| Lagrange | 9,5e-6 | 9,7e-13 | 5,6e-11 |
+| Figura de ocho | 2,1e-5 | 2,6e-12 | 2,2e-9 |
+| Butterfly I | 1,6e-2 | 8,1e-4 | 7,3e-8 |
+| Goggles | 2,2e-2 | 7,0e-4 | 2,2e-7 |
+| Moth I | 6,9e-3 | 4,2e-6 | 2,3e-8 |
+| Yin-Yang I | 4,2e-2 | 2,5e-3 | 2,2e-7 |
 
 Error máximo de posición entre muestras frente a una referencia de tolerancia 1e-13. La velocidad se interpola con error ≤ 1,1e-4. Las seis órbitas necesitan entre 724 y 9034 nodos (≈ 1 MB como máximo) y se integran en unos pocos milisegundos.
 

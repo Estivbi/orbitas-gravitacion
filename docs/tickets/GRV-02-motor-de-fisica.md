@@ -38,35 +38,35 @@ Además, reglas de ESLint que aíslan `src/lib/` y el Worker, y `scripts/medir-f
   - En los nodos, la velocidad coincide con una tolerancia de 1e-9 y no de 1e-12: `u·T` no recupera `tiempos[i]` exactamente (error de ~1e-15) y en los encuentros la velocidad cambia hasta ~10⁴ por unidad de tiempo. La posición sí coincide a 1,5e-14.
   - Los extremos de Lagrange son valores integrados, con 2e-11 de diferencia respecto a los analíticos, así que la tolerancia es 1e-9.
 - **Recorte del criterio de aislamiento.** La spec tenía un test dedicado para las reglas de ESLint. La persona responsable del proyecto aprobó expresamente quitarlo para acotar el alcance. Las reglas quedan en `eslint.config.mjs` y las vigila el lint del CI.
-- **Reglas de aislamiento endurecidas tras la revisión.** La primera versión usaba una lista de prohibiciones y tenía huecos (alias de la aplicación, más globales del navegador, `import()` dinámico, y no cubría el protocolo ni el cliente). Una revisión mostró que una `regex` con _lookahead_ negativo permite una lista blanca de verdad, que es lo que usan ahora el Worker, su protocolo y su cliente. Se comprobaron a mano 41 casos, sin test dedicado.
+- **Reglas de aislamiento endurecidas tras la revisión.** La primera versión usaba una lista de prohibiciones y tenía huecos (alias de la aplicación, más globales del navegador, `import()` dinámico, y no cubría el protocolo ni el cliente). Una revisión mostró que una `regex` con *lookahead* negativo permite una lista blanca de verdad, que es lo que usan ahora el Worker, su protocolo y su cliente. Se comprobaron a mano 41 casos, sin test dedicado.
 - **Revisión independiente del código.** Encontró y se corrigió: un Worker que fallaba seguía en uso aunque ya no respondía (ahora se descarta y se crea otro), una petición que quedaba pendiente si no se podía crear el Worker, una envoltura de `u` que daba el final del periodo para valores negativos minúsculos y una salida de tamaño incorrecto aceptada sin aviso. Y varias pruebas que no habrían detectado un fallo: se añadieron para el tope de intentos, la tolerancia, los bordes del índice y los fallos del cliente. Esas correcciones se hicieron en un commit aparte del código original, con sus pruebas.
 - **Tolerancias cambiadas en el mismo commit que el código.** Las dos tolerancias de la spec que se corrigieron (velocidad en los nodos y extremos de Lagrange) se cambiaron al implementar, no antes. Es lo que el método intenta evitar; queda dicho aquí con la razón.
 - **Revisión independiente de la spec.** Detectó cuatro errores de la primera versión (el periodo de Lagrange, la estabilidad, un bucle infinito posible con valores no finitos y un criterio imposible de cumplir con exactitud) y varios criterios que faltaban. Todos se incorporaron.
 
 ## Verificación
 
-| Criterio                           | Prueba                                                                           |
-| ---------------------------------- | -------------------------------------------------------------------------------- |
-| 1 Catálogo                         | `tests/unit/fisica/catalogo.test.ts`                                             |
-| 2 Convención de estado             | `tests/unit/fisica/catalogo.test.ts`                                             |
-| 3 Datos de la tabla                | `tests/unit/fisica/catalogo.test.ts`                                             |
-| 4 Momento lineal                   | `tests/unit/fisica/conservacion.test.ts`                                         |
-| 5 Energía                          | `tests/unit/fisica/conservacion.test.ts`                                         |
-| 6 Momento angular                  | `tests/unit/fisica/conservacion.test.ts`                                         |
-| 7 Cierre                           | `tests/unit/fisica/conservacion.test.ts`                                         |
-| 8 Determinismo                     | `tests/unit/fisica/conservacion.test.ts`                                         |
-| 9 Estructura de la trayectoria     | `tests/unit/fisica/trayectoria.test.ts`                                          |
-| 10 Interpolación                   | `tests/unit/fisica/interpolacion.test.ts`                                        |
-| 11 Envoltura, muestreo e índice    | `tests/unit/fisica/interpolacion.test.ts`                                        |
-| 12 Métricas                        | `tests/unit/fisica/metricas.test.ts`                                             |
-| 13 Extremos de la trayectoria      | `tests/unit/fisica/metricas.test.ts`                                             |
-| 14 Contraste con la literatura     | `tests/unit/fisica/literatura.test.ts`                                           |
-| 15 Entradas inválidas              | `tests/unit/fisica/errores.test.ts`                                              |
-| 16 Protocolo del Worker            | `tests/unit/workers/protocolo.test.ts`                                           |
-| 17 Cliente del Worker              | `tests/unit/workers/clienteFisica.test.ts`                                       |
-| 18 Coste razonable                 | `tests/unit/fisica/trayectoria.test.ts`                                          |
-| 19 La tolerancia gobierna el error | `tests/unit/fisica/tolerancia.test.ts`                                           |
-| Bordes (11 y 15)                   | `tests/unit/fisica/bordes.test.ts`, `tests/unit/workers/protocoloFallos.test.ts` |
+| Criterio | Prueba |
+|---|---|
+| 1 Catálogo | `tests/unit/fisica/catalogo.test.ts` |
+| 2 Convención de estado | `tests/unit/fisica/catalogo.test.ts` |
+| 3 Datos de la tabla | `tests/unit/fisica/catalogo.test.ts` |
+| 4 Momento lineal | `tests/unit/fisica/conservacion.test.ts` |
+| 5 Energía | `tests/unit/fisica/conservacion.test.ts` |
+| 6 Momento angular | `tests/unit/fisica/conservacion.test.ts` |
+| 7 Cierre | `tests/unit/fisica/conservacion.test.ts` |
+| 8 Determinismo | `tests/unit/fisica/conservacion.test.ts` |
+| 9 Estructura de la trayectoria | `tests/unit/fisica/trayectoria.test.ts` |
+| 10 Interpolación | `tests/unit/fisica/interpolacion.test.ts` |
+| 11 Envoltura, muestreo e índice | `tests/unit/fisica/interpolacion.test.ts` |
+| 12 Métricas | `tests/unit/fisica/metricas.test.ts` |
+| 13 Extremos de la trayectoria | `tests/unit/fisica/metricas.test.ts` |
+| 14 Contraste con la literatura | `tests/unit/fisica/literatura.test.ts` |
+| 15 Entradas inválidas | `tests/unit/fisica/errores.test.ts` |
+| 16 Protocolo del Worker | `tests/unit/workers/protocolo.test.ts` |
+| 17 Cliente del Worker | `tests/unit/workers/clienteFisica.test.ts` |
+| 18 Coste razonable | `tests/unit/fisica/trayectoria.test.ts` |
+| 19 La tolerancia gobierna el error | `tests/unit/fisica/tolerancia.test.ts` |
+| Bordes (11 y 15) | `tests/unit/fisica/bordes.test.ts`, `tests/unit/workers/protocoloFallos.test.ts` |
 
 Las pruebas de física calculan la energía y los momentos con fórmulas propias, independientes de la librería.
 

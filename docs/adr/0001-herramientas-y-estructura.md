@@ -8,17 +8,17 @@ El proyecto tiene que arrancar con un esqueleto que compile, se pruebe solo y de
 
 ## Decisiones
 
-| Tema       | Decisión                                                                                                                     | Opciones descartadas             | Coste                                                                                                                                                                       |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework  | Next.js 16.4 (App Router) con React 19                                                                                       | Vite con React                   | Lo exige el enunciado                                                                                                                                                       |
-| TypeScript | **6.0.3**, con `strict` y `noUncheckedIndexedAccess`                                                                         | La 7.0.2 (la última publicada)   | `tsc` 7 funcionaba con Next, pero `typescript-eslint` declara soporte solo hasta `<6.1.0` y el linter fallaba al arrancar. Se revisa cuando `typescript-eslint` admita la 7 |
-| Linter     | ESLint 9 con `eslint-config-next`                                                                                            | ESLint 10                        | npm resuelve la 9 por los pares de `eslint-config-next`; no se fuerza la 10                                                                                                 |
-| Estilos    | Tailwind CSS v4 con `@tailwindcss/postcss`; tokens en `@theme` de `src/app/globals.css`                                      | CSS Modules con variables CSS    | Una dependencia más; las maquetas en CSS plano se reescriben en clases; los valores sueltos tipo `bg-[#...]` quedan prohibidos por la regla de tokens                       |
-| Pruebas    | Vitest 5 (unitarias e invariantes del repositorio) y Playwright (E2E)                                                        | Jest                             | Playwright necesita descargar un navegador en CI                                                                                                                            |
-| Gestor     | npm con `package-lock.json`                                                                                                  | pnpm                             | Instalaciones algo más lentas                                                                                                                                               |
-| Node       | 22 (LTS), fijado en `.nvmrc` y en `engines`                                                                                  | Node 20                          | Local, CI y Docker usan la misma versión                                                                                                                                    |
-| Estructura | Todo el código bajo `src/` (`app/`, `components/`, `lib/`, `workers/`, `store/`)                                             | Código en la raíz                | Una carpeta más                                                                                                                                                             |
-| CI         | Un workflow con jobs por tipo de comprobación: calidad (lint, tipos, formato y tests), compilación, E2E y formato de commits | Un único job; un job por comando | Más minutos de CI, aceptables en un repositorio público                                                                                                                     |
+| Tema | Decisión | Opciones descartadas | Coste |
+|---|---|---|---|
+| Framework | Next.js 16.4 (App Router) con React 19 | Vite con React | Lo exige el enunciado |
+| TypeScript | **6.0.3**, con `strict` y `noUncheckedIndexedAccess` | La 7.0.2 (la última publicada) | `tsc` 7 funcionaba con Next, pero `typescript-eslint` declara soporte solo hasta `<6.1.0` y el linter fallaba al arrancar. Se revisa cuando `typescript-eslint` admita la 7 |
+| Linter | ESLint 9 con `eslint-config-next` | ESLint 10 | npm resuelve la 9 por los pares de `eslint-config-next`; no se fuerza la 10 |
+| Estilos | Tailwind CSS v4 con `@tailwindcss/postcss`; tokens en `@theme` de `src/app/globals.css` | CSS Modules con variables CSS | Una dependencia más; las maquetas en CSS plano se reescriben en clases; los valores sueltos tipo `bg-[#...]` quedan prohibidos por la regla de tokens |
+| Pruebas | Vitest 5 (unitarias e invariantes del repositorio) y Playwright (E2E) | Jest | Playwright necesita descargar un navegador en CI |
+| Gestor | npm con `package-lock.json` | pnpm | Instalaciones algo más lentas |
+| Node | 22 (LTS), fijado en `.nvmrc` y en `engines` | Node 20 | Local, CI y Docker usan la misma versión |
+| Estructura | Todo el código bajo `src/` (`app/`, `components/`, `lib/`, `workers/`, `store/`) | Código en la raíz | Una carpeta más |
+| CI | Un workflow con jobs por tipo de comprobación: calidad (lint, tipos, formato y tests), compilación, E2E y formato de commits | Un único job; un job por comando | Más minutos de CI, aceptables en un repositorio público |
 
 ## Consecuencias
 

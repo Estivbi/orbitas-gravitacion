@@ -23,31 +23,31 @@ Motor de física, escena 3D, escala tipográfica, fuentes y estilos de component
 
 ## Decisiones propuestas (a confirmar al aprobar)
 
-| Tema           | Propuesta                                                                                                                                                                                             | Razón y coste                                                                                                                                                                                                                                                                  |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Versiones      | Las que instale `create-next-app` hoy (Next 16.4.x, React 19.x) y se fijan en `package-lock.json`                                                                                                     | Evita saltos de versión durante la semana. Obliga a no actualizar a mitad de proyecto                                                                                                                                                                                          |
-| TypeScript     | La versión que `create-next-app` instale. Si Next 16 no compila con TypeScript 7, se fija la última 5.x                                                                                               | TypeScript 7 es muy reciente y Next declara compatibilidad con `>=3.3.1`, sin garantía real. Se comprueba con `npm run build` y `npm run typecheck` antes de decidir                                                                                                           |
-| Estilos        | Tailwind CSS v4 con `@tailwindcss/postcss` (4.3.x). Los tokens viven en un único bloque `@theme` de `src/app/globals.css`. Los componentes usan clases utilitarias; CSS propio solo para SVG y escena | Es el formato en que viene la referencia de estilo y acelera los componentes. Coste: una dependencia más, las maquetas en CSS plano hay que reescribirlas en clases y los valores sueltos tipo `bg-[#8052ff]` quedan prohibidos por la regla de tokens (lo vigila la revisión) |
-| Estructura     | Carpeta `src/`: `app/`, `components/`, `lib/` (con `lib/fisica` en GRV-02), `store/`                                                                                                                  | Una sola raíz de código y separación clara entre dominio e interfaz                                                                                                                                                                                                            |
-| Node           | 22 (LTS), fijado en `.nvmrc` y en `engines`                                                                                                                                                           | CI, Docker y local usan la misma versión                                                                                                                                                                                                                                       |
-| Rigor de tipos | `strict: true` y `noUncheckedIndexedAccess: true`                                                                                                                                                     | Los arrays de estado de la física (`Float64Array`) se benefician de índices comprobados. Algo más de código defensivo                                                                                                                                                          |
-| CI             | Un único workflow `ci.yml` con jobs por tipo de comprobación: calidad, compilación, E2E y formato de commits. El E2E entra ya en este ticket                                                          | Los fallos se leen rápido y el E2E confirma Tailwind. Más minutos de CI, aceptable en un repositorio público                                                                                                                                                                   |
+| Tema | Propuesta | Razón y coste |
+|---|---|---|
+| Versiones | Las que instale `create-next-app` hoy (Next 16.4.x, React 19.x) y se fijan en `package-lock.json` | Evita saltos de versión durante la semana. Obliga a no actualizar a mitad de proyecto |
+| TypeScript | La versión que `create-next-app` instale. Si Next 16 no compila con TypeScript 7, se fija la última 5.x | TypeScript 7 es muy reciente y Next declara compatibilidad con `>=3.3.1`, sin garantía real. Se comprueba con `npm run build` y `npm run typecheck` antes de decidir |
+| Estilos | Tailwind CSS v4 con `@tailwindcss/postcss` (4.3.x). Los tokens viven en un único bloque `@theme` de `src/app/globals.css`. Los componentes usan clases utilitarias; CSS propio solo para SVG y escena | Es el formato en que viene la referencia de estilo y acelera los componentes. Coste: una dependencia más, las maquetas en CSS plano hay que reescribirlas en clases y los valores sueltos tipo `bg-[#8052ff]` quedan prohibidos por la regla de tokens (lo vigila la revisión) |
+| Estructura | Carpeta `src/`: `app/`, `components/`, `lib/` (con `lib/fisica` en GRV-02), `store/` | Una sola raíz de código y separación clara entre dominio e interfaz |
+| Node | 22 (LTS), fijado en `.nvmrc` y en `engines` | CI, Docker y local usan la misma versión |
+| Rigor de tipos | `strict: true` y `noUncheckedIndexedAccess: true` | Los arrays de estado de la física (`Float64Array`) se benefician de índices comprobados. Algo más de código defensivo |
+| CI | Un único workflow `ci.yml` con jobs por tipo de comprobación: calidad, compilación, E2E y formato de commits. El E2E entra ya en este ticket | Los fallos se leen rápido y el E2E confirma Tailwind. Más minutos de CI, aceptable en un repositorio público |
 
 ## Contratos
 
 **Scripts npm** (todos sin argumentos obligatorios):
 
-| Script                    | Hace                                                                                         |
-| ------------------------- | -------------------------------------------------------------------------------------------- |
-| `dev`                     | Servidor de desarrollo                                                                       |
-| `build`                   | Compilación de producción                                                                    |
-| `start`                   | Sirve la compilación                                                                         |
-| `lint`                    | ESLint, sin avisos permitidos                                                                |
-| `format` / `format:check` | Prettier (escribe / solo comprueba)                                                          |
-| `typecheck`               | `tsc --noEmit`                                                                               |
-| `test`                    | Vitest, una pasada                                                                           |
-| `test:e2e`                | Playwright                                                                                   |
-| `comprobar:commits`       | Falla si algún commit del rango no sigue Conventional Commits en español con ticket `GRV-xx` |
+| Script | Hace |
+|---|---|
+| `dev` | Servidor de desarrollo |
+| `build` | Compilación de producción |
+| `start` | Sirve la compilación |
+| `lint` | ESLint, sin avisos permitidos |
+| `format` / `format:check` | Prettier (escribe / solo comprueba) |
+| `typecheck` | `tsc --noEmit` |
+| `test` | Vitest, una pasada |
+| `test:e2e` | Playwright |
+| `comprobar:commits` | Falla si algún commit del rango no sigue Conventional Commits en español con ticket `GRV-xx` |
 
 **Estructura inicial** (solo carpetas con contenido):
 
@@ -66,19 +66,19 @@ docs/               specs/, adr/, estado.md, diseno/referencia/
 
 Cada uno tiene su prueba. Las de repositorio viven en `tests/repo/` y se escriben en rojo antes de crear el proyecto.
 
-1. **Compila.** Dado un clon limpio, cuando se ejecuta `npm ci` y `npm run build`, entonces ambos terminan sin error. _(CI)_
-2. **Tipado estricto.** Dado `tsconfig.json`, cuando se lee, entonces `strict` y `noUncheckedIndexedAccess` son `true`. _(Vitest)_
-3. **Solo npm.** Dado el repositorio, cuando se listan los archivos versionados, entonces existe `package-lock.json` y no existen `yarn.lock` ni `pnpm-lock.yaml`. _(Vitest)_
-4. **Calidad automatizada.** Dado el código base, cuando se ejecutan `npm run lint`, `npm run typecheck` y `npm run format:check`, entonces los tres pasan. _(CI)_
-5. **Prueba de humo unitaria.** Dado el proyecto, cuando se ejecuta `npm test`, entonces Vitest ejecuta al menos una prueba de la aplicación y todas pasan. _(Vitest)_
-6. **Prueba de humo E2E.** Dada la aplicación en marcha, cuando Playwright abre `/`, entonces la página responde 200, `<html lang="es">`, hay un `h1` visible y el fondo calculado del `body` es `rgb(0, 0, 0)`, y una clase utilitaria con token resuelve a su color (la etiqueta, a `rgb(255, 184, 41)`), lo que comprueba que Tailwind y los tokens están conectados. _(Playwright)_
-7. **CI en cada PR.** Dado un PR hacia `develop` o `main`, cuando se abre o se actualiza, entonces se ejecutan lint, tipos, tests, build y `comprobar:commits`, y la PR muestra su resultado. _(se comprueba en el propio PR de GRV-01)_
-8. **Formato de commits.** Dado el rango de commits de un PR, cuando se ejecuta `npm run comprobar:commits`, entonces todos siguen Conventional Commits en español con ticket `GRV-xx`; un rango vacío se informa como «0 commits» y un rango inexistente da un error legible. _(script, con su prueba unitaria en `tests/repo/`)_
-9. **Privado fuera del repo.** Dado el repositorio, cuando se listan los archivos versionados, entonces ninguno está bajo `docs/privado/` y `.gitignore` contiene esa ruta. _(Vitest)_
-10. **Sin placeholders.** Dados `AGENTS.md` y `DESIGN.md`, cuando se leen, entonces no contienen `{{`, y los colores de `DESIGN.md` coinciden con los de `@theme`. _(Vitest)_
-11. **Entorno documentado.** Dado `.env.example`, cuando se lee, entonces contiene los tres nombres de variable, ningún valor parece una clave real y `.env` está ignorado. _(Vitest)_
-12. **Documentación mínima.** Dado el repositorio, cuando se listan sus archivos, entonces existen `README.md` (qué es y cómo ejecutarlo en local), `docs/estado.md` y `docs/adr/0001-herramientas-y-estructura.md`. _(Vitest)_
-13. **Neutralidad.** Dados los archivos versionados fuera de `docs/diseno/referencia/`, cuando se buscan los términos de la lista de privacidad del proyecto, entonces no aparece ninguno. _(revisión del `pr-reviewer` con `git grep`; la lista vive en `docs/privado/`, no en el repositorio)_
+1. **Compila.** Dado un clon limpio, cuando se ejecuta `npm ci` y `npm run build`, entonces ambos terminan sin error. *(CI)*
+2. **Tipado estricto.** Dado `tsconfig.json`, cuando se lee, entonces `strict` y `noUncheckedIndexedAccess` son `true`. *(Vitest)*
+3. **Solo npm.** Dado el repositorio, cuando se listan los archivos versionados, entonces existe `package-lock.json` y no existen `yarn.lock` ni `pnpm-lock.yaml`. *(Vitest)*
+4. **Calidad automatizada.** Dado el código base, cuando se ejecutan `npm run lint`, `npm run typecheck` y `npm run format:check`, entonces los tres pasan. *(CI)*
+5. **Prueba de humo unitaria.** Dado el proyecto, cuando se ejecuta `npm test`, entonces Vitest ejecuta al menos una prueba de la aplicación y todas pasan. *(Vitest)*
+6. **Prueba de humo E2E.** Dada la aplicación en marcha, cuando Playwright abre `/`, entonces la página responde 200, `<html lang="es">`, hay un `h1` visible y el fondo calculado del `body` es `rgb(0, 0, 0)`, y una clase utilitaria con token resuelve a su color (la etiqueta, a `rgb(255, 184, 41)`), lo que comprueba que Tailwind y los tokens están conectados. *(Playwright)*
+7. **CI en cada PR.** Dado un PR hacia `develop` o `main`, cuando se abre o se actualiza, entonces se ejecutan lint, tipos, tests, build y `comprobar:commits`, y la PR muestra su resultado. *(se comprueba en el propio PR de GRV-01)*
+8. **Formato de commits.** Dado el rango de commits de un PR, cuando se ejecuta `npm run comprobar:commits`, entonces todos siguen Conventional Commits en español con ticket `GRV-xx`; un rango vacío se informa como «0 commits» y un rango inexistente da un error legible. *(script, con su prueba unitaria en `tests/repo/`)*
+9. **Privado fuera del repo.** Dado el repositorio, cuando se listan los archivos versionados, entonces ninguno está bajo `docs/privado/` y `.gitignore` contiene esa ruta. *(Vitest)*
+10. **Sin placeholders.** Dados `AGENTS.md` y `DESIGN.md`, cuando se leen, entonces no contienen `{{`, y los colores de `DESIGN.md` coinciden con los de `@theme`. *(Vitest)*
+11. **Entorno documentado.** Dado `.env.example`, cuando se lee, entonces contiene los tres nombres de variable, ningún valor parece una clave real y `.env` está ignorado. *(Vitest)*
+12. **Documentación mínima.** Dado el repositorio, cuando se listan sus archivos, entonces existen `README.md` (qué es y cómo ejecutarlo en local), `docs/estado.md` y `docs/adr/0001-herramientas-y-estructura.md`. *(Vitest)*
+13. **Neutralidad.** Dados los archivos versionados fuera de `docs/diseno/referencia/`, cuando se buscan los términos de la lista de privacidad del proyecto, entonces no aparece ninguno. *(revisión del `pr-reviewer` con `git grep`; la lista vive en `docs/privado/`, no en el repositorio)*
 
 ## Orden de trabajo
 

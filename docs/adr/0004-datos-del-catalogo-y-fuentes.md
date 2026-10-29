@@ -8,14 +8,14 @@ Los datos de partida de las seis órbitas se recogieron de memoria y hay que con
 
 ## Decisión y contraste
 
-| Órbita         | Datos usados                                                                               | Fuente y contraste                                                                                                                                                                                                                                               |
-| -------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lagrange       | Radio 1 a 90°, 210° y 330°; velocidad tangencial `3^(−1/4)`; `T = 2π · 3^(1/4) = 8,269137` | Solución analítica. El valor 8,2689 que circula es una aproximación menos precisa; el cierre con el valor exacto es de 5,4e-11                                                                                                                                   |
-| Figura de ocho | `v = (0,34711689; 0,53272494)`, `T = 6,32591398`, `E = −1,287142`                          | Derivada de los valores de Chenciner y Montgomery (_Ann. Math._ 152, 2000, 881–901, a partir de los cálculos de Simó), girados a nuestra convención. Los valores coinciden con la leyenda de la Figura 1 del artículo, verificada contra su PDF. Véase más abajo |
-| Butterfly I    | `(0,30689; 0,12551)`, `T = 6,2356`                                                         | Tabla I de Šuvakov y Dmitrašinović (_Phys. Rev. Lett._ 110, 114301, 2013), fila I.A.1. Coincide con el PDF del artículo                                                                                                                                          |
-| Goggles        | `(0,08330; 0,12789)`, `T = 10,4668`                                                        | Tabla I, fila I.B.5. Coincide                                                                                                                                                                                                                                    |
-| Moth I         | `(0,46444; 0,39606)`, `T = 14,8939`                                                        | Tabla I, fila I.B.1. Coincide                                                                                                                                                                                                                                    |
-| Yin-Yang I     | `(0,51394; 0,30474)`, `T = 17,3284`                                                        | Tabla I, fila II.C.2a (variante a). Coincide                                                                                                                                                                                                                     |
+| Órbita | Datos usados | Fuente y contraste |
+|---|---|---|
+| Lagrange | Radio 1 a 90°, 210° y 330°; velocidad tangencial `3^(−1/4)`; `T = 2π · 3^(1/4) = 8,269137` | Solución analítica. El valor 8,2689 que circula es una aproximación menos precisa; el cierre con el valor exacto es de 5,4e-11 |
+| Figura de ocho | `v = (0,34711689; 0,53272494)`, `T = 6,32591398`, `E = −1,287142` | Derivada de los valores de Chenciner y Montgomery (*Ann. Math.* 152, 2000, 881–901, a partir de los cálculos de Simó), girados a nuestra convención. Los valores coinciden con la leyenda de la Figura 1 del artículo, verificada contra su PDF. Véase más abajo |
+| Butterfly I | `(0,30689; 0,12551)`, `T = 6,2356` | Tabla I de Šuvakov y Dmitrašinović (*Phys. Rev. Lett.* 110, 114301, 2013), fila I.A.1. Coincide con el PDF del artículo |
+| Goggles | `(0,08330; 0,12789)`, `T = 10,4668` | Tabla I, fila I.B.5. Coincide |
+| Moth I | `(0,46444; 0,39606)`, `T = 14,8939` | Tabla I, fila I.B.1. Coincide |
+| Yin-Yang I | `(0,51394; 0,30474)`, `T = 17,3284` | Tabla I, fila II.C.2a (variante a). Coincide |
 
 La Tabla I da las velocidades con cinco decimales y los periodos con cuatro. De ahí el cierre de hasta 2,4e-3 de las cuatro órbitas numéricas (ADR 0003).
 

@@ -20,14 +20,14 @@ La portada gana, entre el hero y la galería, la sección `#ley`: la ley de Newt
 
 Rama: `feature/ley-interactiva-y-tutor` → `develop`. Tomados de `.git/logs/HEAD`, del más antiguo al más reciente, sin contar el que añade este documento. Conviene contrastarlos con `git log --oneline develop..HEAD` antes de la PR.
 
-| Hash      | Commit                                                                                        |
-| --------- | --------------------------------------------------------------------------------------------- |
-| `c158416` | `docs(GRV-05): redactar la spec de la ley interactiva y el tutor`                             |
-| `3d39f4b` | `build(GRV-05): añadir el SDK de IA y fijar los límites de uso y de tema en la spec`          |
-| `36f8557` | `build(GRV-05): confinar el SDK de IA con ESLint y declarar las variables del tutor`          |
+| Hash | Commit |
+|---|---|
+| `c158416` | `docs(GRV-05): redactar la spec de la ley interactiva y el tutor` |
+| `3d39f4b` | `build(GRV-05): añadir el SDK de IA y fijar los límites de uso y de tema en la spec` |
+| `36f8557` | `build(GRV-05): confinar el SDK de IA con ESLint y declarar las variables del tutor` |
 | `5a12a58` | `feat(GRV-05): añadir el tutor del servidor con límites de uso, tema acotado y modo reducido` |
-| `18cdb76` | `feat(GRV-05): añadir la ley interactiva y el chat del tutor (en curso)`                      |
-| `97223dd` | `feat(GRV-05): completar la ley interactiva y el chat del tutor con sus pruebas`              |
+| `18cdb76` | `feat(GRV-05): añadir la ley interactiva y el chat del tutor (en curso)` |
+| `97223dd` | `feat(GRV-05): completar la ley interactiva y el chat del tutor con sus pruebas` |
 
 ## Cómo replicarlo
 
@@ -77,17 +77,17 @@ npx playwright test tests/e2e/ley.spec.ts         # servidor sin clave
 
 ## Verificación
 
-| Criterio                                                                                                                        | Prueba                                                                                          |
-| ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 1 Ley pura                                                                                                                      | `tests/unit/ley/ley.test.ts`                                                                    |
-| 2 Validación zod                                                                                                                | `tests/unit/tutor/validacion.test.ts`                                                           |
-| 3 y 4 Nivel, modo reducido, limitador, modo y errores                                                                           | `tests/unit/tutor/logica.test.ts`                                                               |
-| 5 y 6 Ruta con modelo simulado y ante fallos (503, 400, 413, 429, 401, red); la clave de prueba no aparece en ninguna respuesta | `tests/unit/tutor/ruta.test.ts`                                                                 |
-| 7 y 8 Deslizadores, teclado y masa arrastrable                                                                                  | `tests/e2e/ley.spec.ts`                                                                         |
-| 9 Chat en modo reducido                                                                                                         | `tests/e2e/ley.spec.ts`                                                                         |
-| 10 Herramientas simuladas, valores fuera de rango ignorados                                                                     | `tests/e2e/ley.spec.ts`                                                                         |
-| 11 La clave no se expone                                                                                                        | `tests/e2e/ley.spec.ts` (portada y scripts de `.next/static`) y `tests/unit/tutor/ruta.test.ts` |
-| 12 Sin regresiones a 375, 768 y 1440 px                                                                                         | `tests/e2e/ley.spec.ts` y la suite anterior                                                     |
+| Criterio | Prueba |
+|---|---|
+| 1 Ley pura | `tests/unit/ley/ley.test.ts` |
+| 2 Validación zod | `tests/unit/tutor/validacion.test.ts` |
+| 3 y 4 Nivel, modo reducido, limitador, modo y errores | `tests/unit/tutor/logica.test.ts` |
+| 5 y 6 Ruta con modelo simulado y ante fallos (503, 400, 413, 429, 401, red); la clave de prueba no aparece en ninguna respuesta | `tests/unit/tutor/ruta.test.ts` |
+| 7 y 8 Deslizadores, teclado y masa arrastrable | `tests/e2e/ley.spec.ts` |
+| 9 Chat en modo reducido | `tests/e2e/ley.spec.ts` |
+| 10 Herramientas simuladas, valores fuera de rango ignorados | `tests/e2e/ley.spec.ts` |
+| 11 La clave no se expone | `tests/e2e/ley.spec.ts` (portada y scripts de `.next/static`) y `tests/unit/tutor/ruta.test.ts` |
+| 12 Sin regresiones a 375, 768 y 1440 px | `tests/e2e/ley.spec.ts` y la suite anterior |
 
 ## Qué NO hace
 
