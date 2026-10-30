@@ -34,20 +34,40 @@ function textoDeError(error: Error): string {
 }
 
 function Mensaje({ mensaje }: { mensaje: UIMessage }) {
+  const esUsuario = mensaje.role === 'user';
   return (
-    <>
-      {mensaje.parts.map((parte, i) => {
-        if (parte.type === 'text') return <p key={i}>{parte.text}</p>;
-        if (parte.type !== 'tool-mostrar_orbita' || !('input' in parte)) return null;
-        const orbita = orbitaDeEntrada(parte.input);
-        if (!orbita) return null;
-        return (
-          <Link key={i} href={rutaDeOrbita(orbita.slug)} className={CLASES_FANTASMA}>
-            Abrir órbita {orbita.nombre}
-          </Link>
-        );
-      })}
-    </>
+    <div
+      className={`flex flex-col ${
+        esUsuario ? 'items-end self-end ml-auto' : 'items-start self-start mr-auto'
+      } max-w-[85%]`}
+    >
+      <span
+        className={`mb-1 text-[11px] font-semibold uppercase tracking-wider ${
+          esUsuario ? 'text-ash-gray' : 'text-saffron-spark'
+        }`}
+      >
+        {esUsuario ? 'Tú' : 'Tutor'}
+      </span>
+      <div
+        className={`rounded-2xl px-3.5 py-2.5 break-words ${
+          esUsuario
+            ? 'rounded-tr-xs bg-electric-iris/20 border border-electric-iris/40 text-bone-white'
+            : 'rounded-tl-xs bg-bone-white/5 border border-bone-white/10 text-bone-white'
+        }`}
+      >
+        {mensaje.parts.map((parte, i) => {
+          if (parte.type === 'text') return <p key={i} className="whitespace-pre-wrap">{parte.text}</p>;
+          if (parte.type !== 'tool-mostrar_orbita' || !('input' in parte)) return null;
+          const orbita = orbitaDeEntrada(parte.input);
+          if (!orbita) return null;
+          return (
+            <Link key={i} href={rutaDeOrbita(orbita.slug)} className={`${CLASES_FANTASMA} mt-2 inline-block`}>
+              Abrir órbita {orbita.nombre}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -123,46 +143,98 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
   const ultima = messages.at(-1);
   const viva = ultima?.role === 'assistant' ? ultima : undefined;
   const previos = viva ? messages.slice(0, -1) : messages;
+
+  const contenedorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (contenedorRef.current) {
+      contenedorRef.current.scrollTo({
+        top: contenedorRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [messages, viva]);
+
   return (
-    <div className="flex max-w-90 flex-col gap-3">
-      <ul className="flex flex-col gap-3">
-        {previos.map((m) => (
-          <li key={m.id} className={m.role === 'user' ? 'text-ash-gray' : undefined}>
-            <Mensaje mensaje={m} />
-          </li>
-        ))}
-      </ul>
-      <div aria-live="polite" className="flex flex-col gap-3">
-        {viva && <Mensaje mensaje={viva} />}
-        {error && <p className="text-saffron-spark">{textoDeError(error)}</p>}
-        {lleno && <p className="text-silver-mist">{MENSAJE_LIMITE}</p>}
+    <div className="flex w-full max-w-120 flex-col gap-3">
+      {/* Contenedor de mensajes con altura acotada y scroll interno exclusivo */}
+      <div ref={contenedorRef} className="flex max-h-96 min-h-36 flex-col gap-3 overflow-y-auto pr-1">
+        <ul className="flex flex-col gap-3">
+          {previos.map((m) => (
+            <li key={m.id} className="flex flex-col">
+              <Mensaje mensaje={m} />
+            </li>
+          ))}
+        </ul>
+        <div aria-live="polite" className="flex flex-col gap-3">
+          {viva && <Mensaje mensaje={viva} />}
+          {ocupado && !viva && (
+            <div className="flex flex-col items-start self-start mr-auto max-w-[85%]">
+              <span className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-saffron-spark">
+                Tutor
+              </span>
+              <div className="rounded-2xl rounded-tl-xs bg-bone-white/5 border border-bone-white/10 px-4 py-3 text-silver-mist">
+                <span className="inline-flex items-center gap-1.5" aria-label="El tutor está respondiendo">
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-saffron-spark" />
+                  <span className="h-1.5 w-1.5 animate-bounce [animation-delay:0.2s] rounded-full bg-saffron-spark" />
+                  <span className="h-1.5 w-1.5 animate-bounce [animation-delay:0.4s] rounded-full bg-saffron-spark" />
+                </span>
+              </div>
+            </div>
+          )}
+          {error && <p className="text-saffron-spark">{textoDeError(error)}</p>}
+          {lleno && <p className="text-silver-mist">{MENSAJE_LIMITE}</p>}
+        </div>
       </div>
-      <form onSubmit={enviar} className="flex flex-col gap-2">
-        <p className="text-silver-mist">Pregúntame sobre la ley de gravitación y las órbitas</p>
+
+      {messages.length === 0 && (
+        <div className="flex flex-wrap gap-2">
+          {[
+            '¿Cómo influye la distancia en la gravedad?',
+            'Pon la masa 1 al máximo',
+            'Enséñame una órbita',
+          ].map((sugerencia) => (
+            <button
+              key={sugerencia}
+              type="button"
+              onClick={() => {
+                void sendMessage({ text: sugerencia });
+              }}
+              className="cursor-pointer rounded-2xl border border-bone-white/15 bg-bone-white/5 px-3 py-1.5 text-etiqueta text-silver-mist transition-colors hover:border-electric-iris hover:text-bone-white"
+            >
+              {sugerencia}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <form onSubmit={enviar} className="flex flex-col gap-2 border-t border-ash-gray/20 pt-3">
+        <p className="text-silver-mist text-etiqueta">Pregúntame sobre la ley de gravitación y las órbitas</p>
         <label
           htmlFor={idEntrada}
           className="text-saffron-spark text-etiqueta font-semibold uppercase"
         >
           Pregunta al tutor
         </label>
-        <input
-          id={idEntrada}
-          type="text"
-          value={texto}
-          maxLength={TOPES.caracteres}
-          disabled={lleno}
-          autoComplete="off"
-          placeholder="Sobre masas, distancia, fuerza u órbitas"
-          onChange={(evento) => setTexto(evento.currentTarget.value)}
-          className="placeholder:text-ash-gray min-h-8 w-full bg-transparent"
-        />
-        <button
-          type="submit"
-          disabled={!habilitado}
-          className={`${CLASES_FANTASMA} disabled:cursor-default`}
-        >
-          Enviar
-        </button>
+        <div className="flex gap-2">
+          <input
+            id={idEntrada}
+            type="text"
+            value={texto}
+            maxLength={TOPES.caracteres}
+            disabled={lleno}
+            autoComplete="off"
+            placeholder="Sobre masas, distancia, fuerza u órbitas"
+            onChange={(evento) => setTexto(evento.currentTarget.value)}
+            className="placeholder:text-ash-gray min-h-10 flex-1 rounded-2xl border border-ash-gray/30 bg-bone-white/5 px-3 py-2 text-cuerpo text-bone-white focus:border-electric-iris focus:outline-none"
+          />
+          <button
+            type="submit"
+            disabled={!habilitado}
+            className={`${CLASES_FANTASMA} min-h-10 rounded-2xl px-4 disabled:cursor-default`}
+          >
+            Enviar
+          </button>
+        </div>
       </form>
     </div>
   );
