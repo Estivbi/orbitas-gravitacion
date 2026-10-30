@@ -56,12 +56,21 @@ function Mensaje({ mensaje }: { mensaje: UIMessage }) {
         }`}
       >
         {mensaje.parts.map((parte, i) => {
-          if (parte.type === 'text') return <p key={i} className="whitespace-pre-wrap">{parte.text}</p>;
+          if (parte.type === 'text')
+            return (
+              <p key={i} className="whitespace-pre-wrap">
+                {parte.text}
+              </p>
+            );
           if (parte.type !== 'tool-mostrar_orbita' || !('input' in parte)) return null;
           const orbita = orbitaDeEntrada(parte.input);
           if (!orbita) return null;
           return (
-            <Link key={i} href={rutaDeOrbita(orbita.slug)} className={`${CLASES_FANTASMA} mt-2 inline-block`}>
+            <Link
+              key={i}
+              href={rutaDeOrbita(orbita.slug)}
+              className={`${CLASES_FANTASMA} mt-2 inline-block`}
+            >
               Abrir órbita {orbita.nombre}
             </Link>
           );
@@ -157,7 +166,10 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
   return (
     <div className="flex w-full max-w-120 flex-col gap-3">
       {/* Contenedor de mensajes con altura acotada y scroll interno exclusivo */}
-      <div ref={contenedorRef} className="flex max-h-96 min-h-36 flex-col gap-3 overflow-y-auto pr-1">
+      <div
+        ref={contenedorRef}
+        className="flex max-h-96 min-h-36 flex-col gap-3 overflow-y-auto pr-1"
+      >
         <ul className="flex flex-col gap-3">
           {previos.map((m) => (
             <li key={m.id} className="flex flex-col">
@@ -173,7 +185,10 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
                 Tutor
               </span>
               <div className="rounded-2xl rounded-tl-xs bg-bone-white/5 border border-bone-white/10 px-4 py-3 text-silver-mist">
-                <span className="inline-flex items-center gap-1.5" aria-label="El tutor está respondiendo">
+                <span
+                  className="inline-flex items-center gap-1.5"
+                  aria-label="El tutor está respondiendo"
+                >
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-saffron-spark" />
                   <span className="h-1.5 w-1.5 animate-bounce [animation-delay:0.2s] rounded-full bg-saffron-spark" />
                   <span className="h-1.5 w-1.5 animate-bounce [animation-delay:0.4s] rounded-full bg-saffron-spark" />
@@ -208,7 +223,9 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
       )}
 
       <form onSubmit={enviar} className="flex flex-col gap-2 border-t border-ash-gray/20 pt-3">
-        <p className="text-silver-mist text-etiqueta">Pregúntame sobre la ley de gravitación y las órbitas</p>
+        <p className="text-silver-mist text-etiqueta">
+          Pregúntame sobre la ley de gravitación y las órbitas
+        </p>
         <label
           htmlFor={idEntrada}
           className="text-saffron-spark text-etiqueta font-semibold uppercase"
