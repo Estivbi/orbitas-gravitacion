@@ -67,7 +67,7 @@ describe('POST /api/tutor con modelo simulado', () => {
       'mostrar_orbita',
       'registrar_respuesta',
     ]);
-    expect(llamada.maxOutputTokens).toBe(400);
+    expect(llamada.maxOutputTokens).toBe(1200);
   });
 
   it('el prompt restringe el tema, el rol y las instrucciones', async () => {

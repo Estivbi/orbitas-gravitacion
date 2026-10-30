@@ -108,6 +108,8 @@ export function crearManejador({ obtenerModelo, limitador, ahora }: Dependencias
       stopWhen: stepCountIs(3),
       maxOutputTokens: TOPES.salidaTokens,
       maxRetries: 0,
+      // Desactiva el razonamiento interno para no gastar el presupuesto de tokens en la capa gratuita.
+      providerOptions: { google: { thinkingConfig: { thinkingBudget: 0 } } },
       onError: (err) => {
         console.error('[Tutor error]', err);
       },
