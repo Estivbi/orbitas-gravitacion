@@ -13,7 +13,7 @@ export function BannerFinal() {
           El universo te está esperando.
         </h2>
         <div className="mt-2">
-          <EnlaceAccion href="#ley">Comenzar ahora</EnlaceAccion>
+          <EnlaceAccion href="#contenido">Comenzar ahora</EnlaceAccion>
         </div>
       </div>
     </section>

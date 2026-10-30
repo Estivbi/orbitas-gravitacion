@@ -108,11 +108,16 @@ export function crearManejador({ obtenerModelo, limitador, ahora }: Dependencias
       stopWhen: stepCountIs(3),
       maxOutputTokens: TOPES.salidaTokens,
       maxRetries: 0,
-      onError: () => undefined,
+      onError: (err) => {
+        console.error('[Tutor error]', err);
+      },
     });
     return resultado.toUIMessageStreamResponse({
       originalMessages: mensajes as unknown as UIMessage[],
-      onError: mensajeDeError,
+      onError: (err) => {
+        console.error('[Tutor stream error]', err);
+        return mensajeDeError(err);
+      },
     });
   }
 

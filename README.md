@@ -8,7 +8,7 @@ Aplicación web que enseña la ley de gravitación universal de Newton con una d
 
 ## Cómo verlo
 
-Versión desplegada: URL_DESPLEGADA_PENDIENTE
+Versión desplegada: https://orbitas-gravitacion.vercel.app/
 
 ## Cómo ejecutarlo
 
@@ -35,7 +35,7 @@ Copia `.env.example` a `.env` (Next lo lee en local y Docker puede leerlo igual)
 | ------------------------------ | --------------------------------------------------------------------- | ----------------------- |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Clave de Google AI Studio para el tutor                               | vacía (modo reducido)   |
 | `LLM_PROVIDER`                 | Proveedor del modelo; solo `google`                                   | `google`                |
-| `LLM_MODEL`                    | Identificador del modelo de Google                                    | `gemini-2.5-flash-lite` |
+| `LLM_MODEL`                    | Identificador del modelo de Google                                    | `gemini-2.0-flash`      |
 | `URL_SITIO`                    | Origen público para el canonical y el sitemap; se lee **al compilar** | `http://localhost:3000` |
 
 ## Probar el tutor con tu propia clave

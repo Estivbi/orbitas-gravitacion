@@ -121,7 +121,7 @@ export function EsquemaLey({ ley, alCambiarDistancia }: Props) {
       </text>
       <text
         x={GEOMETRIA.x0}
-        y={CENTRO_Y + 56}
+        y={CENTRO_Y - 32}
         textAnchor="middle"
         className="fill-bone-white text-cuerpo"
       >
