@@ -28,18 +28,14 @@ export function SeccionLey() {
         hacer="Mueve los deslizadores de masa y de distancia, o arrastra la masa de la derecha."
         observar="La fuerza crece cuando aumentan las masas y se hace mucho más pequeña cuando las separas: al doble de distancia, solo la cuarta parte."
       />
-      <div className="grid grid-cols-1 items-center gap-6 columnas:grid-cols-[1fr_1.1fr] columnas:gap-10">
-        <div className="flex flex-col gap-4">
-          <div className={`${CLASES_PANEL} p-4 columnas:p-6`}>
-            <ControlesLey ley={ley} alCambiar={fijarLey} />
-          </div>
-          <p className="text-ash-gray text-etiqueta font-light">
-            Fórmula: F = G · m₁ · m₂ / r², con G = 1. Masas, distancia y fuerza van en unidades
-            arbitrarias. También puedes arrastrar la masa de la derecha.
-          </p>
-        </div>
+      <div className={`${CLASES_PANEL} flex flex-col gap-6 p-4 columnas:p-8`}>
         <EsquemaLey ley={ley} alCambiarDistancia={(r) => fijarLey({ r })} />
+        <ControlesLey ley={ley} alCambiar={fijarLey} />
       </div>
+      <p className="text-ash-gray text-etiqueta mt-4 font-light">
+        Fórmula: F = G · m₁ · m₂ / r², con G = 1. Masas, distancia y fuerza van en unidades
+        arbitrarias (u). También puedes arrastrar la masa de la derecha.
+      </p>
       <div className="mt-10">
         <EnlaceAccion href="#galeria">Ver las órbitas</EnlaceAccion>
       </div>

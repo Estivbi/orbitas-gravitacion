@@ -175,6 +175,7 @@ function iniciar(
       alOrden: simulacion.ordenar,
       alAlternar: () => leerProps().alAlternarReproduccion?.(),
       ruedaActiva: propsIniciales.ruedaActiva ?? false,
+      giroLibre: () => leerProps().giroLibre ?? false,
     }),
   );
 

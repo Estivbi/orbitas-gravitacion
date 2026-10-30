@@ -3,7 +3,9 @@ import {
   LEY_INICIAL,
   LIMITES,
   describirRazon,
+  fraseComparativa,
   fraseDuplicar,
+  longitudFlecha,
   fuerza,
   limitarLey,
   radioAX,
@@ -59,5 +61,18 @@ describe('ley pura (GRV-05, criterio 1)', () => {
     expect(xARadio(1e6, g)).toBe(10);
     expect(radioAX(50, g)).toBe(radioAX(10, g));
     expect(radioAX(-3, g)).toBe(radioAX(1, g));
+  });
+
+  it('fraseComparativa da los valores al doblar la distancia y una masa', () => {
+    expect(fraseComparativa({ m1: 4, m2: 4, r: 3 })).toBe(
+      'A doble distancia (6,0) la fuerza sería 0,44, la cuarta parte. Con el doble de masa en un cuerpo sería 3,56, el doble.',
+    );
+  });
+
+  it('longitudFlecha crece con la fuerza sin pasar del máximo ni bajar del mínimo', () => {
+    expect(longitudFlecha(0.01, 80)).toBeGreaterThanOrEqual(8);
+    expect(longitudFlecha(1, 80)).toBeLessThan(longitudFlecha(4, 80));
+    expect(longitudFlecha(100, 80)).toBe(80);
+    expect(longitudFlecha(100, 5)).toBe(8);
   });
 });

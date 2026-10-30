@@ -1,7 +1,7 @@
 'use client';
 
 import { useId } from 'react';
-import { LIMITES, formatearNumero, fraseDuplicar, fuerza, type Ley } from '@/lib/ley/ley';
+import { LIMITES, formatearNumero, fraseComparativa, fuerza, type Ley } from '@/lib/ley/ley';
 
 const CLASES_ETIQUETA = 'text-saffron-spark text-etiqueta font-semibold uppercase';
 const CLASES_VALOR = 'text-bone-white text-etiqueta font-light tabular-nums';
@@ -35,7 +35,7 @@ function Deslizador({ etiqueta, valor, min, max, alCambiar }: PropsDeslizador) {
         className={CLASES_DESLIZADOR}
       />
       <span aria-hidden="true" className={`${CLASES_VALOR} text-right`}>
-        {texto}
+        {texto} u
       </span>
     </div>
   );
@@ -51,7 +51,7 @@ export function ControlesLey({ ley, alCambiar }: Props) {
   const { masa, distancia } = LIMITES;
   const f = fuerza(ley.m1, ley.m2, ley.r);
   return (
-    <div className="flex flex-col gap-4">
+    <div className="grid gap-6 columnas:grid-cols-2 columnas:gap-10">
       <div className="grid grid-cols-[auto_1fr_auto] gap-x-4 gap-y-1">
         <Deslizador
           etiqueta="Masa 1"
@@ -76,19 +76,17 @@ export function ControlesLey({ ley, alCambiar }: Props) {
         />
       </div>
       <div
-        className="flex flex-col border-t border-ash-gray/30 pt-4"
+        className="flex flex-col gap-2 border-t border-ash-gray/30 pt-4 columnas:border-l columnas:border-t-0 columnas:pl-10 columnas:pt-0"
         aria-live="polite"
         aria-atomic="true"
       >
         <span className={CLASES_ETIQUETA}>Fuerza entre las dos masas</span>
-        <div className="flex items-baseline gap-3">
-          <p className="text-subtitulo font-light tabular-nums" data-testid="fuerza">
-            {formatearNumero(f, 2)}
-          </p>
-          <span className="text-ash-gray text-etiqueta font-light">unidades arbitrarias</span>
-        </div>
+        <p className="text-subtitulo font-light tabular-nums">
+          F = <span data-testid="fuerza">{formatearNumero(f, 2)}</span>{' '}
+          <span className="text-ash-gray text-etiqueta">unidades</span>
+        </p>
         <p className="text-silver-mist" data-testid="frase">
-          {fraseDuplicar(ley)}
+          {fraseComparativa(ley)}
         </p>
       </div>
     </div>

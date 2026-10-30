@@ -10,6 +10,8 @@ export interface Manejadores {
   alOrden(orden: OrdenCamara): void;
   alAlternar(): void;
   ruedaActiva: boolean;
+  /** Si el tacto gira también el polar; se lee en cada gesto. */
+  giroLibre: () => boolean;
 }
 
 interface Puntero {
@@ -22,8 +24,11 @@ function separacionEntre(punteros: Map<number, Puntero>): number {
   return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
 }
 
-/** Ratón, tacto (un dedo gira el acimut; dos dedos acercan), rueda opcional y teclado. */
-function conectarPunteros(lienzo: HTMLCanvasElement, { alOrden }: Manejadores): () => void {
+/** Ratón, tacto (un dedo gira el acimut, y el polar con giro libre; dos dedos acercan), rueda opcional y teclado. */
+function conectarPunteros(
+  lienzo: HTMLCanvasElement,
+  { alOrden, giroLibre }: Manejadores,
+): () => void {
   const punteros = new Map<number, Puntero>();
   let separacion = 0;
 
@@ -42,8 +47,8 @@ function conectarPunteros(lienzo: HTMLCanvasElement, { alOrden }: Manejadores): 
     puntero.x = evento.clientX;
     puntero.y = evento.clientY;
     if (punteros.size === 1) {
-      // Con un dedo el desplazamiento vertical es de la página (touch-action: pan-y).
-      alOrden(ordenDeArrastre(dx, evento.pointerType === 'mouse' ? dy : 0));
+      // Sin giro libre, el desplazamiento vertical con un dedo es de la página (touch-action: pan-y).
+      alOrden(ordenDeArrastre(dx, evento.pointerType === 'mouse' || giroLibre() ? dy : 0));
     } else if (punteros.size === 2) {
       const actual = separacionEntre(punteros);
       const orden = ordenDePellizco(separacion, actual);

@@ -31,12 +31,12 @@ En los dos casos queda en <http://localhost:3000>. El WebGL necesita un navegado
 
 Copia `.env.example` a `.env` (Next lo lee en local y Docker puede leerlo igual). Nunca subas claves reales.
 
-| Variable | Para qué | Por defecto |
-|---|---|---|
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Clave de Google AI Studio para el tutor | vacía (modo reducido) |
-| `LLM_PROVIDER` | Proveedor del modelo; solo `google` | `google` |
-| `LLM_MODEL` | Identificador del modelo de Google | `gemini-2.5-flash-lite` |
-| `URL_SITIO` | Origen público para el canonical y el sitemap; se lee **al compilar** | `http://localhost:3000` |
+| Variable                       | Para qué                                                              | Por defecto             |
+| ------------------------------ | --------------------------------------------------------------------- | ----------------------- |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Clave de Google AI Studio para el tutor                               | vacía (modo reducido)   |
+| `LLM_PROVIDER`                 | Proveedor del modelo; solo `google`                                   | `google`                |
+| `LLM_MODEL`                    | Identificador del modelo de Google                                    | `gemini-2.5-flash-lite` |
+| `URL_SITIO`                    | Origen público para el canonical y el sitemap; se lee **al compilar** | `http://localhost:3000` |
 
 ## Probar el tutor con tu propia clave
 
@@ -69,23 +69,31 @@ npm run medir:fisica      # contrasta con un integrador independiente las cifras
 
 Detalle en `docs/adr/` y en `docs/tickets/`.
 
-| Decisión | Coste |
-|---|---|
-| RK4 con paso adaptativo e interpolación de Hermite | Más código que un paso fijo; la precisión está medida contra un integrador independiente |
-| Trayectorias calculadas en un Worker | Un instante inicial en el que solo se ve la miniatura |
-| `three` con imports con nombre y chunk aparte (136 KB gzip) | No entra en la primera pintura, pero pesa; solo WebGL2 |
-| Miniaturas SVG en el servidor | El HTML de `/` pasa a 135 KB (desde 21 KB) |
-| Zustand por proveedor, no por módulo | Algo más de ceremonia; evita filtrar estado entre peticiones |
-| Vercel AI SDK + Gemini | Un solo proveedor; el tutor depende de una cuota externa |
-| Páginas estáticas con `generateStaticParams` | `/orbitas` da 404; `URL_SITIO` se fija al compilar |
-| Tailwind v4 con tokens en `@theme` | Prohíbe valores sueltos; cada color nuevo pasa por `DESIGN.md` |
-| Inter autoalojada | Un `woff2` más en el build, pero sin llamadas a terceros |
+| Decisión                                                    | Coste                                                                                    |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| RK4 con paso adaptativo e interpolación de Hermite          | Más código que un paso fijo; la precisión está medida contra un integrador independiente |
+| Trayectorias calculadas en un Worker                        | Un instante inicial en el que solo se ve la miniatura                                    |
+| `three` con imports con nombre y chunk aparte (136 KB gzip) | No entra en la primera pintura, pero pesa; solo WebGL2                                   |
+| Miniaturas SVG en el servidor                               | El HTML de `/` pasa a 135 KB (desde 21 KB)                                               |
+| Zustand por proveedor, no por módulo                        | Algo más de ceremonia; evita filtrar estado entre peticiones                             |
+| Vercel AI SDK + Gemini                                      | Un solo proveedor; el tutor depende de una cuota externa                                 |
+| Páginas estáticas con `generateStaticParams`                | `/orbitas` da 404; `URL_SITIO` se fija al compilar                                       |
+| Tailwind v4 con tokens en `@theme`                          | Prohíbe valores sueltos; cada color nuevo pasa por `DESIGN.md`                           |
+| Inter autoalojada                                           | Un `woff2` más en el build, pero sin llamadas a terceros                                 |
 
 ## Mediciones
 
 Medidas en GRV-04 (gzip nivel 9, scripts que referencia el HTML de `/`): JS inicial de `/` de 183 932 B frente a 181 502 B de base (+2,4 KB); HTML de `/` de 135 KB y de cada detalle, entre 34 y 44 KB; build en frío de ≈ 12 s; telemetría a ≈ 10 Hz; tras 12 idas y vueltas queda 1 contexto WebGL vivo.
 
-**Lighthouse todavía no se ha medido.** Hay un GRV-06 mínimo pendiente (Lighthouse y `robots.txt`); esta sección se rellenará con sus cifras.
+**Lighthouse** (móvil, compilación de producción, 29 de octubre de 2026, WebGL por software en un contenedor sin GPU):
+
+| Página                              | Rendimiento | Accesibilidad | Buenas prácticas | SEO | LCP   | CLS | TBT      |
+| ----------------------------------- | ----------- | ------------- | ---------------- | --- | ----- | --- | -------- |
+| `/`                                 | 73          | 100           | 100              | 100 | 1,0 s | 0   | 1 790 ms |
+| `/orbitas/butterfly-i`              | 82          | 100           | 100              | 100 | 0,8 s | 0   | 720 ms   |
+| `/` sin WebGL (`--disable-3d-apis`) | 89          | n/d           | n/d              | n/d | 0,9 s | 0   | 430 ms   |
+
+Accesibilidad, buenas prácticas y SEO cumplen el objetivo (≥ 95). **El rendimiento no llega a 90 en móvil** y el tiempo de bloqueo (TBT) queda lejos de los 200 ms: casi todo viene de dibujar la escena 3D con WebGL por software en la CPU, que Lighthouse mide aquí sin GPU (sin WebGL, el rendimiento sube a 89). En un móvil real con GPU se espera menos bloqueo, pero no se ha medido. Lo que sí se cumple: LCP ≤ 2,5 s, CLS ≤ 0,05 y JS inicial sin three ≤ 110 KB gzip.
 
 ## Límites
 
@@ -100,7 +108,7 @@ Qué se recortó y por qué:
 - **Sin persistencia**: nada sobrevive a recargar (ni `localStorage` ni conversaciones).
 - **`/orbitas` da 404**: no hay ruta índice; la galería está en `/#galeria`.
 - **El hero no es un sistema solar**: muestra la figura de ocho como invitación a las órbitas.
-- **Lighthouse pendiente** (ver arriba).
+- **Rendimiento móvil por debajo del objetivo**: 73 en la portada y 82 en un detalle (objetivo 90), por el coste de la escena 3D con WebGL por software; no se ha medido en un dispositivo real.
 - **WebGL2 obligatorio** para la escena 3D.
 - No se ha consultado el artículo original de Moore (1993); las demás fuentes sí se cotejaron (ADR 0004).
 
@@ -114,9 +122,9 @@ Qué se recortó y por qué:
 ## Créditos de las fuentes físicas
 
 - Lagrange, J.-L. (1772). Solución equilátera del problema de los tres cuerpos.
-- Moore, C. (1993). Figura de ocho. *Phys. Rev. Lett.* 70, 3675.
-- Chenciner, A. y Montgomery, R. (2000). Existencia de la figura de ocho. *Ann. Math.* 152, 881–901 (condiciones iniciales de C. Simó).
-- Šuvakov, M. y Dmitrašinović, V. (2013). Butterfly I, Goggles, Moth I y Yin-Yang I. *Phys. Rev. Lett.* 110, 114301.
+- Moore, C. (1993). Figura de ocho. _Phys. Rev. Lett._ 70, 3675.
+- Chenciner, A. y Montgomery, R. (2000). Existencia de la figura de ocho. _Ann. Math._ 152, 881–901 (condiciones iniciales de C. Simó).
+- Šuvakov, M. y Dmitrašinović, V. (2013). Butterfly I, Goggles, Moth I y Yin-Yang I. _Phys. Rev. Lett._ 110, 114301.
 
 ## Documentación
 
