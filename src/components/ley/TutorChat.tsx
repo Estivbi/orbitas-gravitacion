@@ -232,7 +232,7 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
         >
           Pregunta al tutor
         </label>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <input
             id={idEntrada}
             type="text"
@@ -240,14 +240,14 @@ export function TutorChat({ alReducido }: { alReducido: (motivo: MotivoReducido)
             maxLength={TOPES.caracteres}
             disabled={lleno}
             autoComplete="off"
-            placeholder="Sobre masas, distancia, fuerza u órbitas"
+            placeholder="Sobre masas, distancia o fuerza"
             onChange={(evento) => setTexto(evento.currentTarget.value)}
-            className="placeholder:text-ash-gray min-h-10 flex-1 rounded-2xl border border-ash-gray/30 bg-bone-white/5 px-3 py-2 text-cuerpo text-bone-white focus:border-electric-iris focus:outline-none"
+            className="placeholder:text-ash-gray min-h-10 min-w-0 flex-1 rounded-2xl border border-ash-gray/30 bg-bone-white/5 px-3 py-2 text-cuerpo text-bone-white focus:border-electric-iris focus:outline-none"
           />
           <button
             type="submit"
             disabled={!habilitado}
-            className={`${CLASES_FANTASMA} min-h-10 rounded-2xl px-4 disabled:cursor-default`}
+            className="shrink-0 cursor-pointer rounded-2xl border border-ash-gray/30 bg-bone-white/5 px-4 py-2 text-etiqueta font-semibold uppercase text-ash-gray transition-colors hover:border-electric-iris hover:text-bone-white disabled:cursor-default disabled:opacity-40"
           >
             Enviar
           </button>
