@@ -124,6 +124,7 @@ for (const ancho of [375, 768, 1440]) {
   test(`GRV-08 · criterio 6: a ${ancho} px no desborda y la tarjeta cabe en pantalla sin tapar la sección`, async ({
     page,
   }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: ancho, height: ancho === 375 ? 740 : 800 });
     await abrirPortada(page);
     if (ancho === 375) await page.getByRole('button', { name: 'Menú' }).click();

@@ -187,7 +187,8 @@ describe('GRV-04 · criterio 10: zustand solo vive en src/store', () => {
     expect(layout).toMatch(
       /import\s*\{\s*ProveedorAlmacen\s*\}\s*from\s*['"][^'"]*ProveedorAlmacen['"]/,
     );
-    expect(layout).toMatch(/<ProveedorAlmacen>\s*\{children\}\s*<\/ProveedorAlmacen>/);
+    // Envuelve también la cabecera y la visita guiada (GRV-08): children debe quedar dentro.
+    expect(layout).toMatch(/<ProveedorAlmacen>[\s\S]*\{children\}[\s\S]*<\/ProveedorAlmacen>/);
   });
 });
 

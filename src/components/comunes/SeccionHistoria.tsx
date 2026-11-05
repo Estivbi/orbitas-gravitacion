@@ -44,7 +44,12 @@ const HITOS = [
 /** Contexto antes de la ley: qué es esta página, de dónde viene y qué se va a encontrar. */
 export function SeccionHistoria() {
   return (
-    <section id="historia" aria-labelledby={ID_TITULO} className="mx-auto max-w-pagina px-4 py-16">
+    <section
+      id="historia"
+      data-recorrido="historia"
+      aria-labelledby={ID_TITULO}
+      className="mx-auto max-w-pagina px-4 py-16"
+    >
       <div className="grid grid-cols-1 gap-10 columnas:grid-cols-[1fr_1.2fr] columnas:gap-16">
         <div className="flex flex-col items-start gap-4">
           <p className={CLASES_ETIQUETA_SECCION}>02 · Un poco de historia</p>

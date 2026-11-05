@@ -15,7 +15,12 @@ export function SeccionLey() {
   const ley = useAlmacen(selectores.ley);
   const { fijarLey } = useAlmacenApi().getState();
   return (
-    <section id="ley" aria-labelledby={ID_TITULO} className="mx-auto max-w-pagina px-4 py-16">
+    <section
+      id="ley"
+      data-recorrido="ley"
+      aria-labelledby={ID_TITULO}
+      className="mx-auto max-w-pagina px-4 py-16"
+    >
       <p className={`${CLASES_ETIQUETA_SECCION} mb-4`}>03 · Experimento interactivo</p>
       <h2 id={ID_TITULO} className="text-titular-sm mb-4 text-balance">
         La ley de Newton en acción

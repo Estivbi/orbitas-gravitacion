@@ -4,6 +4,7 @@ import { PASOS_RECORRIDO, TOTAL_PASOS, limitarPaso } from '@/lib/recorrido/pasos
 describe('GRV-08 · criterio 1: pasos del recorrido', () => {
   it('hay seis pasos con id único y textos no vacíos', () => {
     expect(TOTAL_PASOS).toBe(6);
+    expect(PASOS_RECORRIDO.length).toBe(TOTAL_PASOS);
     expect(PASOS_RECORRIDO).toHaveLength(6);
     expect(new Set(PASOS_RECORRIDO.map((p) => p.id)).size).toBe(6);
     for (const paso of PASOS_RECORRIDO) {
