@@ -7,7 +7,6 @@ import type { TrazadoMiniatura } from '@/lib/escena/miniatura';
 import type { Estado, Slug, Trayectoria } from '@/lib/fisica';
 import { calcularTrayectoria } from '@/workers/clienteFisica';
 import { BotonAnimacion } from '../comunes/BotonAnimacion';
-import { CLASES_BOTON_CONTORNO } from '../comunes/clases';
 import { MiniaturaOrbita } from './MiniaturaOrbita';
 import type { ApiEscena } from './tipos';
 import { useReproduccion } from './useReproduccion';
@@ -122,8 +121,8 @@ export function VisorOrbita({
   alCambiarVista,
 }: PropsVisorOrbita) {
   const [estado, setEstado] = useState<EstadoEscena>('cargando');
-  // En el detalle un dedo gira en todos los planos; en la portada se desplaza la página salvo que se active.
-  const [giroLibre, setGiroLibre] = useState(tamano === 'grande');
+  // En el detalle un dedo gira en todos los planos; en la portada se desplaza la página con normalidad.
+  const giroLibre = tamano === 'grande';
   const propia = useReproduccion();
   const controlado = reproduciendoControlado !== undefined;
   const reproduciendo = controlado ? reproduciendoControlado : propia.reproduciendo;
@@ -223,27 +222,13 @@ export function VisorOrbita({
         {AVISOS[estado]}
       </div>
       {!fallo && controlAnimacion && (
-        <div
-          className={`mt-3 flex justify-center ${tamano === 'compacto' ? 'min-h-19 flex-col items-center gap-3' : 'min-h-9'}`}
-        >
+        <div className="mt-3 flex min-h-9 justify-center">
           {estado === 'lista' && (
-            <>
-              <BotonAnimacion
-                reproduciendo={reproduciendo}
-                alAlternar={alternar}
-                discreto={tamano === 'compacto'}
-              />
-              {tamano === 'compacto' && (
-                <button
-                  type="button"
-                  aria-pressed={giroLibre}
-                  onClick={() => setGiroLibre((activo) => !activo)}
-                  className={CLASES_BOTON_CONTORNO}
-                >
-                  {giroLibre ? 'Girar con el dedo: sí' : 'Girar con el dedo'}
-                </button>
-              )}
-            </>
+            <BotonAnimacion
+              reproduciendo={reproduciendo}
+              alAlternar={alternar}
+              discreto={tamano === 'compacto'}
+            />
           )}
         </div>
       )}
