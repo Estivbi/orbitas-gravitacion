@@ -12,10 +12,25 @@ export function EnlaceAccion({
   children: ReactNode;
   fantasma?: boolean;
 }) {
-  return (
-    <Link href={href} className={fantasma ? CLASES_ENLACE_FANTASMA : CLASES_BOTON_PRINCIPAL}>
+  const clases = fantasma ? CLASES_ENLACE_FANTASMA : CLASES_BOTON_PRINCIPAL;
+  const contenido = (
+    <>
       {children}
       {!fantasma && <span aria-hidden="true">→</span>}
+    </>
+  );
+
+  if (href.startsWith('#')) {
+    return (
+      <a href={href} className={clases}>
+        {contenido}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={clases}>
+      {contenido}
     </Link>
   );
 }
