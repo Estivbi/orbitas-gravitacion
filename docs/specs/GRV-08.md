@@ -1,6 +1,6 @@
 # GRV-08 · Recorrido guiado
 
-**Estado:** pendiente de aprobación · **Tamaño:** M · **Rama:** `feature/recorrido-guiado` → `develop`
+**Estado:** aprobada · **Tamaño:** M · **Rama:** `feature/recorrido-guiado` → `develop`
 
 ## Contexto
 
