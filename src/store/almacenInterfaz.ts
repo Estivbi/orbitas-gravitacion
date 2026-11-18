@@ -9,6 +9,7 @@ import {
 } from '@/lib/galeria/controles';
 import { esOrden, ORDEN_INICIAL, type OrdenGaleria } from '@/lib/galeria/orden';
 import { LEY_INICIAL, limitarLey, type Ley } from '@/lib/ley/ley';
+import { limitarPaso } from '@/lib/recorrido/limites';
 import { ESTADO_NIVEL_INICIAL, siguienteNivel, type EstadoNivel } from '@/lib/tutor/nivel';
 
 export interface PuntoDeReanudacion {
@@ -29,6 +30,8 @@ export interface EstadoInterfaz {
   ley: Readonly<Ley>;
   /** Nivel del tutor (1 a 3) y racha de aciertos (+) o fallos (−) seguidos. */
   tutor: Readonly<EstadoNivel>;
+  /** Visita guiada: si está abierta y en qué paso (0 a 5). */
+  recorrido: Readonly<{ abierto: boolean; paso: number }>;
 }
 
 export interface AccionesInterfaz {
@@ -42,6 +45,10 @@ export interface AccionesInterfaz {
   /** Fusiona los valores dados con la ley actual, recortados a los límites y al paso. */
   fijarLey(parcial: Partial<Ley>): void;
   registrarResultado(acierto: boolean): void;
+  abrirRecorrido(): void;
+  cerrarRecorrido(): void;
+  siguientePaso(): void;
+  pasoAnterior(): void;
 }
 
 export type AlmacenInterfaz = StoreApi<EstadoInterfaz & AccionesInterfaz>;
@@ -55,6 +62,7 @@ export const ESTADO_INICIAL: Readonly<EstadoInterfaz> = Object.freeze({
   entradaPorHistorial: false,
   ley: LEY_INICIAL,
   tutor: Object.freeze({ ...ESTADO_NIVEL_INICIAL }),
+  recorrido: Object.freeze({ abierto: false, paso: 0 }),
 });
 
 /** A [0, 1) sin alterar los valores que ya están dentro (a diferencia de `((u % 1) + 1) % 1`). */
@@ -129,6 +137,26 @@ export function crearAlmacenInterfaz(inicial: Partial<EstadoInterfaz> = {}): Alm
     registrarResultado(acierto) {
       set({ tutor: siguienteNivel(get().tutor, acierto) });
     },
+    abrirRecorrido() {
+      set({ recorrido: { abierto: true, paso: 0 } });
+    },
+    cerrarRecorrido() {
+      const { abierto, paso } = get().recorrido;
+      if (!abierto) return;
+      set({ recorrido: { abierto: false, paso } });
+    },
+    siguientePaso() {
+      const { abierto, paso } = get().recorrido;
+      const nuevo = limitarPaso(paso + 1);
+      if (nuevo === paso) return;
+      set({ recorrido: { abierto, paso: nuevo } });
+    },
+    pasoAnterior() {
+      const { abierto, paso } = get().recorrido;
+      const nuevo = limitarPaso(paso - 1);
+      if (nuevo === paso) return;
+      set({ recorrido: { abierto, paso: nuevo } });
+    },
   }));
 }
 
@@ -144,4 +172,5 @@ export const selectores = {
   entradaPorHistorial: (estado: Estado) => estado.entradaPorHistorial,
   ley: (estado: Estado) => estado.ley,
   tutor: (estado: Estado) => estado.tutor,
+  recorrido: (estado: Estado) => estado.recorrido,
 } as const;

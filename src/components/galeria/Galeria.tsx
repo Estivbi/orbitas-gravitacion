@@ -15,7 +15,12 @@ export function Galeria() {
     SLUGS.map((slug) => [slug, <ElementoGaleria key={slug} ficha={fichaDeOrbita(slug)} />]),
   ) as Record<Slug, ReactNode>;
   return (
-    <section id="galeria" aria-labelledby={ID_TITULO} className="mx-auto max-w-pagina px-4 py-16">
+    <section
+      id="galeria"
+      data-recorrido="galeria"
+      aria-labelledby={ID_TITULO}
+      className="mx-auto max-w-pagina px-4 py-16"
+    >
       <div className="mb-10 grid grid-cols-1 items-end gap-4 columnas:grid-cols-2 columnas:gap-10">
         <div className="flex flex-col gap-4">
           <p className={CLASES_ETIQUETA_SECCION}>04 · Galería de órbitas</p>

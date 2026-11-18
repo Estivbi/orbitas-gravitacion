@@ -22,7 +22,7 @@ export const TOPES = {
   mensajes: 20,
   caracteres: 1000,
   caracteresAsistente: 2000,
-  salidaTokens: 400,
+  salidaTokens: 1200,
   peticionesPorMinuto: 10,
   peticionesGlobalesPorMinuto: 60,
 } as const;

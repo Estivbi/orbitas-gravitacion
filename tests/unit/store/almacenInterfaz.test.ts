@@ -31,6 +31,7 @@ const DATOS_INICIALES = {
   entradaPorHistorial: false,
   ley: { m1: 4, m2: 2, r: 4 },
   tutor: { nivel: 1, racha: 0 },
+  recorrido: { abierto: false, paso: 0 },
 };
 
 const vista = (): VistaCamara => ({ acimut: 1.2, polar: 0.8, distancia: 0.7 });
@@ -54,7 +55,7 @@ describe('GRV-05 · ley y tutor en el almacén', () => {
 });
 
 describe('GRV-04 · criterio 7: estado inicial', () => {
-  it('es el del contrato, y solo esos ocho campos de datos', () => {
+  it('es el del contrato, y solo esos nueve campos de datos', () => {
     expect(datosDe(crearAlmacenInterfaz())).toEqual(DATOS_INICIALES);
   });
 
@@ -394,5 +395,46 @@ describe('GRV-04 · criterio 7: selectores', () => {
       const b: unknown = selector(almacen.getState());
       expect(Object.is(a, b)).toBe(true);
     }
+  });
+});
+
+describe('GRV-08 · criterio 7: recorrido guiado en el almacén', () => {
+  it('empieza cerrado en el primer paso', () => {
+    expect(crearAlmacenInterfaz().getState().recorrido).toEqual({ abierto: false, paso: 0 });
+  });
+
+  it('abrirRecorrido abre en el paso 1 y cerrarRecorrido lo cierra', () => {
+    const almacen = crearAlmacenInterfaz();
+    almacen.getState().abrirRecorrido();
+    expect(almacen.getState().recorrido).toEqual({ abierto: true, paso: 0 });
+    almacen.getState().siguientePaso();
+    almacen.getState().cerrarRecorrido();
+    expect(almacen.getState().recorrido.abierto).toBe(false);
+    almacen.getState().abrirRecorrido();
+    expect(almacen.getState().recorrido.paso).toBe(0);
+  });
+
+  it('el paso se mantiene entre 0 y 5', () => {
+    const almacen = crearAlmacenInterfaz();
+    almacen.getState().abrirRecorrido();
+    almacen.getState().pasoAnterior();
+    expect(almacen.getState().recorrido.paso).toBe(0);
+    for (let i = 0; i < 10; i++) almacen.getState().siguientePaso();
+    expect(almacen.getState().recorrido.paso).toBe(5);
+    almacen.getState().pasoAnterior();
+    expect(almacen.getState().recorrido.paso).toBe(4);
+  });
+
+  it('no notifica si la acción no cambia nada', () => {
+    const almacen = crearAlmacenInterfaz();
+    const escucha = vigilar(almacen);
+    almacen.getState().cerrarRecorrido();
+    almacen.getState().pasoAnterior();
+    expect(escucha).not.toHaveBeenCalled();
+  });
+
+  it('el selector devuelve la misma referencia mientras no cambia', () => {
+    const almacen = crearAlmacenInterfaz();
+    expect(selectores.recorrido(almacen.getState())).toBe(selectores.recorrido(almacen.getState()));
   });
 });

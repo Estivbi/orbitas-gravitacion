@@ -82,6 +82,21 @@
     outline-offset: 3px;
   }
 
+  /* Sección que explica la visita guiada: un marco por encima del contenido (también del lienzo 3D), sin ocupar espacio. */
+  [data-recorrido-activo='true'] {
+    position: relative;
+  }
+
+  [data-recorrido-activo='true']::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    z-index: 10;
+    border: 2px solid var(--color-saffron-spark);
+    border-radius: var(--radius-boton);
+    pointer-events: none;
+  }
+
   canvas:focus-visible {
     outline-offset: -3px;
   }

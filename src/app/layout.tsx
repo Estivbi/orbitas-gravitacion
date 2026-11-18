@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { Cabecera } from '@/components/comunes/Cabecera';
 import { Pie } from '@/components/comunes/Pie';
+import { RecorridoCargado } from '@/components/recorrido/RecorridoCargado';
 import { resolverUrlSitio } from '@/lib/galeria/sitio';
 import { ProveedorAlmacen } from '@/store/ProveedorAlmacen';
 import './globals.css';
@@ -31,11 +32,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           Saltar al contenido
         </a>
-        <Cabecera />
-        <main id="contenido" tabIndex={-1} className="outline-none">
-          <ProveedorAlmacen>{children}</ProveedorAlmacen>
-        </main>
-        <Pie />
+        <ProveedorAlmacen>
+          <Cabecera />
+          <main id="contenido" tabIndex={-1} className="outline-none">
+            {children}
+          </main>
+          <Pie />
+          <RecorridoCargado />
+        </ProveedorAlmacen>
       </body>
     </html>
   );

@@ -1,18 +1,19 @@
 # Estado del repositorio
 
-Actualizado el 29 de octubre de 2026.
+Actualizado el 5 de noviembre de 2026.
 
 ## Tickets
 
-| ID     | Ticket                        | Estado                                           |
-| ------ | ----------------------------- | ------------------------------------------------ |
-| GRV-01 | Base del repositorio          | Hecho y fusionado                                |
-| GRV-02 | Motor de física y catálogo    | Hecho y fusionado                                |
-| GRV-03 | Sistema de diseño y escena 3D | Hecho y fusionado                                |
-| GRV-04 | Galería, detalle y rutas      | Hecho y fusionado                                |
-| GRV-05 | Ley interactiva y tutor       | Hecho y fusionado                                |
-| GRV-06 | Rendimiento y accesibilidad   | En la rama `feature/rendimiento-y-accesibilidad` |
-| GRV-07 | Entrega                       | Hecho y fusionado                                |
+| ID     | Ticket                        | Estado                                |
+| ------ | ----------------------------- | ------------------------------------- |
+| GRV-01 | Base del repositorio          | Hecho y fusionado                     |
+| GRV-02 | Motor de física y catálogo    | Hecho y fusionado                     |
+| GRV-03 | Sistema de diseño y escena 3D | Hecho y fusionado                     |
+| GRV-04 | Galería, detalle y rutas      | Hecho y fusionado                     |
+| GRV-05 | Ley interactiva y tutor       | Hecho y fusionado                     |
+| GRV-06 | Rendimiento y accesibilidad   | Hecho y fusionado                     |
+| GRV-07 | Entrega                       | Hecho y fusionado                     |
+| GRV-08 | Recorrido guiado              | En la rama `feature/recorrido-guiado` |
 
 ## Qué hay en `develop`
 
@@ -74,8 +75,8 @@ De GRV-05:
 
 ## Siguiente
 
-Fusionar GRV-06 y poner la URL desplegada en el README. Mejora futura: bajar el bloqueo del hilo principal que causa la escena 3D.
+GRV-09: asistente en toda la web, abierto desde cualquier página, que sepa desde dónde se le llama, con herramientas para mostrar órbitas, ir a secciones y lanzar la visita guiada. La conversación debe sobrevivir a navegar entre páginas (el asistente irá en el layout y guardará la conversación en el almacén) y se perderá al recargar.
 
 ## Qué falta
 
-La URL desplegada en el README (`URL_DESPLEGADA_PENDIENTE`) y la fusión de GRV-06.
+Fusionar GRV-08.

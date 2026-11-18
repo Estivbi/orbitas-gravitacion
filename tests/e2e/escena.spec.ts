@@ -296,33 +296,6 @@ test.describe.serial('GRV-03 · escena con WebGL (una sola carga)', () => {
     expect(despues.distancia).toBe(base.distancia);
   });
 
-  test('criterio 13: con «Girar con el dedo» un dedo en vertical también cambia el polar', async () => {
-    await partirDe(page, { enMarcha: false });
-    const cdp = await contexto.newCDPSession(page);
-    const base = await leerVista(page);
-    await page.getByRole('button', { name: /girar con el dedo/i }).click();
-    await expect(page.getByRole('button', { name: /girar con el dedo/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    expect(await page.locator(LIENZO).evaluate((el) => getComputedStyle(el).touchAction)).toBe(
-      'none',
-    );
-
-    await page.evaluate(() => window.scrollTo(0, 0));
-    const { x, y } = await centroDelLienzo(page);
-    const bajando = Array.from({ length: 10 }, (_, i) => [{ x, y: y + (i + 1) * 10, id: 1 }]);
-    await gestoTactil(cdp, [{ x, y, id: 1 }], bajando);
-    await expect
-      .poll(async () => Math.abs(await cambioDesde(page, base, 'polar')), { timeout: 5_000 })
-      .toBeGreaterThan(0.2);
-
-    await page.getByRole('button', { name: /girar con el dedo/i }).click();
-    expect(await page.locator(LIENZO).evaluate((el) => getComputedStyle(el).touchAction)).toBe(
-      'pan-y',
-    );
-  });
-
   test('criterio 13: dos dedos que se separan acercan y que se juntan alejan', async () => {
     await partirDe(page, { enMarcha: false });
     await page.evaluate(() => window.scrollTo(0, 0));

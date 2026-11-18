@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useHidratado } from '../recorrido/useHidratado';
+import { useAlmacenApi } from '@/store/ProveedorAlmacen';
 import { CLASES_BOTON_CONTORNO, CLASES_BOTON_PRINCIPAL } from './clases';
 import { ENLACES_SECCIONES } from './enlaces';
 import { Logotipo } from './Logotipo';
@@ -22,6 +24,8 @@ const BANDA = '-35% 0px -60% 0px';
  */
 export function Cabecera() {
   const [abierto, setAbierto] = useState(false);
+  const { abrirRecorrido } = useAlmacenApi().getState();
+  const hidratado = useHidratado();
   const boton = useRef<HTMLButtonElement>(null);
   const enPortada = usePathname() === '/';
   const claseComenzar = enPortada ? CLASES_BOTON_PRINCIPAL : CLASES_BOTON_CONTORNO;
@@ -89,6 +93,16 @@ export function Cabecera() {
               </Link>
             </li>
           ))}
+          <li>
+            <button
+              type="button"
+              data-boton-guia
+              onClick={abrirRecorrido}
+              className={`${CLASES_ENLACE} cursor-pointer ${hidratado ? '' : 'invisible'}`}
+            >
+              Guía
+            </button>
+          </li>
           <li className="sm:hidden">
             <Link
               href="/#ley"
